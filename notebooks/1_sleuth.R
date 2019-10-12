@@ -58,10 +58,13 @@ write.table(sh705_table, file = "../kallisto_sleuth/sh705.csv", sep=",",col.name
 # add Ensembl gene to transcript mappings
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
                          dataset = "hsapiens_gene_ensembl",
-                         host = 'ensembl.org')
-t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", "ensembl_gene_id",
-                                     "external_gene_name"), mart = mart)
-t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
-                     ens_gene = ensembl_gene_id, ext_gene = external_gene_name)
+                         host = "ensembl.org")
+
+t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", 
+                                     "ensembl_gene_id",
+                                     "external_gene_name",
+                                     "ensembl_peptide_id",
+                                     "hgnc_symbol"
+                                     ), mart = mart)
 
 write.table(t2g, file = "../kallisto_sleuth/ensembl_t2g.csv", sep=",",col.names=TRUE, row.names=TRUE)
