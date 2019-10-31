@@ -57,6 +57,7 @@ write.table(sh705_table, file = "../kallisto_sleuth/sh705.csv", sep=",",col.name
 
 # add Ensembl gene to transcript mappings
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
+                         host="feb2014.archive.ensembl.org",
                          dataset = "hsapiens_gene_ensembl",
                          host = "ensembl.org")
 
