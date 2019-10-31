@@ -12,7 +12,7 @@ To rename the files after downloading, run `rename.sh`.
 
 We used [kallisto](https://github.com/pachterlab/kallisto) for transcript expression quantification.
 
-Hg38 indices for kallisto pseudoalignment were downloaded from [here](https://github.com/pachterlab/kallisto-transcriptome-indices/releases). We use the **Ensembl transcriptomes v96** release for *Homo sapiens*.
+Hg37 indices for kallisto pseudoalignment were downloaded from [here](ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh37.75.cdna.all.fa.gz). We use the **Ensembl transcriptomes v96** release for *Homo sapiens*.
 
 To quantify transcript expression, run `kallisto_quant.sh`, which will output estimates to `/data/raw/kallisto_quant/`. 
 

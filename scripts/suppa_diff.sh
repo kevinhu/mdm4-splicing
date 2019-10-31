@@ -13,49 +13,49 @@ SPLICE_TYPES=("A3" "A5" "AF" "AL" "MX" "RI" "SE")
 
 for s in ${SPLICE_TYPES[@]}; do
 
-	suppa.py diffSplice --method empirical \
+	python3 ../SUPPA-master/suppa.py diffSplice --method empirical \
 		--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
 		--psi "${PSI_PATH}/${s}_RPL22_oe_c.psi" "${PSI_PATH}/${s}_RPL22_oe_t.psi" \
 		--tpm "${TPM_PATH}/RPL22_oe_c.txt" "${TPM_PATH}/RPL22_oe_t.txt" \
-		--alpha 0.05 \
 		--lower-bound 0 \
+		--tpm-threshold 1 \
 		--tpm-threshold 0 \
-		--nan-threshold 0 \
 		--area 1000 \
+		--lower-bound 0.05 \
 		-o "${DIFF_PATH}/${s}_RPL22_oe"
 
-	suppa.py diffSplice --method empirical \
-		--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
-		--psi "${PSI_PATH}/${s}_RPL22L1_oe_c.psi" "${PSI_PATH}/${s}_RPL22L1_oe_t.psi" \
-		--tpm "${TPM_PATH}/RPL22L1_oe_c.txt" "${TPM_PATH}/RPL22L1_oe_t.txt" \
-		--alpha 0.05 \
-		--lower-bound 0 \
-		--tpm-threshold 0 \
-		--nan-threshold 0 \
-		--area 1000 \
-		-o "${DIFF_PATH}/${s}_RPL22L1_oe"
+	# suppa.py diffSplice --method empirical \
+	# 	--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
+	# 	--psi "${PSI_PATH}/${s}_RPL22L1_oe_c.psi" "${PSI_PATH}/${s}_RPL22L1_oe_t.psi" \
+	# 	--tpm "${TPM_PATH}/RPL22L1_oe_c.txt" "${TPM_PATH}/RPL22L1_oe_t.txt" \
+	# 	--alpha 0.05 \
+	# 	--lower-bound 0 \
+	# 	--tpm-threshold 0 \
+	# 	--nan-threshold 0 \
+	# 	--area 1000 \
+	# 	-o "${DIFF_PATH}/${s}_RPL22L1_oe"
 
-	suppa.py diffSplice --method empirical \
-		--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
-		--psi "${PSI_PATH}/${s}_shluc.psi" "${PSI_PATH}/${s}_sh704.psi" \
-		--tpm "${TPM_PATH}/shluc.txt" "${TPM_PATH}/sh704.txt" \
-		--alpha 0.05 \
-		--lower-bound 0 \
-		--tpm-threshold 0 \
-		--nan-threshold 0 \
-		--area 1000 \
-		-o "${DIFF_PATH}/${s}_sh704"
+	# suppa.py diffSplice --method empirical \
+	# 	--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
+	# 	--psi "${PSI_PATH}/${s}_shluc.psi" "${PSI_PATH}/${s}_sh704.psi" \
+	# 	--tpm "${TPM_PATH}/shluc.txt" "${TPM_PATH}/sh704.txt" \
+	# 	--alpha 0.05 \
+	# 	--lower-bound 0 \
+	# 	--tpm-threshold 0 \
+	# 	--nan-threshold 0 \
+	# 	--area 1000 \
+	# 	-o "${DIFF_PATH}/${s}_sh704"
 
-	suppa.py diffSplice --method empirical \
-		--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
-		--psi "${PSI_PATH}/${s}_shluc.psi" "${PSI_PATH}/${s}_sh705.psi" \
-		--tpm "${TPM_PATH}/shluc.txt" "${TPM_PATH}/sh705.txt" \
-		--alpha 0.05 \
-		--lower-bound 0 \
-		--tpm-threshold 0 \
-		--nan-threshold 0 \
-		--area 1000 \
-		-o "${DIFF_PATH}/${s}_sh705"
+	# suppa.py diffSplice --method empirical \
+	# 	--input "${INDEX_PATH}/suppa_index_ioe_${s}_strict.ioe" \
+	# 	--psi "${PSI_PATH}/${s}_shluc.psi" "${PSI_PATH}/${s}_sh705.psi" \
+	# 	--tpm "${TPM_PATH}/shluc.txt" "${TPM_PATH}/sh705.txt" \
+	# 	--alpha 0.05 \
+	# 	--lower-bound 0 \
+	# 	--tpm-threshold 0 \
+	# 	--nan-threshold 0 \
+	# 	--area 1000 \
+	# 	-o "${DIFF_PATH}/${s}_sh705"
 
 done
 
