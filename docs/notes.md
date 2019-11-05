@@ -22,12 +22,5 @@ We used [Sleuth](https://github.com/pachterlab/sleuth) for differential expressi
 
 ## Splice quantification
 
-### SUPPA2
+### rMATS
 
-We used [SUPPA2](https://github.com/comprna/SUPPA) for splicing quantification and differential analysis. 
-
-To build the indices for SUPPA2, we used the same GTF files provded by kallisto (see `suppa_index.sh`). 
-
-Next, we quantify exon-level PSIs with `suppa_psi.sh`. 
-
-We then performed differential splicing tests as described in `suppa_diff.sh`. Because SUPPA2 requires separate files for experimental control and treatment groups, first generate the necessary files with `notebooks/a2_suppa2.ipynb`.
