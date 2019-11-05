@@ -39,6 +39,10 @@ t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
                      ens_gene = ensembl_gene_id, ext_gene = hgnc_symbol)
 t2g <- dplyr::select(t2g, c('target_id', 'ens_gene', 'ext_gene'))
 
+t2g$duplicate_transcript <- duplicated(t2g$target_id)
+
+t2g <- t2g[which(!t2g$duplicate_transcript),]
+
 write.table(t2g, file = "../sleuth_diff/ensembl_t2g.csv", sep=",",col.names=TRUE, row.names=TRUE)
 
 # import Sleuth objects
@@ -48,16 +52,19 @@ rpl22_oe_so <- sleuth_prep(rpl22_oe_setup,
                            target_mapping = t2g,
                            aggregation_column = 'ens_gene'
                            )
+
 rpl22l1_oe_so <- sleuth_prep(rpl22l1_oe_setup, 
                              extra_bootstrap_summary = TRUE, 
                              read_bootstrap_tpm=TRUE,
                              target_mapping = t2g,
                              aggregation_column = 'ens_gene')
+
 sh704_so <- sleuth_prep(sh704_setup, 
                         extra_bootstrap_summary = TRUE, 
                         read_bootstrap_tpm=TRUE,
                         target_mapping = t2g,
                         aggregation_column = 'ens_gene')
+
 sh705_so <- sleuth_prep(sh705_setup, 
                         extra_bootstrap_summary = TRUE, 
                         read_bootstrap_tpm=TRUE,
@@ -67,24 +74,32 @@ sh705_so <- sleuth_prep(sh705_setup,
 # likelihood ratio tests
 rpl22_oe_so <- sleuth_fit(rpl22_oe_so, ~condition, 'full')
 rpl22_oe_so <- sleuth_fit(rpl22_oe_so, ~1, 'reduced')
-rpl22_oe_so <- sleuth_lrt(rpl22_oe_so, 'reduced', 'full')
-rpl22_oe_table <- sleuth_results(rpl22_oe_so, 'reduced:full', 'lrt', show_all = TRUE)
-write.table(rpl22_oe_table, file = "../kallisto_sleuth/rpl22_oe.csv", sep=",",col.names=TRUE, row.names=TRUE)
+rpl22_oe_so <- sleuth_wt(rpl22_oe_so, 'conditionLNCaP_RPL22')
+rpl22_oe_table <- sleuth_results(rpl22_oe_so, 'conditionLNCaP_RPL22', 'wt', show_all = TRUE)
+write.table(rpl22_oe_table, file = "../sleuth_diff/rpl22_oe_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+rpl22_oe_table <- sleuth_results(rpl22_oe_so, 'conditionLNCaP_RPL22', 'wt', show_all = TRUE, pval_aggregate=FALSE)
+write.table(rpl22_oe_table, file = "../sleuth_diff/rpl22_oe_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
 
 rpl22l1_oe_so <- sleuth_fit(rpl22l1_oe_so, ~condition, 'full')
 rpl22l1_oe_so <- sleuth_fit(rpl22l1_oe_so, ~1, 'reduced')
-rpl22l1_oe_so <- sleuth_lrt(rpl22l1_oe_so, 'reduced', 'full')
-rpl22l1_oe_table <- sleuth_results(rpl22l1_oe_so, 'reduced:full', 'lrt', show_all = TRUE)
-write.table(rpl22l1_oe_table, file = "../kallisto_sleuth/rpl22l1_oe.csv", sep=",",col.names=TRUE, row.names=TRUE)
+rpl22l1_oe_so <- sleuth_wt(rpl22l1_oe_so, 'conditionCAL851_RPL22L1')
+rpl22l1_oe_table <- sleuth_results(rpl22l1_oe_so, 'conditionCAL851_RPL22L1', 'wt', show_all = TRUE)
+write.table(rpl22l1_oe_table, file = "../sleuth_diff/rpl22l1_oe_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+rpl22l1_oe_so <- sleuth_results(rpl22l1_oe_so, 'conditionCAL851_RPL22L1', 'wt', show_all = TRUE, pval_aggregate=FALSE)
+write.table(rpl22l1_oe_so, file = "../sleuth_diff/rpl22l1_oe_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
 
 sh704_so <- sleuth_fit(sh704_so, ~condition, 'full')
 sh704_so <- sleuth_fit(sh704_so, ~1, 'reduced')
-sh704_so <- sleuth_lrt(sh704_so, 'reduced', 'full')
-sh704_table <- sleuth_results(sh704_so, 'reduced:full', 'lrt', show_all = TRUE)
-write.table(sh704_table, file = "../kallisto_sleuth/sh704.csv", sep=",",col.names=TRUE, row.names=TRUE)
+sh704_so <- sleuth_wt(sh704_so, 'conditionLNCaP_shLuc')
+sh704_table <- sleuth_results(sh704_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE)
+write.table(sh704_table, file = "../sleuth_diff/sh704_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+sh704_table <- sleuth_results(sh704_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE, pval_aggregate=FALSE)
+write.table(sh704_table, file = "../sleuth_diff/sh704_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
 
 sh705_so <- sleuth_fit(sh705_so, ~condition, 'full')
 sh705_so <- sleuth_fit(sh705_so, ~1, 'reduced')
-sh705_so <- sleuth_lrt(sh705_so, 'reduced', 'full')
-sh705_table <- sleuth_results(sh705_so, 'reduced:full', 'lrt', show_all = TRUE)
-write.table(sh705_table, file = "../kallisto_sleuth/sh705.csv", sep=",",col.names=TRUE, row.names=TRUE)
+sh705_so <- sleuth_wt(sh705_so, 'conditionLNCaP_shLuc')
+sh705_table <- sleuth_results(sh705_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE)
+write.table(sh705_table, file = "../kallisto_sleuth/sh705_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+sh705_table <- sleuth_results(sh705_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE, pval_aggregate=FALSE)
+write.table(sh705_table, file = "../sleuth_diff/sh705_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
