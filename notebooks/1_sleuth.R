@@ -32,12 +32,13 @@ mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
 t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id", 
                                      "ensembl_gene_id",
                                      "ensembl_peptide_id",
-                                     "hgnc_symbol"
+                                     "hgnc_symbol",
+                                     "entrezgene"
 ), mart = mart)
 
 t2g <- dplyr::rename(t2g, target_id = ensembl_transcript_id,
-                     ens_gene = ensembl_gene_id, ext_gene = hgnc_symbol)
-t2g <- dplyr::select(t2g, c('target_id', 'ens_gene', 'ext_gene'))
+                     ens_gene = ensembl_gene_id, hgnc_gene = hgnc_symbol, entrez_gene = entrezgene)
+t2g <- dplyr::select(t2g, c('target_id', 'ens_gene', 'hgnc_gene', 'entrez_gene'))
 
 t2g$duplicate_transcript <- duplicated(t2g$target_id)
 
@@ -50,26 +51,26 @@ rpl22_oe_so <- sleuth_prep(rpl22_oe_setup,
                            extra_bootstrap_summary = TRUE, 
                            read_bootstrap_tpm=TRUE,
                            target_mapping = t2g,
-                           aggregation_column = 'ens_gene'
+                           aggregation_column = 'entrez_gene'
                            )
 
 rpl22l1_oe_so <- sleuth_prep(rpl22l1_oe_setup, 
                              extra_bootstrap_summary = TRUE, 
                              read_bootstrap_tpm=TRUE,
                              target_mapping = t2g,
-                             aggregation_column = 'ens_gene')
+                             aggregation_column = 'entrez_gene')
 
 sh704_so <- sleuth_prep(sh704_setup, 
                         extra_bootstrap_summary = TRUE, 
                         read_bootstrap_tpm=TRUE,
                         target_mapping = t2g,
-                        aggregation_column = 'ens_gene')
+                        aggregation_column = 'entrez_gene')
 
 sh705_so <- sleuth_prep(sh705_setup, 
                         extra_bootstrap_summary = TRUE, 
                         read_bootstrap_tpm=TRUE,
                         target_mapping = t2g,
-                        aggregation_column = 'ens_gene')
+                        aggregation_column = 'entrez_gene')
 
 # likelihood ratio tests
 rpl22_oe_so <- sleuth_fit(rpl22_oe_so, ~condition, 'full')
@@ -100,6 +101,6 @@ sh705_so <- sleuth_fit(sh705_so, ~condition, 'full')
 sh705_so <- sleuth_fit(sh705_so, ~1, 'reduced')
 sh705_so <- sleuth_wt(sh705_so, 'conditionLNCaP_shLuc')
 sh705_table <- sleuth_results(sh705_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE)
-write.table(sh705_table, file = "../kallisto_sleuth/sh705_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+write.table(sh705_table, file = "../sleuth_diff/sh705_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
 sh705_table <- sleuth_results(sh705_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE, pval_aggregate=FALSE)
 write.table(sh705_table, file = "../sleuth_diff/sh705_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
