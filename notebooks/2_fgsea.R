@@ -32,33 +32,34 @@ rpl22l1_oe <- drop_entrez_duplicates(rpl22l1_oe)
 sh704 <- drop_entrez_duplicates(sh704)
 sh705 <- drop_entrez_duplicates(sh705)
 
-ranks <- setNames(rpl22l1_oe$signed_pval, rpl22l1_oe$target_id)
+rank_sets = list(rpl22_oe,rpl22l1_oe,sh704,sh705)
 
-fgseaRes <- fgseaMultilevel(pathways = pathways.go, 
-                            stats = ranks,
-                            minSize=15,
-                            maxSize=500)
+plot_fgsea <- function(rank_set, results_file){
 
-topPathwaysUp <- fgseaRes[ES > 0][head(order(pval), n=10), pathway]
-topPathwaysDown <- fgseaRes[ES < 0][head(order(pval), n=10), pathway]
-topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
+  ranks <- setNames(rank_set$signed_pval, rank_set$target_id)
+  fgseaRes <- fgseaMultilevel(pathways = pathways.go, 
+                              stats = ranks,
+                              minSize=15,
+                              maxSize=500)
+  
+  write.table(fgseaRes, file = paste("../../../plots/",results_file,sep=""), sep=",",col.names=TRUE, row.names=TRUE)
+}
 
-plotGseaTable(all_pathways[topPathways], ranks, fgseaRes, 
-              gseaParam = 0.5)
+#topPathwaysUp <- fgseaRes[ES > 0][head(order(pval), n=10), pathway]
+#topPathwaysDown <- fgseaRes[ES < 0][head(order(pval), n=10), pathway]
+#topPathways <- c(topPathwaysUp, rev(topPathwaysDown))
+#plotGseaTable(all_pathways[topPathways], ranks, fgseaRes, gseaParam = 0.5)
 
 # plot fgsea results
 plot_fgsea <- function(rank_set, gene_set, title, plot_file){
   ranks <- setNames(rank_set$signed_pval, rank_set$target_id)
-  p <- plotEnrichment(all_pathways[[gene_set]],
-                 ranks) + labs(title=title,
-                               ticksSize=0.01
-                               )
+  p <- plotEnrichment(all_pathways[[gene_set]], ranks) + labs(title=title, ticksSize=0.01)
+  
   pdf(paste("../../../plots/",plot_file,sep=""),width=3.2,height=2.5,paper='special')
   print(p)
   dev.off()
 }
 
-rank_sets = list(rpl22_oe,rpl22l1_oe,sh704,sh705)
 rank_set_names = list("rpl22_oe","rpl22l1_oe","sh704","sh705")
 gene_sets = list("HALLMARK_P53_PATHWAY",
               "HALLMARK_G2M_CHECKPOINT",
