@@ -1,6 +1,6 @@
 # MDM4-splicing
 
-Code, figures, and prior literature for *Modulation of MDM4 splicing by the RPL22-RPL22L1 paralog lethality circuit*.
+Code, figures, and prior literature for [title].
 
 ## Overview
 
