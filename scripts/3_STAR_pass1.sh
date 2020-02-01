@@ -17,8 +17,12 @@ genomeDir=/broad/hptmp/khu/STAR_b37
 
 mkdir ${outputDir}/${sample_id}/
 
+echo ${fastqDir}/${sample_id}_R1.fq.gz
+echo ${fastqDir}/${sample_id}_R2.fq.gz
+
 STAR --runMode alignReads \
     --genomeDir $genomeDir \
+    --readFilesCommand zcat \
     --readFilesIn ${fastqDir}/${sample_id}_R1.fq.gz ${fastqDir}/${sample_id}_R2.fq.gz \
     --outFileNamePrefix ${outputDir}/${sample_id}/ \
     --outSAMtype BAM SortedByCoordinate \
