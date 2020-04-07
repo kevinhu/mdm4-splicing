@@ -23,6 +23,8 @@ rpl22_oe_setup <- experiment_setup[c(1,2,3,4,5,6),]
 rpl22l1_oe_setup <- experiment_setup[c(7,8,9,10,11,12),]
 sh704_setup <- experiment_setup[c(13,14,15,16,17,18),]
 sh705_setup <- experiment_setup[c(13,14,15,19,20,21),]
+rpl22_1a1_setup <- experiment_setup[c(22,23,24,25,26,27),]
+rpl22_4a1_setup <- experiment_setup[c(22,23,24,28,29,30),]
 
 # add Ensembl gene to transcript mappings
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
@@ -72,6 +74,18 @@ sh705_so <- sleuth_prep(sh705_setup,
                         target_mapping = t2g,
                         aggregation_column = 'entrez_gene')
 
+rpl22_1a1_so <- sleuth_prep(rpl22_1a1_setup, 
+                        extra_bootstrap_summary = TRUE, 
+                        read_bootstrap_tpm=TRUE,
+                        target_mapping = t2g,
+                        aggregation_column = 'entrez_gene')
+
+rpl22_4a1_so <- sleuth_prep(rpl22_4a1_setup, 
+                            extra_bootstrap_summary = TRUE, 
+                            read_bootstrap_tpm=TRUE,
+                            target_mapping = t2g,
+                            aggregation_column = 'entrez_gene')
+
 # likelihood ratio tests
 rpl22_oe_so <- sleuth_fit(rpl22_oe_so, ~condition, 'full')
 rpl22_oe_so <- sleuth_fit(rpl22_oe_so, ~1, 'reduced')
@@ -104,3 +118,19 @@ sh705_table <- sleuth_results(sh705_so, 'conditionLNCaP_shLuc', 'wt', show_all =
 write.table(sh705_table, file = "../sleuth_diff/sh705_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
 sh705_table <- sleuth_results(sh705_so, 'conditionLNCaP_shLuc', 'wt', show_all = TRUE, pval_aggregate=FALSE)
 write.table(sh705_table, file = "../sleuth_diff/sh705_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
+
+rpl22_1a1_so <- sleuth_fit(rpl22_1a1_so, ~condition, 'full')
+rpl22_1a1_so <- sleuth_fit(rpl22_1a1_so, ~1, 'reduced')
+rpl22_1a1_so <- sleuth_wt(rpl22_1a1_so, 'conditionNCIH2110_RPL22-1A1')
+rpl22_1a1_table <- sleuth_results(rpl22_1a1_so, 'conditionNCIH2110_RPL22-1A1', 'wt', show_all = TRUE)
+write.table(rpl22_1a1_table, file = "../sleuth_diff/rpl22_1a1_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+rpl22_1a1_table <- sleuth_results(rpl22_1a1_so, 'conditionNCIH2110_RPL22-1A1', 'wt', show_all = TRUE, pval_aggregate=FALSE)
+write.table(rpl22_1a1_table, file = "../sleuth_diff/rpl22_1a1_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
+
+rpl22_4a1_so <- sleuth_fit(rpl22_4a1_so, ~condition, 'full')
+rpl22_4a1_so <- sleuth_fit(rpl22_4a1_so, ~1, 'reduced')
+rpl22_4a1_so <- sleuth_wt(rpl22_4a1_so, 'conditionNCIH2110_RPL22-4A1')
+rpl22_4a1_table <- sleuth_results(rpl22_4a1_so, 'conditionNCIH2110_RPL22-4A1', 'wt', show_all = TRUE)
+write.table(rpl22_4a1_table, file = "../sleuth_diff/rpl22_4a1_genes.csv", sep=",",col.names=TRUE, row.names=TRUE)
+rpl22_4a1_table <- sleuth_results(rpl22_4a1_so, 'conditionNCIH2110_RPL22-4A1', 'wt', show_all = TRUE, pval_aggregate=FALSE)
+write.table(rpl22_4a1_table, file = "../sleuth_diff/rpl22_4a1_transcripts.csv", sep=",",col.names=TRUE, row.names=TRUE)
