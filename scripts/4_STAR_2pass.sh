@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#for i in {1..30} ; do qsub -l h_vmem=64G -l h_rt=24:00:00 ./4_STAR_2pass.sh $i ; done
+#for i in {1..30} ; do qsub -l h_vmem=48G -l h_rt=24:00:00 ./4_STAR_2pass.sh $i ; done
 
 source /broad/software/scripts/useuse
 
