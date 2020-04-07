@@ -1,0 +1,6 @@
+LNCaP_shLuc_1   0
+LNCaP_shLuc_2   0
+LNCaP_shLuc_3   0
+LNCaP_sh704_1   1
+LNCaP_sh704_2   1
+LNCaP_sh704_3   1

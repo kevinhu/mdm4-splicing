@@ -1,0 +1,1 @@
+data/STAR_pass1/LNCaP_RPL22_1/Aligned.sortedByCoord.out.bam,data/STAR_pass1/LNCaP_RPL22_2/Aligned.sortedByCoord.out.bam,data/STAR_pass1/LNCaP_RPL22_3/Aligned.sortedByCoord.out.bam
