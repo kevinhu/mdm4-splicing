@@ -1,1 +1,1 @@
-data/STAR_2pass/LNCaP_GFP_1/Aligned.sortedByCoord.out.bam,data/STAR_2pass/LNCaP_GFP_2/Aligned.sortedByCoord.out.bam,data/STAR_2pass/LNCaP_GFP_3/Aligned.sortedByCoord.out.bam
+data/raw/STAR_2pass/LNCaP_GFP_1.bam,data/raw/STAR_2pass/LNCaP_GFP_2.bam,data/raw/STAR_2pass/LNCaP_GFP_3.bam

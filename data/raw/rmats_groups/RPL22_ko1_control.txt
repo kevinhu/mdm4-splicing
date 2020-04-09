@@ -1,1 +1,0 @@
-data/STAR_2pass/NCIH2110_RPL22-1A1_1/Aligned.sortedByCoord.out.bam,data/STAR_2pass/NCIH2110_RPL22-1A1_2/Aligned.sortedByCoord.out.bam,data/STAR_2pass/NCIH2110_RPL22-1A1_3/Aligned.sortedByCoord.out.bam
