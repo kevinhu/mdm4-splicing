@@ -24,7 +24,7 @@ docker run -v $DATA_PATH:/data rmats:turbo01\
 	--b1 /data/raw/rmats_groups/shluc_control.txt\
 	--b2 /data/raw/rmats_groups/sh704_treatment.txt\
 	--gtf /data/raw/Homo_sapiens.GRCh37.75.gtf\
-	--od /data/raw/rmats_output/sh704\
+	--od /data/raw/rmats_output/RPL22L1_kd1\
 	-t paired\
 	--nthread 6\
 	--tstat 6
@@ -33,7 +33,7 @@ docker run -v $DATA_PATH:/data rmats:turbo01\
 	--b1 /data/raw/rmats_groups/shluc_control.txt\
 	--b2 /data/raw/rmats_groups/sh705_treatment.txt\
 	--gtf /data/raw/Homo_sapiens.GRCh37.75.gtf\
-	--od /data/raw/rmats_output/sh705\
+	--od /data/raw/rmats_output/RPL22L1_kd2\
 	-t paired\
 	--nthread 6\
 	--tstat 6

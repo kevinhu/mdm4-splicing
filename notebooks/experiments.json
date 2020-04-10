@@ -1,0 +1,58 @@
+{
+    "experiments": {
+        "rpl22_oe": [
+            ["LNCaP_GFP_1", "LNCaP_GFP_2", "LNCaP_GFP_3"],
+            ["LNCaP_RPL22_1", "LNCaP_RPL22_2", "LNCaP_RPL22_3"]
+        ],
+        "rpl22l1_oe": [
+            ["CAL851_GFP_1", "CAL851_GFP_2", "CAL851_GFP_3"],
+            ["CAL851_RPL22L1_1", "CAL851_RPL22L1_2", "CAL851_RPL22L1_3"]
+        ],
+        "rpl22l1_kd1": [
+            ["LNCaP_shLuc_1", "LNCaP_shLuc_2", "LNCaP_shLuc_3"],
+            ["LNCaP_sh704_1", "LNCaP_sh704_2", "LNCaP_sh704_3"]
+        ],
+        "rpl22l1_kd2": [
+            ["LNCaP_shLuc_1", "LNCaP_shLuc_2", "LNCaP_shLuc_3"],
+            ["LNCaP_sh705_1", "LNCaP_sh705_2", "LNCaP_sh705_3"]
+        ],
+        "rpl22_ko1": [
+            ["NCIH2110_GFP_1", "NCIH2110_GFP_2", "NCIH2110_GFP_3"],
+            [
+                "NCIH2110_RPL22-1A1_1",
+                "NCIH2110_RPL22-1A1_2",
+                "NCIH2110_RPL22-1A1_3"
+            ]
+        ],
+        "rpl22_ko2": [
+            ["NCIH2110_GFP_1", "NCIH2110_GFP_2", "NCIH2110_GFP_3"],
+            [
+                "NCIH2110_RPL22-4A1_1",
+                "NCIH2110_RPL22-4A1_2",
+                "NCIH2110_RPL22-4A1_3"
+            ]
+        ]
+    },
+    "experiment_ids": [
+        "rpl22_oe",
+        "rpl22l1_oe",
+        "rpl22l1_kd1",
+        "rpl22l1_kd2",
+        "rpl22_ko1",
+        "rpl22_ko2"
+    ],
+    "display_names": [
+        "+RPL22",
+        "+RPL22L1",
+        "RPL22L1_kd1",
+        "RPL22L1_kd2",
+        "RPL22_ko1",
+        "RPL22_ko2"
+    ],
+    "display_groups": [
+        ["+GFP", "+RPL22"],
+        ["+GFP", "+RPL22L1"],
+        ["luc_kd", "RPL22L1_kd1", "RPL22L1_kd2"],
+        ["GFP_ko", "RPL22_ko1", "RPL22_ko2"]
+    ]
+}
