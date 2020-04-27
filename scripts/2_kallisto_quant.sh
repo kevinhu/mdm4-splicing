@@ -101,3 +101,33 @@ kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/NCIH2110_RPL22-4A
 
 kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/NCIH2110_RPL22-4A1_3" \
 	"${FASTQ_PATH}/NCIH2110_RPL22-4A1_3_R1.fq.gz" "${FASTQ_PATH}/NCIH2110_RPL22-4A1_3_R2.fq.gz"
+
+# GFP knockout in ZR751
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_GFP_1" \
+	"${FASTQ_PATH}/ZR751_GFP_1_R1.fq.gz" "${FASTQ_PATH}/ZR751_GFP_1_R2.fq.gz"
+
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_GFP_2" \
+	"${FASTQ_PATH}/ZR751_GFP_2_R1.fq.gz" "${FASTQ_PATH}/ZR751_GFP_2_R2.fq.gz"
+
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_GFP_3" \
+	"${FASTQ_PATH}/ZR751_GFP_3_R1.fq.gz" "${FASTQ_PATH}/ZR751_GFP_3_R2.fq.gz"
+
+# RPL22 1A1 knockout in ZR751
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_RPL22-1A1_1" \
+	"${FASTQ_PATH}/ZR751_RPL22-1A1_1_R1.fq.gz" "${FASTQ_PATH}/ZR751_RPL22-1A1_1_R2.fq.gz"
+
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_RPL22-1A1_2" \
+	"${FASTQ_PATH}/ZR751_RPL22-1A1_2_R1.fq.gz" "${FASTQ_PATH}/ZR751_RPL22-1A1_2_R2.fq.gz"
+
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_RPL22-1A1_3" \
+	"${FASTQ_PATH}/ZR751_RPL22-1A1_3_R1.fq.gz" "${FASTQ_PATH}/ZR751_RPL22-1A1_3_R2.fq.gz"
+
+# RPL22 4A1 knockout in ZR751
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_RPL22-4A1_1" \
+	"${FASTQ_PATH}/ZR751_RPL22-4A1_1_R1.fq.gz" "${FASTQ_PATH}/ZR751_RPL22-4A1_1_R2.fq.gz"
+
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_RPL22-4A1_2" \
+	"${FASTQ_PATH}/ZR751_RPL22-4A1_2_R1.fq.gz" "${FASTQ_PATH}/ZR751_RPL22-4A1_2_R2.fq.gz"
+
+kallisto quant -i $INDEX --bias -b 100 -t 6 -o "${OUTPUT_PATH}/ZR751_RPL22-4A1_3" \
+	"${FASTQ_PATH}/ZR751_RPL22-4A1_3_R1.fq.gz" "${FASTQ_PATH}/ZR751_RPL22-4A1_3_R2.fq.gz"
