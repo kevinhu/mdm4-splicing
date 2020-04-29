@@ -1,1 +1,1 @@
-data/raw/STAR_2pass/LNCaP_sh705_1.bam,data/raw/STAR_2pass/LNCaP_sh705_2.bam,data/raw/STAR_2pass/LNCaP_sh705_3.bam
+data/raw/STAR_BAMs/LNCaP_sh705_1.bam,data/raw/STAR_BAMs/LNCaP_sh705_2.bam,data/raw/STAR_BAMs/LNCaP_sh705_3.bam

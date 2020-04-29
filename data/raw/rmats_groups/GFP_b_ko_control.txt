@@ -1,1 +1,1 @@
-data/raw/STAR_2pass/ZR751_GFP_1.bam,data/raw/STAR_2pass/ZR751_GFP_2.bam,data/raw/STAR_2pass/ZR751_GFP_3.bam
+data/raw/STAR_BAMs/ZR751_GFP_1.bam,data/raw/STAR_BAMs/ZR751_GFP_2.bam,data/raw/STAR_BAMs/ZR751_GFP_3.bam

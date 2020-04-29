@@ -1,1 +1,1 @@
-data/raw/STAR_2pass/NCIH2110_RPL22-1A1_1.bam,data/raw/STAR_2pass/NCIH2110_RPL22-1A1_2.bam,data/raw/STAR_2pass/NCIH2110_RPL22-1A1_3.bam
+data/raw/STAR_BAMs/NCIH2110_RPL22-1A1_1.bam,data/raw/STAR_BAMs/NCIH2110_RPL22-1A1_2.bam,data/raw/STAR_BAMs/NCIH2110_RPL22-1A1_3.bam

@@ -1,1 +1,1 @@
-data/raw/STAR_2pass/LNCaP_shLuc_1.bam,data/raw/STAR_2pass/LNCaP_shLuc_2.bam,data/raw/STAR_2pass/LNCaP_shLuc_3.bam
+data/raw/STAR_BAMs/LNCaP_shLuc_1.bam,data/raw/STAR_BAMs/LNCaP_shLuc_2.bam,data/raw/STAR_BAMs/LNCaP_shLuc_3.bam
