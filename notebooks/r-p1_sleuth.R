@@ -37,15 +37,16 @@ t2g <- biomaRt::getBM(attributes = c("ensembl_transcript_id",
                                      "ensembl_gene_id",
                                      "ensembl_peptide_id",
                                      "hgnc_symbol",
-                                     "entrezgene"
-), mart = mart)
+                                     "entrezgene",
+                                     "transcript_biotype"), 
+                      mart = mart)
 
 t2g <- dplyr::rename(t2g, 
                      target_id = ensembl_transcript_id,
                      ens_gene = ensembl_gene_id, 
                      hgnc_gene = hgnc_symbol, 
                      entrez_gene = entrezgene)
-t2g <- dplyr::select(t2g, c('target_id', 'ens_gene', 'hgnc_gene', 'entrez_gene'))
+t2g <- dplyr::select(t2g, c('target_id', 'ens_gene', 'hgnc_gene', 'entrez_gene', 'transcript_biotype'))
 
 t2g$duplicate_transcript <- duplicated(t2g$target_id)
 
@@ -97,4 +98,4 @@ run_sleuth(sh705_setup,'conditionLNCaP_shLuc','rpl22l1_kd2')
 run_sleuth(rpl22_a_ko1_setup,'conditionNCIH2110_RPL22-1A1','rpl22_a_ko1')
 run_sleuth(rpl22_a_ko2_setup,'conditionNCIH2110_RPL22-4A1','rpl22_a_ko2')
 run_sleuth(rpl22_b_ko1_setup,'conditionZR751_RPL22-1A1','rpl22_b_ko1')
-run_sleuth(rpl22_b_ko2_setup,'conditionZR751_RPL22-4A1','rpl22_b_ko1')
+run_sleuth(rpl22_b_ko2_setup,'conditionZR751_RPL22-4A1','rpl22_b_ko2')
