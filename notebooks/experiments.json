@@ -70,10 +70,17 @@
         "RPL22_b_ko2"
     ],
     "display_groups": [
-        ["+GFP", "+RPL22"],
-        ["+GFP", "+RPL22L1"],
-        ["luc_kd", "RPL22L1_kd1", "RPL22L1_kd2"],
-        ["GFP_a_ko", "RPL22_a_ko1", "RPL22_a_ko2"],
-        ["GFP_b_ko", "RPL22_b_ko1", "RPL22_b_ko2"]
+        ["$GFP^{OE}$", "$RPL22^{OE}$"],
+        ["$GFP^{OE}$", "$RPL22L1^{OE}$"],
+        ["$LUC^{KD}$", "$RPL22L1^{KD1}$", "$RPL22L1^{KD2}$"],
+        ["$GFP^{KO}$", "$RPL22^{KO1}$", "$RPL22^{KO2}$"],
+        ["$GFP^{KO}$", "$RPL22^{KO1}$", "$RPL22^{KO2}$"]
+    ],
+    "contexts": [
+        "LNCaP",
+        "CAL851",
+        "LNCaP",
+        "NCI-H2110",
+        "ZR75-1"
     ]
 }

@@ -35,6 +35,7 @@ with open("experiments.json", "r") as f:
     experiment_ids = exp["experiment_ids"]
     display_names = exp["display_names"]
     display_groups = exp["display_groups"]
+    contexts = exp["contexts"]
 
 kallisto_sleuth_path = "../data/processed/kallisto_sleuth_merge/"
 
@@ -102,7 +103,11 @@ def as_si(x, ndp):
     return x_si
 
 
-def three_bars(annotation_id, experiment_id_1, experiment_id_2, diff_results_1, diff_results_2, ax=None, xlabel=None, ylabel=None):
+def three_bars(annotation_id, 
+               experiment_id_1, 
+               experiment_id_2, 
+               diff_results_1, 
+               diff_results_2, ax=None, xlabel=None, ylabel=None):
 
     if ax is None:
         ax = plt.subplot(111)
@@ -334,6 +339,8 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
     plt.ylim(-0.01)
 
     y_max = max(list(control_values)+list(treatment_values))
+    
+    treatment_max = max(treatment_values)
 
     qval = select_abundance["qval"]
 
@@ -346,12 +353,11 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
         else:
             compare_text = "n.s"
 
-        ax.text(0.5,
-                0.9,
+        ax.text(0.75,
+                treatment_max*1.15,
                 compare_text,
                 ha="center",
-                fontsize=12,
-                transform=ax.transAxes
+                fontsize=12
                 )
 
     return ax, y_max
@@ -359,15 +365,21 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
 
 def all_bars(annotation_id, annotation_type, legend=False):
 
-    plt.figure(figsize=(5, 2))
+    plt.figure(figsize=(4, 2.5))
 
     axes_widths = [2, 2, 3, 3, 3]
     total_width = sum(axes_widths)
 
     cumulative_widths = [sum(axes_widths[:x]) for x in range(len(axes_widths))]
+    
+    plot_axes_height = 4
+    label_axes_height = 2
 
-    axes = [plt.subplot2grid((1, total_width), (0, cumulative_widths[x]),
-                             colspan=axes_widths[x]) for x in range(len(axes_widths))]
+    axes = [plt.subplot2grid((plot_axes_height+label_axes_height, total_width), (0, cumulative_widths[x]),
+                             colspan=axes_widths[x], rowspan=plot_axes_height) for x in range(len(axes_widths))]
+    
+    exp_label_axes = [plt.subplot2grid((plot_axes_height+label_axes_height, total_width), (plot_axes_height, cumulative_widths[x]),
+                             colspan=axes_widths[x], rowspan=label_axes_height) for x in range(len(axes_widths))]
 
     maxes = []
 
@@ -423,8 +435,17 @@ def all_bars(annotation_id, annotation_type, legend=False):
 
         ax.set_ylim(0)
 
-        ax.set_xticklabels(display_groups[sleuth_idx], rotation=45, ha="right")
+        ax.set_xticklabels(display_groups[sleuth_idx], rotation=45, ha="right", rotation_mode="anchor", size=8)
         ax.set_xlabel("")
+        
+        exp_ax = exp_label_axes[sleuth_idx]
+        exp_ax.patch.set_alpha(0)
+        exp_ax.spines["left"].set_visible(False)
+        exp_ax.spines["top"].set_visible(False)
+        exp_ax.spines["right"].set_visible(False)
+        exp_ax.set_xticks([])
+        exp_ax.set_yticks([])
+        exp_ax.set_xlabel(contexts[sleuth_idx])
 
     for sleuth_idx, sleuth_set in enumerate(sleuth_sets[2:]):
         ax = axes[2+sleuth_idx]
@@ -446,22 +467,31 @@ def all_bars(annotation_id, annotation_type, legend=False):
         ax.set_ylim(0)
 
         ax.set_xticklabels(
-            display_groups[2+sleuth_idx], rotation=45, ha="right")
+            display_groups[2+sleuth_idx], rotation=45, ha="right", rotation_mode="anchor", size=8)
         ax.set_xlabel("")
+        
+        exp_ax = exp_label_axes[2+sleuth_idx]
+        exp_ax.patch.set_alpha(0)
+        exp_ax.spines["left"].set_visible(False)
+        exp_ax.spines["top"].set_visible(False)
+        exp_ax.spines["right"].set_visible(False)
+        exp_ax.set_xticks([])
+        exp_ax.set_yticks([])
+        exp_ax.set_xlabel(contexts[2+sleuth_idx])
 
     if annotation_type == "transcript" or annotation_type == "gene":
-        axes[0].set_ylabel("mRNA expression, log2(TPM+1)")
+        axes[0].set_ylabel("mRNA expression")
 
     elif annotation_type == "splicing":
-        axes[0].set_ylabel("Exon inclusion proportion")
+        axes[0].set_ylabel("PSI")
 
     y_max = max(maxes)
 
     for ax in axes:
         ax.set_ylim(0, y_max*1.25)
 
-    plt.subplots_adjust(wspace=0.25)
-
+    plt.subplots_adjust(wspace=0.25,hspace=1)
+    
     if legend:
 
         legend_background = "#eaeaea"
