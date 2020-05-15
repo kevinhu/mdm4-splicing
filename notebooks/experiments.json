@@ -70,11 +70,11 @@
         "RPL22_b_ko2"
     ],
     "display_groups": [
-        ["$GFP^{OE}$", "$RPL22^{OE}$"],
-        ["$GFP^{OE}$", "$RPL22L1^{OE}$"],
-        ["$LUC^{KD}$", "$RPL22L1^{KD1}$", "$RPL22L1^{KD2}$"],
-        ["$GFP^{KO}$", "$RPL22^{KO1}$", "$RPL22^{KO2}$"],
-        ["$GFP^{KO}$", "$RPL22^{KO1}$", "$RPL22^{KO2}$"]
+        ["GFP_OE", "RPL22_OE"],
+        ["GFP_OE", "RPL22L1_OE"],
+        ["LUC_KD", "RPL22L1_KD1", "RPL22L1_KD2"],
+        ["GFP_KO", "RPL22_KO1", "RPL22_KO2"],
+        ["GFP_KO", "RPL22_KO1", "RPL22_KO2"]
     ],
     "contexts": [
         "LNCaP",
