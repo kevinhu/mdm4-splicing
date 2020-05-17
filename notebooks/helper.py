@@ -23,6 +23,7 @@ plt.rcParams['font.family'] = 'Arial'
 plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams['ps.fonttype'] = 42
 
+plt.rcParams['mathtext.default'] = 'regular'
 
 sys.path.append(os.path.relpath("../../huygens"))
 sys.path.append(os.path.relpath("../../galileo"))
@@ -39,44 +40,76 @@ with open("experiments.json", "r") as f:
 
 kallisto_sleuth_path = "../data/processed/kallisto_sleuth_merge/"
 
-rpl22_oe_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22_oe_genes.h5", key="sleuth_diff")
-rpl22l1_oe_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22l1_oe_genes.h5", key="sleuth_diff")
-rpl22l1_kd1_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22l1_kd1_genes.h5", key="sleuth_diff")
-rpl22l1_kd2_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22l1_kd2_genes.h5", key="sleuth_diff")
-rpl22_a_ko1_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22_a_ko1_genes.h5", key="sleuth_diff")
-rpl22_a_ko2_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22_a_ko2_genes.h5", key="sleuth_diff")
-rpl22_b_ko1_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22_b_ko1_genes.h5", key="sleuth_diff")
-rpl22_b_ko2_genes = pd.read_hdf(kallisto_sleuth_path + "rpl22_b_ko2_genes.h5", key="sleuth_diff")
+rpl22_oe_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_oe_genes.h5", key="sleuth_diff")
+rpl22l1_oe_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22l1_oe_genes.h5", key="sleuth_diff")
+rpl22l1_kd1_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22l1_kd1_genes.h5", key="sleuth_diff")
+rpl22l1_kd2_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22l1_kd2_genes.h5", key="sleuth_diff")
+rpl22_a_ko1_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_a_ko1_genes.h5", key="sleuth_diff")
+rpl22_a_ko2_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_a_ko2_genes.h5", key="sleuth_diff")
+rpl22_b_ko1_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_b_ko1_genes.h5", key="sleuth_diff")
+rpl22_b_ko2_genes = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_b_ko2_genes.h5", key="sleuth_diff")
 
-rpl22_oe_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22_oe_transcripts.h5", key="sleuth_diff")
-rpl22l1_oe_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22l1_oe_transcripts.h5", key="sleuth_diff")
-rpl22l1_kd1_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22l1_kd1_transcripts.h5", key="sleuth_diff")
-rpl22l1_kd2_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22l1_kd2_transcripts.h5", key="sleuth_diff")
-rpl22_a_ko1_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22_a_ko1_transcripts.h5", key="sleuth_diff")
-rpl22_a_ko2_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22_a_ko2_transcripts.h5", key="sleuth_diff")
-rpl22_b_ko1_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22_b_ko1_transcripts.h5", key="sleuth_diff")
-rpl22_b_ko2_transcripts = pd.read_hdf(kallisto_sleuth_path + "rpl22_b_ko2_transcripts.h5",key="sleuth_diff")
+rpl22_oe_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_oe_transcripts.h5", key="sleuth_diff")
+rpl22l1_oe_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22l1_oe_transcripts.h5", key="sleuth_diff")
+rpl22l1_kd1_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22l1_kd1_transcripts.h5", key="sleuth_diff")
+rpl22l1_kd2_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22l1_kd2_transcripts.h5", key="sleuth_diff")
+rpl22_a_ko1_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_a_ko1_transcripts.h5", key="sleuth_diff")
+rpl22_a_ko2_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_a_ko2_transcripts.h5", key="sleuth_diff")
+rpl22_b_ko1_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_b_ko1_transcripts.h5", key="sleuth_diff")
+rpl22_b_ko2_transcripts = pd.read_hdf(
+    kallisto_sleuth_path + "rpl22_b_ko2_transcripts.h5", key="sleuth_diff")
 
 
-rpl22_oe_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22_oe.txt",sep="\t",index_col=0)
-rpl22l1_oe_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22l1_oe.txt",sep="\t",index_col=0)
-rpl22l1_kd1_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22l1_kd1.txt",sep="\t",index_col=0)
-rpl22l1_kd2_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22l1_kd2.txt",sep="\t",index_col=0)
-rpl22_a_ko1_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22_a_ko1.txt",sep="\t",index_col=0)
-rpl22_a_ko2_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22_a_ko2.txt",sep="\t",index_col=0)
-rpl22_b_ko1_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22_b_ko1.txt",sep="\t",index_col=0)
-rpl22_b_ko2_rmats = pd.read_csv("../data/processed/rmats_merge/rpl22_b_ko2.txt",sep="\t",index_col=0)
+rpl22_oe_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22_oe.txt", sep="\t", index_col=0)
+rpl22l1_oe_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22l1_oe.txt", sep="\t", index_col=0)
+rpl22l1_kd1_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22l1_kd1.txt", sep="\t", index_col=0)
+rpl22l1_kd2_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22l1_kd2.txt", sep="\t", index_col=0)
+rpl22_a_ko1_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22_a_ko1.txt", sep="\t", index_col=0)
+rpl22_a_ko2_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22_a_ko2.txt", sep="\t", index_col=0)
+rpl22_b_ko1_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22_b_ko1.txt", sep="\t", index_col=0)
+rpl22_b_ko2_rmats = pd.read_csv(
+    "../data/processed/rmats_merge/rpl22_b_ko2.txt", sep="\t", index_col=0)
 
-rpl22_oe_rmats = rpl22_oe_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22l1_oe_rmats = rpl22l1_oe_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22l1_kd1_rmats = rpl22l1_kd1_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22l1_kd2_rmats = rpl22l1_kd2_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22_a_ko1_rmats = rpl22_a_ko1_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22_a_ko2_rmats = rpl22_a_ko2_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22_b_ko1_rmats = rpl22_b_ko1_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
-rpl22_b_ko2_rmats = rpl22_b_ko2_rmats.rename({"PValue":"pval","FDR":"qval"},axis=1)
+rpl22_oe_rmats = rpl22_oe_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22l1_oe_rmats = rpl22l1_oe_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22l1_kd1_rmats = rpl22l1_kd1_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22l1_kd2_rmats = rpl22l1_kd2_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_a_ko1_rmats = rpl22_a_ko1_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_a_ko2_rmats = rpl22_a_ko2_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_b_ko1_rmats = rpl22_b_ko1_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_b_ko2_rmats = rpl22_b_ko2_rmats.rename(
+    {"PValue": "pval", "FDR": "qval"}, axis=1)
 
-splice_types = ["A3SS","A5SS","MXE","RI","SE"]
+splice_types = ["A3SS", "A5SS", "MXE", "RI", "SE"]
 
 
 def as_si(x, ndp):
@@ -103,10 +136,10 @@ def as_si(x, ndp):
     return x_si
 
 
-def three_bars(annotation_id, 
-               experiment_id_1, 
-               experiment_id_2, 
-               diff_results_1, 
+def three_bars(annotation_id,
+               experiment_id_1,
+               experiment_id_2,
+               diff_results_1,
                diff_results_2, ax=None, xlabel=None, ylabel=None):
 
     if ax is None:
@@ -175,22 +208,22 @@ def three_bars(annotation_id,
     ax.scatter([0.25-width/4, 0.25, 0.25+width/4],
                control_values,
                color="white",
-               linewidth=1,
-               s=32,
+               linewidth=0.5,
+               s=16,
                edgecolor=control_color
                )
     ax.scatter([0.75-width/4, 0.75, 0.75+width/4],
                treatment_1_values,
                color="white",
-               linewidth=1,
-               s=32,
+               linewidth=0.5,
+               s=16,
                edgecolor=treatment_color
                )
     ax.scatter([1.25-width/4, 1.25, 1.25+width/4],
                treatment_2_values,
                color="white",
-               linewidth=1,
-               s=32,
+               linewidth=0.5,
+               s=16,
                edgecolor=treatment_color
                )
 
@@ -311,15 +344,15 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
     ax.scatter([0.25-width/4, 0.25, 0.25+width/4],
                control_values,
                color="white",
-               linewidth=1,
-               s=32,
+               linewidth=0.5,
+               s=16,
                edgecolor=control_color
                )
     ax.scatter([0.75-width/4, 0.75, 0.75+width/4],
                treatment_values,
                color="white",
-               linewidth=1,
-               s=32,
+               linewidth=0.5,
+               s=16,
                edgecolor=treatment_color
                )
 
@@ -339,7 +372,7 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
     plt.ylim(-0.01)
 
     y_max = max(list(control_values)+list(treatment_values))
-    
+
     treatment_max = max(treatment_values)
 
     qval = select_abundance["qval"]
@@ -365,21 +398,21 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
 
 def all_bars(annotation_id, annotation_type, legend=False):
 
-    plt.figure(figsize=(4, 2.5))
+    plt.figure(figsize=(4, 3))
 
     axes_widths = [2, 2, 3, 3, 3]
     total_width = sum(axes_widths)
 
     cumulative_widths = [sum(axes_widths[:x]) for x in range(len(axes_widths))]
-    
+
     plot_axes_height = 4
-    label_axes_height = 2
+    label_axes_height = 3
 
     axes = [plt.subplot2grid((plot_axes_height+label_axes_height, total_width), (0, cumulative_widths[x]),
                              colspan=axes_widths[x], rowspan=plot_axes_height) for x in range(len(axes_widths))]
-    
+
     exp_label_axes = [plt.subplot2grid((plot_axes_height+label_axes_height, total_width), (plot_axes_height, cumulative_widths[x]),
-                             colspan=axes_widths[x], rowspan=label_axes_height) for x in range(len(axes_widths))]
+                                       colspan=axes_widths[x], rowspan=label_axes_height) for x in range(len(axes_widths))]
 
     maxes = []
 
@@ -435,9 +468,10 @@ def all_bars(annotation_id, annotation_type, legend=False):
 
         ax.set_ylim(0)
 
-        ax.set_xticklabels(display_groups[sleuth_idx], rotation=45, ha="right", rotation_mode="anchor", size=8)
+        ax.set_xticklabels(
+            display_groups[sleuth_idx], rotation=90, ha="right", size=8)
         ax.set_xlabel("")
-        
+
         exp_ax = exp_label_axes[sleuth_idx]
         exp_ax.patch.set_alpha(0)
         exp_ax.spines["left"].set_visible(False)
@@ -445,7 +479,7 @@ def all_bars(annotation_id, annotation_type, legend=False):
         exp_ax.spines["right"].set_visible(False)
         exp_ax.set_xticks([])
         exp_ax.set_yticks([])
-        exp_ax.set_xlabel(contexts[sleuth_idx])
+        exp_ax.set_xlabel(contexts[sleuth_idx], fontsize=10)
 
     for sleuth_idx, sleuth_set in enumerate(sleuth_sets[2:]):
         ax = axes[2+sleuth_idx]
@@ -467,9 +501,9 @@ def all_bars(annotation_id, annotation_type, legend=False):
         ax.set_ylim(0)
 
         ax.set_xticklabels(
-            display_groups[2+sleuth_idx], rotation=45, ha="right", rotation_mode="anchor", size=8)
+            display_groups[2+sleuth_idx], rotation=90, ha="right", size=8)
         ax.set_xlabel("")
-        
+
         exp_ax = exp_label_axes[2+sleuth_idx]
         exp_ax.patch.set_alpha(0)
         exp_ax.spines["left"].set_visible(False)
@@ -477,7 +511,7 @@ def all_bars(annotation_id, annotation_type, legend=False):
         exp_ax.spines["right"].set_visible(False)
         exp_ax.set_xticks([])
         exp_ax.set_yticks([])
-        exp_ax.set_xlabel(contexts[2+sleuth_idx])
+        exp_ax.set_xlabel(contexts[2+sleuth_idx], fontsize=10)
 
     if annotation_type == "transcript" or annotation_type == "gene":
         axes[0].set_ylabel("mRNA expression")
@@ -490,8 +524,8 @@ def all_bars(annotation_id, annotation_type, legend=False):
     for ax in axes:
         ax.set_ylim(0, y_max*1.25)
 
-    plt.subplots_adjust(wspace=0.25,hspace=1)
-    
+    plt.subplots_adjust(wspace=1, hspace=2)
+
     if legend:
 
         legend_background = "#eaeaea"
