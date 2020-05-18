@@ -67,7 +67,7 @@ run_fgsea <- function(rank_set, results_file){
   ranks <- setNames(rank_set$signed_pval, rank_set$target_id)
   fgseaRes <- fgseaMultilevel(pathways = all_pathways, 
                               stats = ranks,
-                              minSize=15,
+                              minSize=0,
                               maxSize=500)
   
   fgseaRes$leadingEdge <- vapply(fgseaRes$leadingEdge, paste, collapse = ",", character(1L))

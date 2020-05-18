@@ -60,14 +60,14 @@
         "rpl22_b_ko2"
     ],
     "display_names": [
-        "+RPL22",
-        "+RPL22L1",
-        "RPL22L1_kd1",
-        "RPL22L1_kd2",
-        "RPL22_a_ko1",
-        "RPL22_a_ko2",
-        "RPL22_b_ko1",
-        "RPL22_b_ko2"
+        "LNCaP RPL22_OE",
+        "CAL851 RPL22L1_OE",
+        "LNCaP RPL22L1_KD1",
+        "LNCaP RPL22L1_KD2",
+        "NCI-H2110 RPL22_KO1",
+        "NCI-H2110 RPL22_KO2",
+        "ZR75-1 RPL22_KO1",
+        "ZR75-1 RPL22_KO2"
     ],
     "display_groups": [
         ["GFP_OE", "RPL22_OE"],
