@@ -28,12 +28,19 @@ rpl22_a_ko2_reduced <- make_gene_table(rpl22_a_ko2)
 rpl22_b_ko1_reduced <- make_gene_table(rpl22_b_ko1)
 rpl22_b_ko2_reduced <- make_gene_table(rpl22_b_ko2)
 
+
+dir.name <- system.file("extdata", package = "PathwaySplice")
+hallmark.local.pathways <- file.path(dir.name, "h.all.v6.0.symbols.gmt.txt")
+hlp <- gmtGene2Cat(hallmark.local.pathways, genomeID = "hg19")
+
+
 run_splice <- function(gene_table){
   res <- runPathwaySplice(gene_table,
                           genome='hg19',
                           id='ensGene',
-                          test.cats=c("GO:CC", "GO:BP", "GO:MF"),
-                          go.size.limit=c(5,500),
+                          gene2cat = hlp, 
+                          # test.cats=c("GO:CC", "GO:BP", "GO:MF"),
+                          go.size.limit=c(10,500),
                           method='Wallenius',
                           use.genes.without.cat = TRUE)
   
@@ -48,3 +55,9 @@ rpl22_a_ko1_res <- run_splice(rpl22_a_ko1_reduced)
 rpl22_a_ko2_res <- run_splice(rpl22_a_ko2_reduced)
 rpl22_b_ko1_res <- run_splice(rpl22_b_ko1_reduced)
 rpl22_b_ko2_res <- run_splice(rpl22_b_ko2_reduced)
+
+enmap <- enrichmentMap(pathway.res = rpl22l1_oe_res,
+                       n = 2,
+                       output.file.dir = tempdir(),
+                       similarity.threshold = 0.5, 
+                       scaling.factor = 2)
