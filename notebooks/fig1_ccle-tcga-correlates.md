@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.4.2
+      jupytext_version: 1.5.0
   kernelspec:
     display_name: Python 3
     language: python
@@ -40,6 +40,8 @@ plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams['ps.fonttype'] = 42
 
 from statsmodels.stats.multitest import multipletests
+
+from adjustText import adjust_text
 
 ```
 
@@ -330,6 +332,9 @@ rpl22l1_genex_splicing = pd.read_hdf(
 rpl22l1_genex_splicing_subtyped = pd.read_hdf("../data/intermediate/rpl22l1_genex_splicing_subtyped.h5",
                                               key="rpl22l1_genex_splicing_subtyped")
 
+mdm4_splicing_cn = pd.read_hdf(
+    "../data/intermediate/mdm4_splicing_cn.h5", key="mdm4_splicing_cn")
+
 mdm4_splicing_genex = pd.read_hdf(
     "../data/intermediate/mdm4_splicing_genex.h5", key="mdm4_splicing_genex")
 
@@ -358,6 +363,60 @@ mdm4_splicing_genex_subtyped = mdm4_splicing_genex_subtyped[mdm4_splicing_genex_
 rpl22l1_splicing_genex_subtyped = rpl22l1_splicing_genex_subtyped[rpl22l1_splicing_genex_subtyped["n"] >= 250]
 mdm4_cosplicing_subtyped = mdm4_cosplicing_subtyped[mdm4_cosplicing_subtyped["n"] >= 100]
 rpl22l1_cosplicing_subtyped = rpl22l1_cosplicing_subtyped[rpl22l1_cosplicing_subtyped["n"] >= 250]
+```
+
+## MDM4 splicing vs CN
+
+```python
+mdm4_splicing_cn["has_coords"] = mdm4_splicing_cn.index.map(lambda x: "_chr" in x)
+mdm4_splicing_cn_annotated = mdm4_splicing_cn.copy(deep=True)[mdm4_splicing_cn["has_coords"]]
+
+mdm4_splicing_cn_annotated["chrom"] = mdm4_splicing_cn_annotated.index.map(lambda x: x.split("_")[1])
+mdm4_splicing_cn_annotated["start"] = mdm4_splicing_cn_annotated.index.map(lambda x: x.split("_")[2]).astype(int)
+mdm4_splicing_cn_annotated["end"] = mdm4_splicing_cn_annotated.index.map(lambda x: x.split("_")[3]).astype(int)
+mdm4_splicing_cn_annotated = mdm4_splicing_cn_annotated[~mdm4_splicing_cn_annotated["chrom"].isin(["chrX","chrY"])]
+
+chromosomes = ["chr"+str(x) for x in range(1,23)]
+chromosome_ordering = dict(zip(chromosomes,range(22)))
+
+mdm4_splicing_cn_annotated["chromosome_index"] = mdm4_splicing_cn_annotated["chrom"].apply(lambda x: chromosome_ordering[x])
+
+mdm4_splicing_cn_annotated = mdm4_splicing_cn_annotated.sort_values(by=["chromosome_index","start"])
+mdm4_splicing_cn_annotated["coord"] = range(len(mdm4_splicing_cn_annotated))
+```
+
+```python
+chrom_min = mdm4_splicing_cn_annotated.groupby("chrom")["start"].apply(min)
+chrom_max = mdm4_splicing_cn_annotated.groupby("chrom")["start"].apply(max)
+
+mdm4_splicing_cn_annotated["chrom_min"] = mdm4_splicing_cn_annotated["chrom"].apply(lambda x: chrom_min[x])
+mdm4_splicing_cn_annotated["chrom_max"] = mdm4_splicing_cn_annotated["chrom"].apply(lambda x: chrom_max[x])
+
+mdm4_splicing_cn_annotated["chrom_range"]=mdm4_splicing_cn_annotated["chrom_max"]-mdm4_splicing_cn_annotated["chrom_min"]
+mdm4_splicing_cn_annotated["chrom_pos"]=mdm4_splicing_cn_annotated["start"]-mdm4_splicing_cn_annotated["chrom_min"]
+mdm4_splicing_cn_annotated["chrom_pos"] = mdm4_splicing_cn_annotated["chrom_pos"]/mdm4_splicing_cn_annotated["chrom_range"]
+mdm4_splicing_cn_annotated["chrom_pos"] = mdm4_splicing_cn_annotated["chrom_pos"] + mdm4_splicing_cn_annotated["chromosome_index"]
+```
+
+```python
+plt.figure(figsize=(10,3))
+
+ax = sns.scatterplot(mdm4_splicing_cn_annotated["chrom_pos"]-0.5,
+                mdm4_splicing_cn_annotated["qval"],
+                hue=mdm4_splicing_cn_annotated["chrom"],
+                legend=False,
+                linewidth=0,
+                palette=sns.color_palette(["black","grey"]*11),
+                size=4
+                )
+
+plt.xlabel("")
+plt.xticks(range(22),chromosomes,rotation=45)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+plt.show()
 ```
 
 ## Overall correlations
@@ -596,6 +655,25 @@ plt.savefig("../plots/rpl22_subtype_distribution.pdf",
             bbox_inches="tight", transparent=True)
 ```
 
+# RPL22 boxplots
+
+```python
+rpl22_mdm4_merged = pd.concat([rpl22_info,
+                               tcga_splicing["MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625"].rename(
+                                   "MDM4_exon_6"),
+                               tcga_sample_info
+                               ],
+                              axis=1,
+                              sort=True)
+```
+
+```python
+select_type = rpl22_mdm4_merged[rpl22_mdm4_merged["abbreviated_disease"]=="STAD"]
+select_type = select_type.dropna(subset=["RPL22_k15","MDM4_exon_6"],how="any")
+
+huy.two_dists(select_type["MDM4_exon_6"],select_type["RPL22_k15"],summary_type="box")
+```
+
 # CCLE
 
 ```python
@@ -734,4 +812,95 @@ ax.set_ylim(ax.set_ylim()[0], ax.set_ylim()[1]*1.75)
 
 plt.savefig("../plots/MDM4_MS_correlations.pdf",
             bbox_inches="tight", transparent=True, dpi=512)
+```
+
+# Manhattan plot of mutations
+
+```python
+mdm4_splicing_mutations = pd.read_hdf(
+    "../data/intermediate/mdm4_splicing_mutations.h5", key="mdm4_splicing_mutations")
+
+tcga_filtered_muts_info = pd.read_csv("../../data/processed/tcga/tcga_filtered_muts_info.csv", index_col=0)
+```
+
+```python
+mdm4_splicing_mutations["gene"] = tcga_filtered_muts_info["gene"]
+mdm4_splicing_mutations["chrom"] = "chr"+tcga_filtered_muts_info["chr"]
+mdm4_splicing_mutations["start"] = tcga_filtered_muts_info["start"]
+mdm4_splicing_mutations["end"] = tcga_filtered_muts_info["end"]
+
+mdm4_splicing_mutations["aa_change"] = tcga_filtered_muts_info["Amino_Acid_Change"]
+mdm4_splicing_mutations["gene_aa_change"] = mdm4_splicing_mutations["gene"] + \
+    " " + mdm4_splicing_mutations["aa_change"]
+
+chromosomes = ["chr"+str(x) for x in range(1, 23)]+["chrX", "chrY"]
+chromosome_ordering = dict(zip(chromosomes, range(24)))
+
+mdm4_splicing_mutations["chromosome_index"] = mdm4_splicing_mutations["chrom"].apply(
+    lambda x: chromosome_ordering[x])
+
+mdm4_splicing_mutations = mdm4_splicing_mutations.sort_values(
+    by=["chromosome_index", "start"])
+mdm4_splicing_mutations["coord"] = range(len(mdm4_splicing_mutations))
+```
+
+```python
+chrom_min = mdm4_splicing_mutations.groupby("chrom")["start"].apply(min)
+chrom_max = mdm4_splicing_mutations.groupby("chrom")["start"].apply(max)
+
+mdm4_splicing_mutations["chrom_min"] = mdm4_splicing_mutations["chrom"].apply(
+    lambda x: chrom_min[x])
+mdm4_splicing_mutations["chrom_max"] = mdm4_splicing_mutations["chrom"].apply(
+    lambda x: chrom_max[x])
+
+mdm4_splicing_mutations["chrom_range"] = mdm4_splicing_mutations["chrom_max"] - \
+    mdm4_splicing_mutations["chrom_min"]
+mdm4_splicing_mutations["chrom_pos"] = mdm4_splicing_mutations["start"] - \
+    mdm4_splicing_mutations["chrom_min"]
+mdm4_splicing_mutations["chrom_pos"] = mdm4_splicing_mutations["chrom_pos"] / \
+    mdm4_splicing_mutations["chrom_range"]
+mdm4_splicing_mutations["chrom_pos"] = mdm4_splicing_mutations["chrom_pos"] + \
+    mdm4_splicing_mutations["chromosome_index"]
+```
+
+```python
+plt.figure(figsize=(10, 3))
+
+x = mdm4_splicing_mutations["chrom_pos"]-0.5
+y = mdm4_splicing_mutations["qval"]
+labels = mdm4_splicing_mutations["gene_aa_change"]
+
+ax = sns.scatterplot(x,
+                     y,
+                     hue=mdm4_splicing_mutations["chrom"],
+                     legend=False,
+                     linewidth=0,
+                     palette=sns.color_palette(
+                         ["#7a7a7a", "#c2c2c2"]*11+["#7a7a7a"]),
+                     size=4
+                     )
+
+
+significants = mdm4_splicing_mutations["qval"] > 6
+
+texts = []
+
+for x_pos, y_pos, label in zip(x[significants], y[significants], labels[significants]):
+    texts.append(plt.text(x_pos, y_pos, label))
+    plt.scatter(x_pos, y_pos, c="red", s=16)
+
+adjust_text(texts)
+
+plt.xlim(-1, 23)
+plt.ylim(0)
+
+plt.xlabel("")
+plt.xticks(range(23), chromosomes, rotation=45)
+
+plt.ylabel("-log10(q value)")
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+plt.show()
 ```

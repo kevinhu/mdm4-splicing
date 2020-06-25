@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.4.2
+      jupytext_version: 1.5.0
   kernelspec:
     display_name: Python 3
     language: python
@@ -33,15 +33,76 @@ import huygens as huy
 # Load annotations
 
 ```python
+merged_ccle_info = pd.read_csv("../data/supplementary/S1_merged-ccle-info.txt",sep="\t",index_col=0)
+```
+
+```python
+plt.figure(figsize=(5,5))
+
+rpl22_mut = merged_ccle_info["RPL22_mutation_classification_collapsed"].rename(
+    "RPL22 damaged").dropna() == "damaging"
+
+ax = sns.scatterplot(merged_ccle_info["RPL22_copynumber"],
+                merged_ccle_info["MDM4_RPPA_protein"],
+                hue=rpl22_mut,
+                )
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+plt.xlabel("RPL22 copy number")
+plt.ylabel("MDM4 protein (RPPA)")
+
+plt.savefig("../plots/RPL22_copynumber_MDM4_protein.pdf",bbox_inches="tight",transparent=True)
+```
+
+```python
+huy.binary_contingency(
+    merged_ccle_info["RPL22_mutation_classification_collapsed"].dropna()=="damaging",
+    merged_ccle_info["MSI"]
+)
+```
+
+```python
+avana = pd.read_hdf("../../data/processed/depmap/avana.hdf",key="avana")
+drive = pd.read_hdf("../../data/processed/depmap/demeter2-drive_v12-gene-effect.hdf",key="drive")
+
+```
+
+```python
+primary_info["format_name"] = primary_info["name"].fillna(
+    "UNNAMED") + "_" + primary_info["column_name"]
+
+cdk_inhibitors = primary_info[primary_info["moa"].apply(
+    lambda x: "CDK" in str(x))]["format_name"]
+
+for inhibitor in cdk_inhibitors:
+    huy.two_dists(primary_logfold[inhibitor],
+                  merged_ccle_info["RPL22_mutation_classification_collapsed"].dropna(
+    ) == "damaging",
+        summary_type="box"
+    )
+
+    plt.show()
+```
+
+```python
 ccle_genex = pd.read_hdf(
     "../../data/processed/ccle/CCLE_RNAseq_rsem_genes_tpm_20180929.hdf", key="ccle_genex")
+
 ccle_transcripts = pd.read_hdf("../../data/processed/ccle/CCLE_RNAseq_rsem_transcripts_tpm_20180929.hdf",
-                        key="ccle_transcripts")
+                               key="ccle_transcripts")
 exonusage = pd.read_hdf(
     "../../data/processed/ccle/CCLE_RNAseq_ExonUsageRatio_20180929.hdf", key="exonusage")
 
-ms_prot = pd.read_hdf("../../data/processed/ccle/ms_prot.h5",key="ms_prot")
-rppa = pd.read_hdf("../../data/processed/ccle/CCLE_RPPA_20181003.hdf",key="rppa")
+ms_prot = pd.read_hdf("../../data/processed/ccle/ms_prot.h5", key="ms_prot")
+rppa = pd.read_hdf(
+    "../../data/processed/ccle/CCLE_RPPA_20181003.hdf", key="rppa")
+
+primary_logfold = pd.read_hdf(
+    "../../data/processed/depmap/primary_logfold.h5", key="primary_logfold")
+secondary_logfold = pd.read_hdf(
+    "../../data/processed/depmap/secondary_logfold.h5", key="secondary_logfold")
 ```
 
 ```python
@@ -65,6 +126,68 @@ msi_prot_diffs.to_csv("../data/intermediate/msi_prot_diffs.txt",sep="\t")
 
 msi_exon_diffs = gal.mat_mwus_naive(exonusage,msi["MSI"],pbar=True,effect="mean")
 msi_exon_diffs.to_csv("../data/intermediate/msi_exon_diffs.txt",sep="\t")
+```
+
+```python
+msi_info["RPL22_mutation_classification_collapsed"]
+```
+
+```python
+msi_info = merged_ccle_info[merged_ccle_info["MSI"] == True]
+
+plt.figure(figsize=(10,4))
+
+ax = plt.subplot(141)
+huy.two_dists(
+    msi_info["MDM4_MS_protein"],
+    msi_info["RPL22_mutation_classification_collapsed"] == "damaging",
+    ax=ax,
+    summary_type="box"
+)
+
+plt.xlabel("RPL22 damaging")
+plt.ylabel("MDM4 protein (MS)")
+plt.title("MSI cell lines")
+
+ax = plt.subplot(142)
+huy.two_dists(
+    msi_info["MDM4_RPPA_protein"],
+    msi_info["RPL22_mutation_classification_collapsed"] == "damaging",
+    ax=ax,
+    summary_type="box"
+)
+
+plt.xlabel("RPL22 damaging")
+plt.ylabel("MDM4 protein (RPPA)")
+plt.title("MSI cell lines")
+
+ax = plt.subplot(143)
+huy.two_dists(
+    merged_ccle_info["MDM4_MS_protein"],
+    merged_ccle_info["RPL22_mutation_classification_collapsed"] == "damaging",
+    ax=ax,
+    summary_type="box"
+)
+
+plt.xlabel("RPL22 damaging")
+plt.ylabel("MDM4 protein (MS)")
+plt.title("All cell lines")
+
+ax = plt.subplot(144)
+huy.two_dists(
+    merged_ccle_info["MDM4_RPPA_protein"],
+    merged_ccle_info["RPL22_mutation_classification_collapsed"] == "damaging",
+    ax=ax,
+    summary_type="box"
+)
+
+plt.xlabel("RPL22 damaging")
+plt.ylabel("MDM4 protein (RPPA)")
+plt.title("All cell lines")
+
+plt.subplots_adjust(wspace=0.5)
+
+plt.savefig("../plots/MDM4_protein_comparisons.pdf",bbox_inches="tight",transparent=True)
 ```
 
 # Mutations
@@ -159,28 +282,4 @@ msi_exon_muts["mut_site"] = msi_exon_muts["chrom"] + "_" + msi_exon_muts["pos"].
 msi_exon_muts["value"] = 1
 msi_exon_mut_mat = pd.pivot_table(msi_exon_muts, values="value", index=[
                             "ach_id"], columns="mut_site", fill_value=0)
-```
-
-```python
-res = gal.mat_fishers(msi["MSI"],msi_exon_mut_mat)
-msi_muts = res[(res["oddsr"]>=8)|(res["oddsr"]<=1/8)]
-```
-
-```python
-res = gal.mat_corrs_nan(avana["WRN_7486"],ms_prot)
-```
-
-```python
-huy.regression(exonusage["UBAP2L_5p_chr1_154242676_154243329_ENSG00000143569.14"],
-              ccle_transcripts["UBAP2L_ENST00000495676.1"]
-             )
-```
-
-```python
-corrs = gal.mat_corrs_nan(exonusage["UBAP2L_5p_chr1_154242676_154243329_ENSG00000143569.14"],
-              ccle_transcripts)
-```
-
-```python
-msi_exons[msi_exons.index.map(lambda x: "RAB3" in x)]
 ```

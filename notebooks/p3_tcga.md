@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.4.2
+      jupytext_version: 1.5.0
   kernelspec:
     display_name: Python 3
     language: python
@@ -29,38 +29,50 @@ import galileo as gal
 import huygens as huy
 ```
 
-```python
-def concat_cols(df, cols, delim):
-    cols_str = [df[x].astype(str) for x in cols]
-
-    return reduce(lambda a, b: a + delim + b, cols_str)
-```
+# Load annotations
 
 ```python
 tcga_genex = pd.read_hdf("../../data/processed/TCGA/TCGA_genex_norm.h5",key="tcga_genex")
 
 normal_genex = tcga_genex[tcga_genex.index.map(lambda x: x[-2:] == "11")]
-
 tcga_genex = tcga_genex[tcga_genex.index.map(lambda x: x[-2:] != "11")]
+
+tcga_splicing = pd.read_hdf("../../data/processed/TCGA/merged.h5",key="tcga_splicing")
+tcga_splicing.index = tcga_splicing.index.map(lambda x: x[:15])
+tcga_splicing = tcga_splicing[~tcga_splicing.index.duplicated(keep="first")]
+tcga_splicing = tcga_splicing[tcga_splicing.index.map(lambda x: x[-2:] != "11")]
+
+tcga_cn = pd.read_hdf("../../data/processed/TCGA/tcga_cn_whitelisted.hdf", key="tcga_cn")
+tcga_cn = tcga_cn[tcga_cn.index.map(lambda x: x[-2:] != "11")]
+
+tcga_mut_mat = pd.read_hdf("../../data/processed/TCGA/tcga_mut_mat.hdf", key="tcga_mut_mat")
+tcga_mut_mat = tcga_mut_mat[tcga_mut_mat.index.map(lambda x: x[-2:] != "11")]
 ```
 
 ```python
-tcga_splicing = pd.read_hdf("../../data/processed/TCGA/merged.h5",key="tcga_splicing")
+rpl22_tcga = pd.read_csv("../data/raw/rpl22.tcga.data.csv")
 
+rpl22_tcga = rpl22_tcga.dropna(subset=["sampleid"])
+rpl22_tcga = rpl22_tcga.set_index("sampleid")
+rpl22_tcga.index = rpl22_tcga.index.map(lambda x: x[:15])
 
-tcga_splicing.index = tcga_splicing.index.map(lambda x: x[:15])
+rpl22_mut = rpl22_tcga["rpl22mut.mc3.k15"].dropna()
 
-tcga_splicing = tcga_splicing[~tcga_splicing.index.duplicated(keep="first")]
+tcga_mut_mat["RPL22_chr1_6257785_6257785_T_-"] = rpl22_mut
+```
 
-tcga_splicing = tcga_splicing[tcga_splicing.index.map(lambda x: x[-2:] != "11")]
+# MDM4 splicing vs copynumber
+
+```python
+mdm4_splicing_cn = gal.mat_corrs_naive(
+    tcga_splicing["MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625"],
+    tcga_cn, method="spearman", pbar=True)
+
+mdm4_splicing_cn.to_hdf(
+    "../data/intermediate/mdm4_splicing_cn.h5", key="mdm4_splicing_cn", mode="w")
 ```
 
 # RPL22 CN vs splicing
-
-```python
-tcga_cn = pd.read_hdf("../../data/processed/TCGA/tcga_cn.hdf", key="tcga_cn")
-tcga_cn = tcga_cn[tcga_cn.index.map(lambda x: x[-2:] != "11")]
-```
 
 ```python
 rpl22_cn_splicing = gal.mat_corrs_naive(
@@ -196,21 +208,23 @@ rpl22l1_cosplicing_subtyped.to_hdf(
     "../data/intermediate/rpl22l1_cosplicing_subtyped.h5", key="rpl22l1_cosplicing_subtyped", mode="w")
 ```
 
+# Mutation correlations
+
+
+## Mutations vs MDM4 splicing
+
+```python
+mdm4_splicing_mutations = gal.mat_mwus_naive(tcga_splicing["MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625"],
+                                             tcga_mut_mat,
+                                             pbar=True
+                                             )
+
+mdm4_splicing_mutations.to_hdf(
+    "../data/intermediate/mdm4_splicing_mutations.h5", key="mdm4_splicing_mutations", mode="w")
+```
+
 # RPL22 mutation correlations
 
-```python
-rpl22_tcga = pd.read_csv("../data/raw/rpl22.tcga.data.csv")
-
-rpl22_tcga = rpl22_tcga.dropna(subset=["sampleid"])
-rpl22_tcga = rpl22_tcga.set_index("sampleid")
-rpl22_tcga.index = rpl22_tcga.index.map(lambda x: x[:15])
-
-rpl22_mut = rpl22_tcga["rpl22mut.mc3.k15"].dropna()
-```
-
-```python
-huy.binary_contingency(rpl22_tcga["msi_inferred"],rpl22_tcga["rpl22mut.mc3.k15"])
-```
 
 ## Overall
 
