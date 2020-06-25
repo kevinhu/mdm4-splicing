@@ -31,16 +31,27 @@ import huygens as huy
 ```
 
 ```python
-tcga_genex = pd.read_hdf("../../data/processed/TCGA/TCGA_genex_norm.h5",key="tcga_genex")
+tcga_cn_thresholded = pd.read_hdf("../../data/processed/TCGA/tcga_cn_thresholded.hdf",
+                                  key="tcga_cn_thresholded")
+```
 
-tcga_splicing = pd.read_hdf("../../data/processed/TCGA/merged.h5",key="tcga_splicing")
+```python
+tcga_genex = pd.read_hdf(
+    "../../data/processed/TCGA/TCGA_genex_norm.h5", key="tcga_genex")
+
+tcga_splicing = pd.read_hdf(
+    "../../data/processed/TCGA/merged.h5", key="tcga_splicing")
 tcga_splicing.index = tcga_splicing.index.map(lambda x: x[:15])
 tcga_splicing = tcga_splicing[~tcga_splicing.index.duplicated(keep="first")]
 
-tcga_cn = pd.read_hdf("../../data/processed/TCGA/tcga_cn_whitelisted.hdf", key="tcga_cn")
+tcga_cn = pd.read_hdf(
+    "../../data/processed/TCGA/tcga_cn_whitelisted.hdf", key="tcga_cn")
+tcga_cn_thresholded = pd.read_hdf("../../data/processed/TCGA/tcga_cn_thresholded.hdf",
+                                  key="tcga_cn_thresholded")
 
-tcga_mut_mat = pd.read_hdf("../../data/processed/TCGA/tcga_mut_mat.hdf", key="tcga_mut_mat")
-tcga_msi = pd.read_hdf("../../data/processed/tcga/tcga_msi.h5",key="tcga_msi")
+tcga_mut_mat = pd.read_hdf(
+    "../../data/processed/TCGA/tcga_mut_mat.hdf", key="tcga_mut_mat")
+tcga_msi = pd.read_hdf("../../data/processed/tcga/tcga_msi.h5", key="tcga_msi")
 ```
 
 ```python
@@ -56,7 +67,8 @@ tcga_mut_mat["RPL22_chr1_6257785_6257785_T_-"] = rpl22_mut
 ```
 
 ```python
-tcga_sample_info = pd.read_hdf("../../data/processed/TCGA/tcga_sample_info.hdf",key="tcga_sample_info")
+tcga_sample_info = pd.read_hdf(
+    "../../data/processed/TCGA/tcga_sample_info.hdf", key="tcga_sample_info")
 ```
 
 # Aggregate attributes
@@ -65,16 +77,23 @@ tcga_sample_info = pd.read_hdf("../../data/processed/TCGA/tcga_sample_info.hdf",
 ## Tumor sample info
 
 ```python
-select_sample_info = tcga_sample_info[["sample_type","_primary_disease","abbreviated_disease"]]
+select_sample_info = tcga_sample_info[[
+    "sample_type",
+    "_primary_disease",
+    "abbreviated_disease"]]
 
-select_sample_info.columns = ["Sample_type","Primary_disease","Abbreviated_disease"]
+select_sample_info.columns = [
+    "Sample_type",
+    "Primary_disease",
+    "Abbreviated_disease"
+]
 ```
 
 ## Mutations
 
 ```python
-select_mutations = rpl22_tcga[["TP53mut","rpl22mut.mc3.k15"]]
-select_mutations.columns = ["TP53_mutation_type","RPL22_k15fs_mutation"]
+select_mutations = rpl22_tcga[["TP53mut", "rpl22mut.mc3.k15"]]
+select_mutations.columns = ["TP53_mutation_type", "RPL22_k15fs_mutation"]
 ```
 
 ## MSI
@@ -83,7 +102,7 @@ select_mutations.columns = ["TP53_mutation_type","RPL22_k15fs_mutation"]
 select_msi = tcga_msi[["MANTIS Score"]].copy()
 select_msi["MSI"] = select_msi["MANTIS Score"] > 0.4
 
-select_msi.columns = ["MANTIS_score","MSI"]
+select_msi.columns = ["MANTIS_score", "MSI"]
 ```
 
 ## Exonusage
@@ -96,7 +115,11 @@ select_exons = [
 ]
 
 select_exonusage = tcga_splicing[select_exons]
-select_exonusage.columns = ["MDM4_exon_6_inclusion","RPL22L1_exon_3A_inclusion","UBAP2L_exon_9_inclusion"]
+select_exonusage.columns = [
+    "MDM4_exon_6_inclusion",
+    "RPL22L1_exon_3A_inclusion",
+    "UBAP2L_exon_9_inclusion"
+]
 ```
 
 ## Gene expression
@@ -110,10 +133,18 @@ select_genex_genes = [
 ]
 
 select_genex = tcga_genex[select_genex_genes]
-select_genex.columns = ["MDM2_mRNA","MDM4_mRNA","RPL22_mRNA","RPL22L1_mRNA"]
+select_genex.columns = [
+    "MDM2_mRNA", 
+    "MDM4_mRNA", 
+    "RPL22_mRNA", 
+    "RPL22L1_mRNA"
+]
 ```
 
 # Copy number
+
+
+## Continuous
 
 ```python
 select_copynumber_genes = [
@@ -132,6 +163,26 @@ select_copynumber.columns = [
 ]
 ```
 
+## Thresholded
+
+```python
+select_copynumber_thresholded_genes = [
+    "MDM2",
+    "MDM4",
+    "RPL22",
+    "RPL22L1"
+]
+
+select_copynumber_thresholded = tcga_cn_thresholded[select_copynumber_thresholded_genes]
+
+select_copynumber_thresholded.columns = [
+    "MDM2_copy_number_thresholded",
+    "MDM4_copy_number_thresholded",
+    "RPL22_copy_number_thresholded",
+    "RPL22L1_copy_number_thresholded"
+]
+```
+
 ```python
 merged_tcga_info = pd.concat([
     select_sample_info,
@@ -140,6 +191,7 @@ merged_tcga_info = pd.concat([
     select_exonusage,
     select_genex,
     select_copynumber,
+    select_copynumber_thresholded
 ], join="outer", axis=1, sort=True)
 ```
 

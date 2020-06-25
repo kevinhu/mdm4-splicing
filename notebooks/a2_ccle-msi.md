@@ -43,7 +43,7 @@ rpl22_mut = merged_ccle_info["RPL22_mutation_classification_collapsed"].rename(
     "RPL22 damaged").dropna() == "damaging"
 
 ax = sns.scatterplot(merged_ccle_info["RPL22_copynumber"],
-                merged_ccle_info["MDM4_RPPA_protein"],
+                merged_ccle_info["MDM4_MS_protein"],
                 hue=rpl22_mut,
                 )
 
