@@ -32,6 +32,11 @@ import huygens as huy
 # Load annotations
 
 ```python
+merged_tcga_info = pd.read_csv("../data/supplementary/S2_merged-tcga-info.txt",sep="\t",index_col=0)
+
+```
+
+```python
 tcga_genex = pd.read_hdf("../../data/processed/TCGA/TCGA_genex_norm.h5",key="tcga_genex")
 
 normal_genex = tcga_genex[tcga_genex.index.map(lambda x: x[-2:] == "11")]
@@ -265,14 +270,20 @@ plt.savefig("../plots/TCGA-MSI_RPL22_truncated_splicing.pdf",dpi=512,transparent
 tcga_sample_info = pd.read_hdf("../../data/processed/TCGA/tcga_sample_info.hdf",key="tcga_sample_info")
 ```
 
-```python
-t2g = pd.read_csv("../data/intermediate/sleuth_diff/ensembl_t2g.csv")
-t2g["format_gene_id"] = t2g["hgnc_gene"].fillna("") + "_" + t2g["ens_gene"]
+## MSI-only
 
-format_gene_map = dict(zip(t2g["ens_gene"],t2g["format_gene_id"]))
+```python
+msi_pos = merged_tcga_info[merged_tcga_info["MSI"]==True]
+```
+
+```python
+rpl22_msi_splicing = gal.mat_mwus_naive(tcga_splicing, 
+                                        msi_pos["RPL22_k15fs_mutation"], 
+                                        pbar=True)
 ```
 
 ```python
 import matplotlib.pyplot as plt
-plt.scatter(rpl22_mut_splicing["corr"],rpl22_mut_splicing["qval"])
+
+plt.scatter(rpl22_msi_splicing["corr"],rpl22_msi_splicing["qval"])
 ```
