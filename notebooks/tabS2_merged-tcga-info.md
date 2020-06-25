@@ -67,6 +67,12 @@ tcga_mut_mat["RPL22_chr1_6257785_6257785_T_-"] = rpl22_mut
 ```
 
 ```python
+tcga_tp53_mutations = pd.read_csv("../data/external/cbioportal/tp53_mutations.txt",sep="\t")
+tcga_tp53_mutations["TP53"] = tcga_tp53_mutations["TP53"].fillna("WT")
+tcga_tp53_mutations = tcga_tp53_mutations.set_index("SAMPLE_ID")
+```
+
+```python
 tcga_sample_info = pd.read_hdf(
     "../../data/processed/TCGA/tcga_sample_info.hdf", key="tcga_sample_info")
 ```
@@ -92,8 +98,8 @@ select_sample_info.columns = [
 ## Mutations
 
 ```python
-select_mutations = rpl22_tcga[["TP53mut", "rpl22mut.mc3.k15"]]
-select_mutations.columns = ["TP53_mutation_type", "RPL22_k15fs_mutation"]
+select_mutations = rpl22_tcga[["TP53mut", "rpl22mut.mc3.k15", "rpl22mut.mc3.all"]]
+select_mutations.columns = ["TP53_mutation_type", "RPL22_k15fs_mutation", "RPL22_any_mutation"]
 ```
 
 ## MSI
@@ -148,6 +154,7 @@ select_genex.columns = [
 
 ```python
 select_copynumber_genes = [
+    "TP53_chr17_7565097_7590868",
     "MDM2_chr12_69201952_69244466",
     "MDM4_chr1_204485507_204527248",
     "RPL22_chr1_6241329_6260902",
@@ -156,6 +163,7 @@ select_copynumber_genes = [
 
 select_copynumber = tcga_cn[select_copynumber_genes]
 select_copynumber.columns = [
+    "TP53_copy_number",
     "MDM2_copy_number",
     "MDM4_copy_number",
     "RPL22_copy_number",
@@ -167,6 +175,7 @@ select_copynumber.columns = [
 
 ```python
 select_copynumber_thresholded_genes = [
+    "TP53",
     "MDM2",
     "MDM4",
     "RPL22",
@@ -176,6 +185,7 @@ select_copynumber_thresholded_genes = [
 select_copynumber_thresholded = tcga_cn_thresholded[select_copynumber_thresholded_genes]
 
 select_copynumber_thresholded.columns = [
+    "TP53_copy_number_thresholded",
     "MDM2_copy_number_thresholded",
     "MDM4_copy_number_thresholded",
     "RPL22_copy_number_thresholded",
@@ -187,6 +197,7 @@ select_copynumber_thresholded.columns = [
 merged_tcga_info = pd.concat([
     select_sample_info,
     select_mutations,
+    tcga_tp53_mutations["TP53"].rename("TP53_mutations"),
     select_msi,
     select_exonusage,
     select_genex,
@@ -196,5 +207,6 @@ merged_tcga_info = pd.concat([
 ```
 
 ```python
-merged_tcga_info.to_csv("../data/supplementary/S2_merged-tcga-info.txt",sep="\t")
+merged_tcga_info.to_csv(
+    "../data/supplementary/S2_merged-tcga-info.txt", sep="\t")
 ```
