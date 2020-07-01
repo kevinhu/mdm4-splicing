@@ -31,26 +31,30 @@ import huygens as huy
 ```
 
 ```python
-tcga_cn_thresholded = pd.read_hdf("../../data/processed/TCGA/tcga_cn_thresholded.hdf",
-                                  key="tcga_cn_thresholded")
+tcga_cn_thresholded = pd.read_hdf(
+    "../../data/processed/TCGA/tcga_cn_thresholded.hdf", key="tcga_cn_thresholded"
+)
 ```
 
 ```python
 tcga_genex = pd.read_hdf(
-    "../../data/processed/TCGA/TCGA_genex_norm.h5", key="tcga_genex")
+    "../../data/processed/TCGA/TCGA_genex_norm.h5", key="tcga_genex"
+)
 
-tcga_splicing = pd.read_hdf(
-    "../../data/processed/TCGA/merged.h5", key="tcga_splicing")
+tcga_splicing = pd.read_hdf("../../data/processed/TCGA/merged.h5", key="tcga_splicing")
 tcga_splicing.index = tcga_splicing.index.map(lambda x: x[:15])
 tcga_splicing = tcga_splicing[~tcga_splicing.index.duplicated(keep="first")]
 
 tcga_cn = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_cn_whitelisted.hdf", key="tcga_cn")
-tcga_cn_thresholded = pd.read_hdf("../../data/processed/TCGA/tcga_cn_thresholded.hdf",
-                                  key="tcga_cn_thresholded")
+    "../../data/processed/TCGA/tcga_cn_whitelisted.hdf", key="tcga_cn"
+)
+tcga_cn_thresholded = pd.read_hdf(
+    "../../data/processed/TCGA/tcga_cn_thresholded.hdf", key="tcga_cn_thresholded"
+)
 
 tcga_mut_mat = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_mut_mat.hdf", key="tcga_mut_mat")
+    "../../data/processed/TCGA/tcga_mut_mat.hdf", key="tcga_mut_mat"
+)
 tcga_msi = pd.read_hdf("../../data/processed/tcga/tcga_msi.h5", key="tcga_msi")
 ```
 
@@ -67,14 +71,17 @@ tcga_mut_mat["RPL22_chr1_6257785_6257785_T_-"] = rpl22_mut
 ```
 
 ```python
-tcga_tp53_mutations = pd.read_csv("../data/external/cbioportal/tp53_mutations.txt",sep="\t")
+tcga_tp53_mutations = pd.read_csv(
+    "../data/external/cbioportal/tp53_mutations.txt", sep="\t"
+)
 tcga_tp53_mutations["TP53"] = tcga_tp53_mutations["TP53"].fillna("WT")
 tcga_tp53_mutations = tcga_tp53_mutations.set_index("SAMPLE_ID")
 ```
 
 ```python
 tcga_sample_info = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_sample_info.hdf", key="tcga_sample_info")
+    "../../data/processed/TCGA/tcga_sample_info.hdf", key="tcga_sample_info"
+)
 ```
 
 # Aggregate attributes
@@ -83,23 +90,22 @@ tcga_sample_info = pd.read_hdf(
 ## Tumor sample info
 
 ```python
-select_sample_info = tcga_sample_info[[
-    "sample_type",
-    "_primary_disease",
-    "abbreviated_disease"]]
-
-select_sample_info.columns = [
-    "Sample_type",
-    "Primary_disease",
-    "Abbreviated_disease"
+select_sample_info = tcga_sample_info[
+    ["sample_type", "_primary_disease", "abbreviated_disease"]
 ]
+
+select_sample_info.columns = ["Sample_type", "Primary_disease", "Abbreviated_disease"]
 ```
 
 ## Mutations
 
 ```python
 select_mutations = rpl22_tcga[["TP53mut", "rpl22mut.mc3.k15", "rpl22mut.mc3.all"]]
-select_mutations.columns = ["TP53_mutation_type", "RPL22_k15fs_mutation", "RPL22_any_mutation"]
+select_mutations.columns = [
+    "TP53_mutation_type",
+    "RPL22_k15fs_mutation",
+    "RPL22_any_mutation",
+]
 ```
 
 ## MSI
@@ -117,34 +123,24 @@ select_msi.columns = ["MANTIS_score", "MSI"]
 select_exons = [
     "MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625",
     "RPL22L1_ENSG00000163584_ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990",
-    "UBAP2L_ENSG00000143569_ENSG00000143569.14_ES_1_154241382:154241430:154241837:154241888:154242675:154243040_154241837:154241888"
+    "UBAP2L_ENSG00000143569_ENSG00000143569.14_ES_1_154241382:154241430:154241837:154241888:154242675:154243040_154241837:154241888",
 ]
 
 select_exonusage = tcga_splicing[select_exons]
 select_exonusage.columns = [
     "MDM4_exon_6_inclusion",
     "RPL22L1_exon_3A_inclusion",
-    "UBAP2L_exon_9_inclusion"
+    "UBAP2L_exon_9_inclusion",
 ]
 ```
 
 ## Gene expression
 
 ```python
-select_genex_genes = [
-    "MDM2_10743",
-    "MDM4_10744",
-    "RPL22_15208",
-    "RPL22L1_15209"
-]
+select_genex_genes = ["MDM2_10743", "MDM4_10744", "RPL22_15208", "RPL22L1_15209"]
 
 select_genex = tcga_genex[select_genex_genes]
-select_genex.columns = [
-    "MDM2_mRNA", 
-    "MDM4_mRNA", 
-    "RPL22_mRNA", 
-    "RPL22L1_mRNA"
-]
+select_genex.columns = ["MDM2_mRNA", "MDM4_mRNA", "RPL22_mRNA", "RPL22L1_mRNA"]
 ```
 
 # Copy number
@@ -158,7 +154,7 @@ select_copynumber_genes = [
     "MDM2_chr12_69201952_69244466",
     "MDM4_chr1_204485507_204527248",
     "RPL22_chr1_6241329_6260902",
-    "RPL22L1_chr3_170582664_170588272"
+    "RPL22L1_chr3_170582664_170588272",
 ]
 
 select_copynumber = tcga_cn[select_copynumber_genes]
@@ -167,20 +163,14 @@ select_copynumber.columns = [
     "MDM2_copy_number",
     "MDM4_copy_number",
     "RPL22_copy_number",
-    "RPL22L1_copy_number"
+    "RPL22L1_copy_number",
 ]
 ```
 
 ## Thresholded
 
 ```python
-select_copynumber_thresholded_genes = [
-    "TP53",
-    "MDM2",
-    "MDM4",
-    "RPL22",
-    "RPL22L1"
-]
+select_copynumber_thresholded_genes = ["TP53", "MDM2", "MDM4", "RPL22", "RPL22L1"]
 
 select_copynumber_thresholded = tcga_cn_thresholded[select_copynumber_thresholded_genes]
 
@@ -189,24 +179,28 @@ select_copynumber_thresholded.columns = [
     "MDM2_copy_number_thresholded",
     "MDM4_copy_number_thresholded",
     "RPL22_copy_number_thresholded",
-    "RPL22L1_copy_number_thresholded"
+    "RPL22L1_copy_number_thresholded",
 ]
 ```
 
 ```python
-merged_tcga_info = pd.concat([
-    select_sample_info,
-    select_mutations,
-    tcga_tp53_mutations["TP53"].rename("TP53_mutations"),
-    select_msi,
-    select_exonusage,
-    select_genex,
-    select_copynumber,
-    select_copynumber_thresholded
-], join="outer", axis=1, sort=True)
+merged_tcga_info = pd.concat(
+    [
+        select_sample_info,
+        select_mutations,
+        tcga_tp53_mutations["TP53"].rename("TP53_mutations"),
+        select_msi,
+        select_exonusage,
+        select_genex,
+        select_copynumber,
+        select_copynumber_thresholded,
+    ],
+    join="outer",
+    axis=1,
+    sort=True,
+)
 ```
 
 ```python
-merged_tcga_info.to_csv(
-    "../data/supplementary/S2_merged-tcga-info.txt", sep="\t")
+merged_tcga_info.to_csv("../data/supplementary/S2_merged-tcga-info.txt", sep="\t")
 ```
