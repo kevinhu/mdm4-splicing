@@ -8,7 +8,7 @@ This repository contains the scripts for generating all the figures and suppleme
 
 ## Requirements
 
-The `cancer_data` and `many` repositories contain supplementary methods for external datasets as well as several statistical pipelines and plots used here. These may be found at their relevant GitHub repositories as well as on PyPI. Additional packages such as `pandas`, `numpy`, `matplotlib`, and `seaborn` are also required
+The [`cancer_data`](https://github.com/kevinhu/cancer_data) and [`many`](https://github.com/kevinhu/many) repositories contain supplementary methods for external datasets as well as several statistical pipelines and plots used here. These may be found at their relevant GitHub repositories as well as on PyPI. Additional packages such as `pandas`, `numpy`, `matplotlib`, and `seaborn` are also required
 
 ## Structure
 
