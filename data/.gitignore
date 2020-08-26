@@ -8,12 +8,3 @@
 !/raw/sample_groups
 !/raw/sample_groups/*
 /raw/sample_groups/.DS_store
-
-!/external
-/external/*
-
-!/external/eton_rpl22_sanger
-!/external/eton_rpl22_sanger/*
-/external/eton_rpl22_sanger/.DS_store
-
-!.gitignore
