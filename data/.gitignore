@@ -9,10 +9,6 @@
 !/raw/sample_groups/*
 /raw/sample_groups/.DS_store
 
-!/intermediate
-/intermediate/*
-!/intermediate/experiment_setup.txt
-
 !/external
 /external/*
 
