@@ -23,25 +23,12 @@ import seaborn as sns
 from scipy.stats import kruskal
 from scipy.stats import gaussian_kde
 
-import sys
-import os
-
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
-
-import galileo as gal
-import huygens as huy
-
-from collections import Counter
-
-plt.rcParams["ps.useafm"] = True
-plt.rcParams["font.family"] = "Arial"
-plt.rcParams["pdf.fonttype"] = 42
-plt.rcParams["ps.fonttype"] = 42
-
 from statsmodels.stats.multitest import multipletests
 
 from adjustText import adjust_text
+
+import config
+config.config_visuals()
 ```
 
 # Transcripts to genes

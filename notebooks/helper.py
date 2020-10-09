@@ -1,6 +1,4 @@
 import json
-import huygens as huy
-import galileo as gal
 import os
 import sys
 from statsmodels.stats.multitest import multipletests
@@ -16,17 +14,14 @@ import matplotlib.font_manager as fm
 from textwrap import wrap
 
 
-prop = fm.FontProperties(fname='../plots/arial.ttf')
+prop = fm.FontProperties(fname="../plots/arial.ttf")
 
-plt.rcParams['ps.useafm'] = True
-plt.rcParams['font.family'] = 'Arial'
-plt.rcParams['pdf.fonttype'] = 42
-plt.rcParams['ps.fonttype'] = 42
+plt.rcParams["ps.useafm"] = True
+plt.rcParams["font.family"] = "Arial"
+plt.rcParams["pdf.fonttype"] = 42
+plt.rcParams["ps.fonttype"] = 42
 
-plt.rcParams['mathtext.default'] = 'regular'
-
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
+plt.rcParams["mathtext.default"] = "regular"
 
 
 with open("experiments.json", "r") as f:
@@ -41,73 +36,89 @@ with open("experiments.json", "r") as f:
 kallisto_sleuth_path = "../data/processed/kallisto_sleuth_merge/"
 
 rpl22_oe_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_oe_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_oe_genes.h5", key="sleuth_diff"
+)
 rpl22l1_oe_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22l1_oe_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22l1_oe_genes.h5", key="sleuth_diff"
+)
 rpl22l1_kd1_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22l1_kd1_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22l1_kd1_genes.h5", key="sleuth_diff"
+)
 rpl22l1_kd2_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22l1_kd2_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22l1_kd2_genes.h5", key="sleuth_diff"
+)
 rpl22_a_ko1_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_a_ko1_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_a_ko1_genes.h5", key="sleuth_diff"
+)
 rpl22_a_ko2_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_a_ko2_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_a_ko2_genes.h5", key="sleuth_diff"
+)
 rpl22_b_ko1_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_b_ko1_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_b_ko1_genes.h5", key="sleuth_diff"
+)
 rpl22_b_ko2_genes = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_b_ko2_genes.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_b_ko2_genes.h5", key="sleuth_diff"
+)
 
 rpl22_oe_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_oe_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_oe_transcripts.h5", key="sleuth_diff"
+)
 rpl22l1_oe_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22l1_oe_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22l1_oe_transcripts.h5", key="sleuth_diff"
+)
 rpl22l1_kd1_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22l1_kd1_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22l1_kd1_transcripts.h5", key="sleuth_diff"
+)
 rpl22l1_kd2_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22l1_kd2_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22l1_kd2_transcripts.h5", key="sleuth_diff"
+)
 rpl22_a_ko1_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_a_ko1_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_a_ko1_transcripts.h5", key="sleuth_diff"
+)
 rpl22_a_ko2_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_a_ko2_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_a_ko2_transcripts.h5", key="sleuth_diff"
+)
 rpl22_b_ko1_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_b_ko1_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_b_ko1_transcripts.h5", key="sleuth_diff"
+)
 rpl22_b_ko2_transcripts = pd.read_hdf(
-    kallisto_sleuth_path + "rpl22_b_ko2_transcripts.h5", key="sleuth_diff")
+    kallisto_sleuth_path + "rpl22_b_ko2_transcripts.h5", key="sleuth_diff"
+)
 
 
 rpl22_oe_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22_oe.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22_oe.txt", sep="\t", index_col=0
+)
 rpl22l1_oe_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22l1_oe.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22l1_oe.txt", sep="\t", index_col=0
+)
 rpl22l1_kd1_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22l1_kd1.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22l1_kd1.txt", sep="\t", index_col=0
+)
 rpl22l1_kd2_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22l1_kd2.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22l1_kd2.txt", sep="\t", index_col=0
+)
 rpl22_a_ko1_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22_a_ko1.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22_a_ko1.txt", sep="\t", index_col=0
+)
 rpl22_a_ko2_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22_a_ko2.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22_a_ko2.txt", sep="\t", index_col=0
+)
 rpl22_b_ko1_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22_b_ko1.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22_b_ko1.txt", sep="\t", index_col=0
+)
 rpl22_b_ko2_rmats = pd.read_csv(
-    "../data/processed/rmats_merge/rpl22_b_ko2.txt", sep="\t", index_col=0)
+    "../data/processed/rmats_merge/rpl22_b_ko2.txt", sep="\t", index_col=0
+)
 
-rpl22_oe_rmats = rpl22_oe_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22l1_oe_rmats = rpl22l1_oe_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22l1_kd1_rmats = rpl22l1_kd1_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22l1_kd2_rmats = rpl22l1_kd2_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_a_ko1_rmats = rpl22_a_ko1_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_a_ko2_rmats = rpl22_a_ko2_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_b_ko1_rmats = rpl22_b_ko1_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_b_ko2_rmats = rpl22_b_ko2_rmats.rename(
-    {"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_oe_rmats = rpl22_oe_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22l1_oe_rmats = rpl22l1_oe_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22l1_kd1_rmats = rpl22l1_kd1_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22l1_kd2_rmats = rpl22l1_kd2_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_a_ko1_rmats = rpl22_a_ko1_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_a_ko2_rmats = rpl22_a_ko2_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_b_ko1_rmats = rpl22_b_ko1_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
+rpl22_b_ko2_rmats = rpl22_b_ko2_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
 
 splice_types = ["A3SS", "A5SS", "MXE", "RI", "SE"]
 
@@ -129,18 +140,23 @@ def as_si(x, ndp):
         x formatted in scientific notation
     """
 
-    s = '{x:0.{ndp:d}e}'.format(x=x, ndp=ndp)
-    m, e = s.split('e')
-    x_si = r'{m:s} × $10^{{{e:d}}}$'.format(m=m, e=int(e))
+    s = "{x:0.{ndp:d}e}".format(x=x, ndp=ndp)
+    m, e = s.split("e")
+    x_si = r"{m:s} × $10^{{{e:d}}}$".format(m=m, e=int(e))
 
     return x_si
 
 
-def three_bars(annotation_id,
-               experiment_id_1,
-               experiment_id_2,
-               diff_results_1,
-               diff_results_2, ax=None, xlabel=None, ylabel=None):
+def three_bars(
+    annotation_id,
+    experiment_id_1,
+    experiment_id_2,
+    diff_results_1,
+    diff_results_2,
+    ax=None,
+    xlabel=None,
+    ylabel=None,
+):
 
     if ax is None:
         ax = plt.subplot(111)
@@ -160,11 +176,13 @@ def three_bars(annotation_id,
     treatments_2 = experiments[experiment_id_2][1]
 
     # extract control and treatment values
-    control_values = np.log2(select_abundance_1[controls].astype(np.float64)+1)
+    control_values = np.log2(select_abundance_1[controls].astype(np.float64) + 1)
     treatment_1_values = np.log2(
-        select_abundance_1[treatments_1].astype(np.float64)+1)
+        select_abundance_1[treatments_1].astype(np.float64) + 1
+    )
     treatment_2_values = np.log2(
-        select_abundance_2[treatments_2].astype(np.float64)+1)
+        select_abundance_2[treatments_2].astype(np.float64) + 1
+    )
 
     control_mean = np.mean(control_values)
     treatment_1_mean = np.mean(treatment_1_values)
@@ -174,76 +192,83 @@ def three_bars(annotation_id,
     offset = 0.05
     width = 0.4
 
-    control_rect = Rectangle([offset, 0],
-                             width,
-                             control_mean,
-                             color=control_color,
-                             alpha=1,
-                             linewidth=0,
-                             zorder=-100
-                             )
+    control_rect = Rectangle(
+        [offset, 0],
+        width,
+        control_mean,
+        color=control_color,
+        alpha=1,
+        linewidth=0,
+        zorder=-100,
+    )
     ax.add_patch(control_rect)
 
-    treatment_1_rect = Rectangle([0.5+offset, 0],
-                                 width,
-                                 treatment_1_mean,
-                                 color=treatment_color,
-                                 alpha=1,
-                                 linewidth=0,
-                                 zorder=-100
-                                 )
+    treatment_1_rect = Rectangle(
+        [0.5 + offset, 0],
+        width,
+        treatment_1_mean,
+        color=treatment_color,
+        alpha=1,
+        linewidth=0,
+        zorder=-100,
+    )
     ax.add_patch(treatment_1_rect)
 
-    treatment_2_rect = Rectangle([1+offset, 0],
-                                 width,
-                                 treatment_2_mean,
-                                 color=treatment_color,
-                                 alpha=1,
-                                 linewidth=0,
-                                 zorder=-100
-                                 )
+    treatment_2_rect = Rectangle(
+        [1 + offset, 0],
+        width,
+        treatment_2_mean,
+        color=treatment_color,
+        alpha=1,
+        linewidth=0,
+        zorder=-100,
+    )
     ax.add_patch(treatment_2_rect)
 
     # draw the points themselves
-    ax.scatter([0.25-width/4, 0.25, 0.25+width/4],
-               control_values,
-               color="white",
-               linewidth=0.5,
-               s=16,
-               edgecolor=control_color
-               )
-    ax.scatter([0.75-width/4, 0.75, 0.75+width/4],
-               treatment_1_values,
-               color="white",
-               linewidth=0.5,
-               s=16,
-               edgecolor=treatment_color
-               )
-    ax.scatter([1.25-width/4, 1.25, 1.25+width/4],
-               treatment_2_values,
-               color="white",
-               linewidth=0.5,
-               s=16,
-               edgecolor=treatment_color
-               )
+    ax.scatter(
+        [0.25 - width / 4, 0.25, 0.25 + width / 4],
+        control_values,
+        color="white",
+        linewidth=0.5,
+        s=16,
+        edgecolor=control_color,
+    )
+    ax.scatter(
+        [0.75 - width / 4, 0.75, 0.75 + width / 4],
+        treatment_1_values,
+        color="white",
+        linewidth=0.5,
+        s=16,
+        edgecolor=treatment_color,
+    )
+    ax.scatter(
+        [1.25 - width / 4, 1.25, 1.25 + width / 4],
+        treatment_2_values,
+        color="white",
+        linewidth=0.5,
+        s=16,
+        edgecolor=treatment_color,
+    )
 
     # figure formatting
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     ax.set_xticks([0.25, 0.75, 1.25])
     ax.set_xticklabels(["", ""])
     ax.set_xlabel(xlabel, rotation=45)
     ax.set_ylabel(ylabel)
 
     # space out axes
-    ax.spines['bottom'].set_position(('axes', 0))
-    ax.spines['left'].set_position(('axes', -0.25))
+    ax.spines["bottom"].set_position(("axes", 0))
+    ax.spines["left"].set_position(("axes", -0.25))
 
     # set y minimum to 0
     plt.ylim(-0.01)
 
-    y_max = max(list(control_values)+list(treatment_1_values) +
-                list(treatment_2_values))
+    y_max = max(
+        list(control_values) + list(treatment_1_values) + list(treatment_2_values)
+    )
 
     qval_1 = select_abundance_1["qval"]
     qval_2 = select_abundance_2["qval"]
@@ -260,12 +285,9 @@ def three_bars(annotation_id,
         else:
             compare_text = "n.s"
 
-        ax.text(0.75,
-                treatment_1_max*1.15,
-                compare_text,
-                ha="center",
-                fontsize=12,
-                )
+        ax.text(
+            0.75, treatment_1_max * 1.15, compare_text, ha="center", fontsize=12,
+        )
 
     if not np.isnan(qval_2):
 
@@ -276,12 +298,9 @@ def three_bars(annotation_id,
         else:
             compare_text = "n.s"
 
-        ax.text(1.25,
-                treatment_2_max*1.15,
-                compare_text,
-                ha="center",
-                fontsize=12,
-                )
+        ax.text(
+            1.25, treatment_2_max * 1.15, compare_text, ha="center", fontsize=12,
+        )
 
     return ax, y_max
 
@@ -309,9 +328,8 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
     treatments = experiments[experiment_id][1]
 
     # extract control and treatment values
-    control_values = np.log2(select_abundance[controls].astype(np.float64)+1)
-    treatment_values = np.log2(
-        select_abundance[treatments].astype(np.float64)+1)
+    control_values = np.log2(select_abundance[controls].astype(np.float64) + 1)
+    treatment_values = np.log2(select_abundance[treatments].astype(np.float64) + 1)
 
     control_mean = np.mean(control_values)
     treatment_mean = np.mean(treatment_values)
@@ -320,58 +338,62 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
     offset = 0.05
     width = 0.4
 
-    control_rect = Rectangle([offset, 0],
-                             width,
-                             control_mean,
-                             color=control_color,
-                             alpha=1,
-                             linewidth=0,
-                             zorder=-100
-                             )
+    control_rect = Rectangle(
+        [offset, 0],
+        width,
+        control_mean,
+        color=control_color,
+        alpha=1,
+        linewidth=0,
+        zorder=-100,
+    )
     ax.add_patch(control_rect)
 
-    treatment_rect = Rectangle([0.5+offset, 0],
-                               width,
-                               treatment_mean,
-                               color=treatment_color,
-                               alpha=1,
-                               linewidth=0,
-                               zorder=-100
-                               )
+    treatment_rect = Rectangle(
+        [0.5 + offset, 0],
+        width,
+        treatment_mean,
+        color=treatment_color,
+        alpha=1,
+        linewidth=0,
+        zorder=-100,
+    )
     ax.add_patch(treatment_rect)
 
     # draw the points themselves
-    ax.scatter([0.25-width/4, 0.25, 0.25+width/4],
-               control_values,
-               color="white",
-               linewidth=0.5,
-               s=16,
-               edgecolor=control_color
-               )
-    ax.scatter([0.75-width/4, 0.75, 0.75+width/4],
-               treatment_values,
-               color="white",
-               linewidth=0.5,
-               s=16,
-               edgecolor=treatment_color
-               )
+    ax.scatter(
+        [0.25 - width / 4, 0.25, 0.25 + width / 4],
+        control_values,
+        color="white",
+        linewidth=0.5,
+        s=16,
+        edgecolor=control_color,
+    )
+    ax.scatter(
+        [0.75 - width / 4, 0.75, 0.75 + width / 4],
+        treatment_values,
+        color="white",
+        linewidth=0.5,
+        s=16,
+        edgecolor=treatment_color,
+    )
 
     # figure formatting
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     ax.set_xticks([0.25, 0.75])
     ax.set_xticklabels(["", ""])
     ax.set_xlabel(xlabel, rotation=45)
     ax.set_ylabel(ylabel)
 
     # space out axes
-    ax.spines['bottom'].set_position(('axes', 0))
-    ax.spines['left'].set_position(('axes', -0.25))
+    ax.spines["bottom"].set_position(("axes", 0))
+    ax.spines["left"].set_position(("axes", -0.25))
 
     # set y minimum to 0
     plt.ylim(-0.01)
 
-    y_max = max(list(control_values)+list(treatment_values))
+    y_max = max(list(control_values) + list(treatment_values))
 
     treatment_max = max(treatment_values)
 
@@ -386,12 +408,7 @@ def bars(annotation_id, experiment_id, diff_results, ax=None, xlabel=None, ylabe
         else:
             compare_text = "n.s"
 
-        ax.text(0.75,
-                treatment_max*1.15,
-                compare_text,
-                ha="center",
-                fontsize=12
-                )
+        ax.text(0.75, treatment_max * 1.15, compare_text, ha="center", fontsize=12)
 
     return ax, y_max
 
@@ -408,68 +425,74 @@ def all_bars(annotation_id, annotation_type, legend=False):
     plot_axes_height = 4
     label_axes_height = 3
 
-    axes = [plt.subplot2grid((plot_axes_height+label_axes_height, total_width), (0, cumulative_widths[x]),
-                             colspan=axes_widths[x], rowspan=plot_axes_height) for x in range(len(axes_widths))]
+    axes = [
+        plt.subplot2grid(
+            (plot_axes_height + label_axes_height, total_width),
+            (0, cumulative_widths[x]),
+            colspan=axes_widths[x],
+            rowspan=plot_axes_height,
+        )
+        for x in range(len(axes_widths))
+    ]
 
-    exp_label_axes = [plt.subplot2grid((plot_axes_height+label_axes_height, total_width), (plot_axes_height, cumulative_widths[x]),
-                                       colspan=axes_widths[x], rowspan=label_axes_height) for x in range(len(axes_widths))]
+    exp_label_axes = [
+        plt.subplot2grid(
+            (plot_axes_height + label_axes_height, total_width),
+            (plot_axes_height, cumulative_widths[x]),
+            colspan=axes_widths[x],
+            rowspan=label_axes_height,
+        )
+        for x in range(len(axes_widths))
+    ]
 
     maxes = []
 
     if annotation_type == "transcript":
-        sleuth_sets = [rpl22_oe_transcripts,
-                       rpl22l1_oe_transcripts,
-                       [rpl22l1_kd1_transcripts,
-                        rpl22l1_kd2_transcripts],
-                       [rpl22_a_ko1_transcripts,
-                        rpl22_a_ko2_transcripts],
-                       [rpl22_b_ko1_transcripts,
-                        rpl22_b_ko2_transcripts]
-                       ]
+        sleuth_sets = [
+            rpl22_oe_transcripts,
+            rpl22l1_oe_transcripts,
+            [rpl22l1_kd1_transcripts, rpl22l1_kd2_transcripts],
+            [rpl22_a_ko1_transcripts, rpl22_a_ko2_transcripts],
+            [rpl22_b_ko1_transcripts, rpl22_b_ko2_transcripts],
+        ]
 
     elif annotation_type == "gene":
-        sleuth_sets = [rpl22_oe_genes,
-                       rpl22l1_oe_genes,
-                       [rpl22l1_kd1_genes,
-                        rpl22l1_kd2_genes],
-                       [rpl22_a_ko1_genes,
-                        rpl22_a_ko2_genes],
-                       [rpl22_b_ko1_genes,
-                        rpl22_b_ko2_genes]
-                       ]
+        sleuth_sets = [
+            rpl22_oe_genes,
+            rpl22l1_oe_genes,
+            [rpl22l1_kd1_genes, rpl22l1_kd2_genes],
+            [rpl22_a_ko1_genes, rpl22_a_ko2_genes],
+            [rpl22_b_ko1_genes, rpl22_b_ko2_genes],
+        ]
 
     elif annotation_type == "splicing":
-        sleuth_sets = [rpl22_oe_rmats,
-                       rpl22l1_oe_rmats,
-                       [rpl22l1_kd1_rmats,
-                        rpl22l1_kd2_rmats],
-                       [rpl22_a_ko1_rmats,
-                        rpl22_a_ko2_rmats],
-                       [rpl22_b_ko1_rmats,
-                        rpl22_b_ko2_rmats]
-                       ]
+        sleuth_sets = [
+            rpl22_oe_rmats,
+            rpl22l1_oe_rmats,
+            [rpl22l1_kd1_rmats, rpl22l1_kd2_rmats],
+            [rpl22_a_ko1_rmats, rpl22_a_ko2_rmats],
+            [rpl22_b_ko1_rmats, rpl22_b_ko2_rmats],
+        ]
 
     for sleuth_idx, sleuth_set in enumerate(sleuth_sets[:2]):
         ax = axes[sleuth_idx]
 
-        ax, y_max = bars(annotation_id,
-                         experiment_ids[sleuth_idx],
-                         sleuth_set,
-                         ax=ax,
-                         ylabel="")
+        ax, y_max = bars(
+            annotation_id, experiment_ids[sleuth_idx], sleuth_set, ax=ax, ylabel=""
+        )
 
         maxes.append(y_max)
 
         if sleuth_idx > 0:
 
             ax.spines["left"].set_visible(False)
-            ax.tick_params(axis='y', which='both', right=False,
-                           left=False, labelleft=False)
+            ax.tick_params(
+                axis="y", which="both", right=False, left=False, labelleft=False
+            )
 
         ax.set_ylim(0)
 
-        ax.set_xticklabels(
-            display_groups[sleuth_idx], rotation=90, ha="right", size=8)
+        ax.set_xticklabels(display_groups[sleuth_idx], rotation=90, ha="right", size=8)
         ax.set_xlabel("")
 
         exp_ax = exp_label_axes[sleuth_idx]
@@ -482,36 +505,38 @@ def all_bars(annotation_id, annotation_type, legend=False):
         exp_ax.set_xlabel(contexts[sleuth_idx], fontsize=10)
 
     for sleuth_idx, sleuth_set in enumerate(sleuth_sets[2:]):
-        ax = axes[2+sleuth_idx]
+        ax = axes[2 + sleuth_idx]
 
-        ax, y_max = three_bars(annotation_id,
-                               experiment_ids[2+sleuth_idx*2],
-                               experiment_ids[2+sleuth_idx*2+1],
-                               sleuth_set[0],
-                               sleuth_set[1],
-                               ax=ax,
-                               ylabel="")
+        ax, y_max = three_bars(
+            annotation_id,
+            experiment_ids[2 + sleuth_idx * 2],
+            experiment_ids[2 + sleuth_idx * 2 + 1],
+            sleuth_set[0],
+            sleuth_set[1],
+            ax=ax,
+            ylabel="",
+        )
 
         maxes.append(y_max)
 
         ax.spines["left"].set_visible(False)
-        ax.tick_params(axis='y', which='both', right=False,
-                       left=False, labelleft=False)
+        ax.tick_params(axis="y", which="both", right=False, left=False, labelleft=False)
 
         ax.set_ylim(0)
 
         ax.set_xticklabels(
-            display_groups[2+sleuth_idx], rotation=90, ha="right", size=8)
+            display_groups[2 + sleuth_idx], rotation=90, ha="right", size=8
+        )
         ax.set_xlabel("")
 
-        exp_ax = exp_label_axes[2+sleuth_idx]
+        exp_ax = exp_label_axes[2 + sleuth_idx]
         exp_ax.patch.set_alpha(0)
         exp_ax.spines["left"].set_visible(False)
         exp_ax.spines["top"].set_visible(False)
         exp_ax.spines["right"].set_visible(False)
         exp_ax.set_xticks([])
         exp_ax.set_yticks([])
-        exp_ax.set_xlabel(contexts[2+sleuth_idx], fontsize=10)
+        exp_ax.set_xlabel(contexts[2 + sleuth_idx], fontsize=10)
 
     if annotation_type == "transcript" or annotation_type == "gene":
         axes[0].set_ylabel("mRNA expression")
@@ -522,7 +547,7 @@ def all_bars(annotation_id, annotation_type, legend=False):
     y_max = max(maxes)
 
     for ax in axes:
-        ax.set_ylim(0, y_max*1.25)
+        ax.set_ylim(0, y_max * 1.25)
 
     plt.subplots_adjust(wspace=1, hspace=2)
 
@@ -530,13 +555,14 @@ def all_bars(annotation_id, annotation_type, legend=False):
 
         legend_background = "#eaeaea"
 
-        legend_elements = [Patch(label='Control',
-                                 color=control_color, alpha=1),
-                           Patch(label='Treatment',
-                                 color=treatment_color, alpha=1)]
+        legend_elements = [
+            Patch(label="Control", color=control_color, alpha=1),
+            Patch(label="Treatment", color=treatment_color, alpha=1),
+        ]
 
-        legend = plt.legend(handles=legend_elements,
-                            loc='upper left', bbox_to_anchor=(1, 1),)
+        legend = plt.legend(
+            handles=legend_elements, loc="upper left", bbox_to_anchor=(1, 1),
+        )
         frame = legend.get_frame()
         frame.set_facecolor(legend_background)
         frame.set_edgecolor(legend_background)

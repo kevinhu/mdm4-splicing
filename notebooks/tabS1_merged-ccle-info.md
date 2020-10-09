@@ -20,14 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
 
-import sys
-import os
-
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
-
-import galileo as gal
-import huygens as huy
+import cancer_data
 ```
 
 # Overview
@@ -40,10 +33,14 @@ import huygens as huy
 
 ```python
 # cell line characteristics
-cell_line_info = pd.read_csv("../../data/processed/depmap/sample_info.csv", index_col=0)
+cell_line_info = cancer_data.load("depmap_annotations")
 cell_line_info["COSMIC_ID"] = (
-    cell_line_info["COSMIC_ID"].fillna(0).astype(int).astype(str).replace("0", "")
+    cell_line_info["COSMICID"].astype(float).fillna(0).astype(int).astype(str).replace("0", "")
 )
+
+cell_line_info["CCLE_name"] = cell_line_info["CCLE_Name"]
+cell_line_info["Sanger_ID"] = cell_line_info["Sanger_Model_ID"]
+cell_line_info["disease"] = cell_line_info["primary_disease"]
 
 select_cell_line_info = cell_line_info[
     ["CCLE_name", "COSMIC_ID", "Sanger_ID", "disease"]
@@ -60,9 +57,7 @@ select_cell_line_info.columns = [
 ## Mutation calls
 
 ```python
-mutation_calls = pd.read_csv(
-    "../../data/raw/depmap/CCLE_mutations_19q4.csv", index_col=0
-)
+mutation_calls = cancer_data.load("depmap_mutations")
 mutation_calls["Change"] = "chr" + mutation_calls["Chromosome"].astype(str)
 mutation_calls["Change"] = (
     mutation_calls["Change"] + "_" + mutation_calls["Start_position"].astype(str)
@@ -141,7 +136,7 @@ merged_mutations = merged_mutations.fillna("WT")
 ## MSI
 
 ```python
-is_msi = pd.read_hdf("../../data/processed/depmap/CCLE_MSI.h5", key="is_msi")
+is_msi = cancer_data.load("ccle_msi")
 
 select_msi = is_msi["MSI"]
 ```
@@ -149,9 +144,7 @@ select_msi = is_msi["MSI"]
 ## Splicing
 
 ```python
-exonusage = pd.read_hdf(
-    "../../data/processed/ccle/CCLE_RNAseq_ExonUsageRatio_20180929.hdf", key="exonusage"
-)
+exonusage = cancer_data.load("ccle_exonusage")
 
 select_exons = [
     "UBAP2L_5p_chr1_154242676_154243329_ENSG00000143569.14",
@@ -167,10 +160,7 @@ select_exonusage.columns = [x + "_exonusage" for x in select_exonusage.columns]
 ## mRNA expression
 
 ```python
-ccle_genex = pd.read_hdf(
-    "../../data/processed/ccle/CCLE_RNAseq_rsem_genes_tpm_20180929.hdf",
-    key="ccle_genex",
-)
+ccle_genex = cancer_data.load("ccle_gene_tpm")
 
 select_genex_genes = [
     "MDM2_ENSG00000135679.17",
@@ -187,15 +177,15 @@ select_genex.columns = [x + "_mRNA" for x in select_genex.columns]
 ## Proteomics
 
 ```python
-ms_prot = pd.read_hdf("../../data/processed/ccle/ms_prot.h5", key="ms_prot")
-rppa = pd.read_hdf("../../data/processed/ccle/CCLE_RPPA_20181003.hdf", key="rppa")
+ms_prot = cancer_data.load("ccle_proteomics")
+rppa = cancer_data.load("ccle_rppa")
 
 select_ms_proteins = [
-    "P53_HUMAN_P04637",
-    "MDM2_HUMAN_Q00987-11",
-    "MDM4_HUMAN_O15151",
-    "RL22_HUMAN_P35268",
-    "RL22L_HUMAN_Q6P5R6",
+    "TP53_P04637",
+    "MDM2_Q00987-11",
+    "MDM4_O15151",
+    "RPL22_P35268",
+    "RPL22L1_Q6P5R6",
 ]
 
 select_ms_prot = ms_prot[select_ms_proteins]
@@ -207,7 +197,7 @@ select_ms_prot.columns = [
     "RPL22L1_MS_protein",
 ]
 
-select_rppa_proteins = ["MDM2_pS166", "MDMX_MDM4(BetIHC-00108)_Caution"]
+select_rppa_proteins = ["MDM2_MDM2_pS166", "MDM4_MDMX_MDM4(BetIHC-00108)_Caution"]
 
 select_rppa = rppa[select_rppa_proteins]
 
@@ -217,23 +207,19 @@ select_rppa.columns = ["MDM2_RPPA_protein", "MDM4_RPPA_protein"]
 ## Copy number
 
 ```python
-copynumber = pd.read_hdf(
-    "../../data/processed/depmap/CCLE_gene_cn_19q4_public.hdf", key="copynumber"
-)
+copynumber = cancer_data.load("depmap_copy_number")
 
-select_copynumber_genes = ["TP53 (7157)", "RPL22 (6146)"]
+select_copynumber_genes = ["TP53_7157", "RPL22_6146"]
 
 select_copynumber = copynumber[select_copynumber_genes]
 select_copynumber.columns = ["TP53_copynumber", "RPL22_copynumber"]
 ```
 
-## Sensitivities
+## Gene sensitivities
 
 ```python
-avana = pd.read_hdf("../../data/processed/depmap/avana.hdf", key="avana")
-drive = pd.read_hdf(
-    "../../data/processed/depmap/demeter2-drive_v12-gene-effect.hdf", key="drive"
-)
+avana = cancer_data.load("avana")
+drive = cancer_data.load("drive")
 
 select_avana_genes = [
     "TP53_7157",
@@ -262,6 +248,17 @@ select_drive.columns = [
 ]
 ```
 
+## Drug sensitivities
+
+```python
+prism_primary_logfold = cancer_data.load("prism_primary_logfold")
+prism_secondary_logfold = cancer_data.load("prism_secondary_logfold")
+
+select_prism_primary = prism_primary_logfold[["nutlin-3_BRD-A12230535-001-06-7::2.5::HTS"]]
+
+select_prism_primary.columns = ["nutlin-3_PRISM_primary_2.5"]
+```
+
 ## Merge
 
 ```python
@@ -277,6 +274,7 @@ merged_ccle_info = pd.concat(
         select_copynumber,
         select_avana,
         select_drive,
+        select_prism_primary
     ],
     join="outer",
     axis=1,

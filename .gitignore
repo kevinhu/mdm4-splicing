@@ -1,6 +1,6 @@
 **/*.ipynb_checkpoints/
-.DS_Store
 **/*.DS_Store
 notebooks/.vscode/settings.json
 notebooks/.Rhistory
 **/*.Rhistory
+**/__pycache__

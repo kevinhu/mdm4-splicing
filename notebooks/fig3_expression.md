@@ -22,25 +22,8 @@ import matplotlib as mpl
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Rectangle
 import matplotlib.font_manager as fm
-from textwrap import wrap
-
-
-prop = fm.FontProperties(fname="../plots/arial.ttf")
-
-plt.rcParams["ps.useafm"] = True
-plt.rcParams["font.family"] = "Arial"
-plt.rcParams["pdf.fonttype"] = 42
-plt.rcParams["ps.fonttype"] = 42
 
 from statsmodels.stats.multitest import multipletests
-
-import sys
-import os
-
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
-import galileo as gal
-import huygens as huy
 
 from itertools import combinations, chain
 import upsetplot
@@ -48,6 +31,9 @@ import upsetplot
 import json
 
 import helper
+
+import config
+config.config_visuals()
 ```
 
 # Define experiments
