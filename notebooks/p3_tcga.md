@@ -15,18 +15,10 @@ jupyter:
 ```python
 import pandas as pd
 import numpy as np
-from functools import reduce
 
 import seaborn as sns
 
-import sys
-import os
 
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
-
-import galileo as gal
-import huygens as huy
 ```
 
 # Load annotations

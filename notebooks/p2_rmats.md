@@ -379,31 +379,3 @@ res = pd.read_csv(
     names=["id", "pred", "true", "fold"],
 )
 ```
-
-```python
-res[res["pred"]>-0.5]
-```
-
-```python
-cv_res = res[res["fold"]==1]
-```
-
-```python
-sns.stripplot(cv_res["true"],cv_res["pred"])
-```
-
-```python
-sns.stripplot(cv_res["true"],cv_res["pred"])
-```
-
-```python
-scores = pd.read_csv("/Users/khu/Desktop/lsgkm-master/bin/scores.txt",sep="\t",names=["kmer","score"])
-```
-
-```python
-sns.distplot(scores["score"])
-```
-
-```python
-scores.sort_values(by="score")
-```
