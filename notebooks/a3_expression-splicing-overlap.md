@@ -18,6 +18,9 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
+
+import config
+config.config_visuals()
 ```
 
 # Load outputs
@@ -152,15 +155,19 @@ expression_splicing_overlap(
     rpl22l1_kd2_genes, rpl22l1_kd2_rmats, title="LNCaP RPL22L1_KD2", cutoff=0.01, ax=axes[0][3]
 )
 expression_splicing_overlap(
-    rpl22_a_ko1_genes, rpl22_a_ko1_rmats, title="NCI-H2110 RPL22 KO1", cutoff=0.01, ax=axes[1][0]
+    rpl22_a_ko1_genes, rpl22_a_ko1_rmats, title="NCI-H2110 RPL22_KO1", cutoff=0.01, ax=axes[1][0]
 )
 expression_splicing_overlap(
-    rpl22_a_ko2_genes, rpl22_a_ko2_rmats, title="NCI-H2110 RPL22 KO2", cutoff=0.01, ax=axes[1][1]
+    rpl22_a_ko2_genes, rpl22_a_ko2_rmats, title="NCI-H2110 RPL22_KO2", cutoff=0.01, ax=axes[1][1]
 )
 expression_splicing_overlap(
     rpl22_b_ko1_genes, rpl22_b_ko1_rmats, title="ZR75-1 RPL22_KO1", cutoff=0.01, ax=axes[1][2]
 )
 expression_splicing_overlap(
     rpl22_b_ko2_genes, rpl22_b_ko2_rmats, title="ZR75-1 RPL22_KO2", cutoff=0.01, ax=axes[1][3]
+)
+
+plt.savefig(
+    "../plots/expression_splicing_intersections.pdf", transparent=True, bbox_inches="tight"
 )
 ```
