@@ -255,7 +255,7 @@ def three_bars(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_xticks([0.25, 0.75, 1.25])
-    ax.set_xticklabels(["", ""])
+    ax.set_xticklabels(["", "", ""])
     ax.set_xlabel(xlabel, rotation=45)
     ax.set_ylabel(ylabel)
 

@@ -136,6 +136,8 @@ def expression_splicing_overlap(genes, rmats, cutoff, title, show_labels=False, 
         v.get_patch_by_id(patch_id).set_edgecolor("black")
         
     ax.set_title(title)
+    
+    return genes.loc[genes_ids & rmats_ids,"hgnc_gene"]
 ```
 
 ```python

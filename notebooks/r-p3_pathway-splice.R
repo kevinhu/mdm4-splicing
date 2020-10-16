@@ -31,7 +31,9 @@ rpl22_b_ko2_reduced <- make_gene_table(rpl22_b_ko2)
 
 dir.name <- system.file("extdata", package = "PathwaySplice")
 hallmark.local.pathways <- file.path(dir.name, "h.all.v6.0.symbols.gmt.txt")
-hlp <- gmtGene2Cat(hallmark.local.pathways, genomeID = "hg19")
+ontology.local.pathways <- file.path("../data/raw/msigdb/c5.all.v7.0.symbols.gmt")
+# hlp <- gmtGene2Cat(hallmark.local.pathways, genomeID = "hg19")
+hlp <- gmtGene2Cat(ontology.local.pathways, genomeID = "hg19")
 
 
 run_splice <- function(gene_table){
