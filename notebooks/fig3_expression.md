@@ -105,16 +105,6 @@ rpl22_b_ko2_transcripts = pd.read_hdf(
 )
 ```
 
-```python
-helper.all_bars("ENSG00000163584", "gene")
-
-# plt.savefig(
-#     "../plots/RPL22L1_ENSG00000163584_expression.pdf",
-#     bbox_inches="tight",
-#     transparent=True,
-# )
-```
-
 # Differential expression
 
 ```python
