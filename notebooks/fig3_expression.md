@@ -105,6 +105,22 @@ rpl22_b_ko2_transcripts = pd.read_hdf(
 )
 ```
 
+```python
+# a_transcripts = rpl22_a_ko1_transcripts[rpl22_a_ko1_transcripts["qval"]<0.01].index
+# b_transcripts = rpl22_a_ko2_transcripts[rpl22_a_ko2_transcripts["qval"]<0.01].index
+
+a_transcripts = rpl22l1_kd1_transcripts[rpl22l1_kd1_transcripts["qval"]<0.01]
+b_transcripts = rpl22l1_kd2_transcripts[rpl22l1_kd2_transcripts["qval"]<0.01]
+
+common = list(set(a_transcripts.index)&set(b_transcripts.index))
+# a_transcripts.loc[common]["hgnc_gene"]
+print("\n".join(list(a_transcripts.loc[common]["hgnc_gene"].dropna())))
+```
+
+```python
+print("\n".join(list(rpl22l1_kd2_transcripts[rpl22l1_kd2_transcripts["qval"]<10e-50]["hgnc_gene"].dropna())))
+```
+
 # Differential expression
 
 ```python
@@ -410,52 +426,47 @@ fgseas = [
 ```
 
 ```python
-select_names = display_names[:4][::-1]
+select_names = display_names[:4]
 select_gseas = fgseas[:4]
 
 top_n = 4
 
-top_sets = pd.Index([])
+# top gene sets
+top_sets = set()
 
 for gsea in select_gseas:
 
     top = gsea.sort_values(by="pval").head(top_n)
-
     top = top[top["padj"] < 0.1]
-
     top = top.index
 
-    top_sets = top_sets | top
+    top_sets = top_sets | set(top)
 
 set_count = len(top_sets)
+top_sets = list(top_sets)
 
-tops = [x.loc[top_sets] for x in select_gseas]
+# get top sets for each gsea
 
-qvals = [x["padj"] for x in tops]
-sizes = [x["size"] for x in tops]
-directions = [x["direction"] for x in tops]
+merged_top_gsea = []
 
-qvals = pd.concat(qvals)
-sizes = pd.concat(sizes)
-directions = pd.concat(directions)
+experiment_coord = 0
 
-experiments = np.repeat(display_names, top_n)
+for name, gsea in zip(select_names, select_gseas):
+    
+    tops = gsea.loc[top_sets]
 
-experiment_coords = np.repeat(np.arange(len(select_names)), set_count)
-gene_set_coords = list(range(set_count)) * len(select_names)
+    tops["experiment"] = name
+    tops["experiment_coord"] = experiment_coord
+    tops["gene_set_coord"] = range(len(tops))
+        
+    experiment_coord += 1
+    tops = tops.reset_index(drop=True)
+    
+    merged_top_gsea.append(tops)
 
-merged_top_gsea = pd.DataFrame()
-merged_top_gsea["qval"] = list(qvals)
-merged_top_gsea["size"] = list(sizes)
-merged_top_gsea["direction"] = list(directions)
-merged_top_gsea["direction"] = merged_top_gsea["direction"].replace(
-    {True: "Upregulated", False: "Downregulated"}
-)
-merged_top_gsea["experiment_coord"] = experiment_coords
-merged_top_gsea["gene_set_coord"] = gene_set_coords
-merged_top_gsea["experiment"] = np.array(select_names)[experiment_coords]
-merged_top_gsea["gene_set"] = np.array(top_sets)[gene_set_coords]
-
+merged_top_gsea = pd.concat(merged_top_gsea)
+merged_top_gsea = merged_top_gsea.reset_index(drop=True)
+merged_top_gsea
 
 def format_set(x):
 
@@ -467,19 +478,37 @@ def format_set(x):
 ```
 
 ```python
+merged_top_gsea["direction"] = merged_top_gsea["direction"].replace(
+    {True: "Upregulated", False: "Downregulated"}
+)
+
 def get_signed_qval(row):
     if row["direction"] == "Upregulated":
-        return -np.log10(row["qval"])
+        return -np.log10(row["padj"])
     elif row["direction"] == "Downregulated":
-        return np.log10(row["qval"])
+        return np.log10(row["padj"])
 
 
 merged_top_gsea["signed_qval"] = merged_top_gsea.apply(get_signed_qval, axis=1)
 ```
 
 ```python
-qval_mat = merged_top_gsea[["signed_qval", "gene_set", "experiment"]].pivot(
-    index="gene_set", columns="experiment"
+merged_top_gsea[["signed_qval", "pathway", "experiment"]].pivot(
+    index="pathway", columns="experiment"
+)
+```
+
+```python
+merged_top_gsea[merged_top_gsea["pathway"]=="HALLMARK_P53_PATHWAY"]
+```
+
+```python
+rpl22l1_kd2_fgsea
+```
+
+```python
+qval_mat = merged_top_gsea[["signed_qval", "pathway", "experiment"]].pivot(
+    index="pathway", columns="experiment"
 )
 
 from scipy.cluster.hierarchy import linkage, optimal_leaf_ordering, leaves_list
@@ -550,7 +579,7 @@ plt.axis("equal")
 ax.set_ylim(-0.5, len(select_names) - 0.5)
 ax.set_xlim(-0.5, len(set_labels) - 0.5)
 
-plt.savefig("../plots/gsea_summary.pdf", bbox_inches="tight", dpi=512, transparent=True)
+# plt.savefig("../plots/gsea_summary.pdf", bbox_inches="tight", dpi=512, transparent=True)
 ```
 
 ```python

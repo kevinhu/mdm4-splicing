@@ -89,12 +89,16 @@ run_fgsea <- function(rank_set, results_file){
   ranks <- setNames(rank_set$signed_pval, rank_set$target_id)
   fgseaRes <- fgseaMultilevel(pathways = all_pathways, 
                               stats = ranks,
-                              minSize=0,
+                              minSize=5,
                               maxSize=500)
   
   fgseaRes$leadingEdge <- vapply(fgseaRes$leadingEdge, paste, collapse = ",", character(1L))
   
-  write.table(fgseaRes, file = paste("../../processed/fgsea_results/",results_file,sep=""), sep="\t",col.names=TRUE, row.names=TRUE)
+  write.table(fgseaRes, 
+              file = paste("../../processed/fgsea_results/",results_file,sep=""), 
+              sep="\t",
+              col.names=TRUE, 
+              row.names=TRUE)
 }
 ```
 
