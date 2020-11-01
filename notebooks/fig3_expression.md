@@ -25,6 +25,8 @@ import matplotlib.font_manager as fm
 
 from statsmodels.stats.multitest import multipletests
 
+from scipy.cluster.hierarchy import linkage, optimal_leaf_ordering, leaves_list
+
 from itertools import combinations, chain
 import upsetplot
 
@@ -105,22 +107,6 @@ rpl22_b_ko2_transcripts = pd.read_hdf(
 )
 ```
 
-```python
-# a_transcripts = rpl22_a_ko1_transcripts[rpl22_a_ko1_transcripts["qval"]<0.01].index
-# b_transcripts = rpl22_a_ko2_transcripts[rpl22_a_ko2_transcripts["qval"]<0.01].index
-
-a_transcripts = rpl22l1_kd1_transcripts[rpl22l1_kd1_transcripts["qval"]<0.01]
-b_transcripts = rpl22l1_kd2_transcripts[rpl22l1_kd2_transcripts["qval"]<0.01]
-
-common = list(set(a_transcripts.index)&set(b_transcripts.index))
-# a_transcripts.loc[common]["hgnc_gene"]
-print("\n".join(list(a_transcripts.loc[common]["hgnc_gene"].dropna())))
-```
-
-```python
-print("\n".join(list(rpl22l1_kd2_transcripts[rpl22l1_kd2_transcripts["qval"]<10e-50]["hgnc_gene"].dropna())))
-```
-
 # Differential expression
 
 ```python
@@ -192,9 +178,6 @@ plt.savefig(
     transparent=True,
 )
 ```
-
-## Volcano plots
-
 
 # Overlaps
 
@@ -299,10 +282,6 @@ rpl22_int_display_names = [
 rpl22_ko_ints, rpl22_ko_int_names, rpl22_ko_int_sizes = get_overlaps(
     rpl22_int_rmats, rpl22_int_display_names
 )
-```
-
-```python
-rpl22_ko_ints[-1]
 ```
 
 ```python
@@ -426,8 +405,8 @@ fgseas = [
 ```
 
 ```python
-select_names = display_names[:4]
-select_gseas = fgseas[:4]
+select_names = display_names[:4][::-1]
+select_gseas = fgseas[:4][::-1]
 
 top_n = 4
 
@@ -452,29 +431,42 @@ merged_top_gsea = []
 experiment_coord = 0
 
 for name, gsea in zip(select_names, select_gseas):
-    
+
     tops = gsea.loc[top_sets]
 
     tops["experiment"] = name
     tops["experiment_coord"] = experiment_coord
     tops["gene_set_coord"] = range(len(tops))
-        
+
     experiment_coord += 1
     tops = tops.reset_index(drop=True)
-    
+
     merged_top_gsea.append(tops)
 
+# merge all the top GSEAS together
 merged_top_gsea = pd.concat(merged_top_gsea)
 merged_top_gsea = merged_top_gsea.reset_index(drop=True)
 merged_top_gsea
 
+# Simplify names
 def format_set(x):
 
     x = x.replace("_", " ")
 
-    x = x.replace("GO ", "").replace(" PROCESS", "").capitalize()
+    x = (
+        x.replace("GO ", "")
+        .replace(" PROCESS", "")
+        .replace(" CONTAINING ", "-")
+        .replace(" BINDING", "")
+        .replace(" PATHWAY", "")
+        .replace(" DEVELOPMENT", " DEV.")
+        .replace("REGULATION OF ", "")
+        .capitalize()
+    )
 
     return x
+
+merged_top_gsea["pathway"] = merged_top_gsea["pathway"].apply(format_set)
 ```
 
 ```python
@@ -488,45 +480,34 @@ def get_signed_qval(row):
     elif row["direction"] == "Downregulated":
         return np.log10(row["padj"])
 
-
 merged_top_gsea["signed_qval"] = merged_top_gsea.apply(get_signed_qval, axis=1)
-```
 
-```python
-merged_top_gsea[["signed_qval", "pathway", "experiment"]].pivot(
-    index="pathway", columns="experiment"
-)
-```
-
-```python
-merged_top_gsea[merged_top_gsea["pathway"]=="HALLMARK_P53_PATHWAY"]
-```
-
-```python
-rpl22l1_kd2_fgsea
-```
-
-```python
 qval_mat = merged_top_gsea[["signed_qval", "pathway", "experiment"]].pivot(
     index="pathway", columns="experiment"
 )
 
-from scipy.cluster.hierarchy import linkage, optimal_leaf_ordering, leaves_list
-
+# get hierarchical linkage
 linkage_mat = linkage(qval_mat, method="ward")
-
 leaf_order = optimal_leaf_ordering(linkage_mat, qval_mat)
-
 ordering = leaves_list(leaf_order)
+
+reordering = dict(zip(list(qval_mat.index[ordering]), range(len(ordering))))
+
+# get coordinates from ordering
+# gene_set_coords = list(np.argsort(ordering)) * len(select_names)
+# merged_top_gsea["gene_set_coord"] = gene_set_coords
+
+# top_sets = list(np.array(top_sets)[ordering])
+
+merged_top_gsea["gene_set_coord"] = merged_top_gsea["pathway"].map(reordering.get)
 ```
 
 ```python
-gene_set_coords = list(np.argsort(ordering)) * len(select_names)
-merged_top_gsea["gene_set_coord"] = gene_set_coords
+set_labels = merged_top_gsea[["pathway","gene_set_coord"]].drop_duplicates(["pathway"])
 
-top_sets = list(np.array(top_sets)[ordering])
+set_labels = set_labels.sort_values("gene_set_coord")
 
-# merged_top_gsea["gene_set"] = np.array(top_sets)[gene_set_coords]
+print("All label positions accounted:", all(set_labels["gene_set_coord"] == range(len(set_labels))))
 ```
 
 ```python
@@ -534,12 +515,10 @@ sns.set_style(
     "whitegrid", {"grid.linestyle": "--", "xtick.bottom": True, "ytick.left": True}
 )
 
-plt.figure(figsize=(7, 2))
+plt.figure(figsize=(4, 2))
 ax = plt.subplot(111)
 
-merged_top_gsea = merged_top_gsea[merged_top_gsea["qval"] < 0.1]
-
-set_labels = [format_set(x) for x in top_sets]
+merged_top_gsea = merged_top_gsea[merged_top_gsea["padj"] < 0.1]
 
 # for i in np.arange(0, len(set_labels), 2)+0.5:
 #     ax.axvspan(i-1, i, facecolor='lightgrey', alpha=0.333, zorder=-1)
@@ -547,7 +526,7 @@ set_labels = [format_set(x) for x in top_sets]
 g = sns.scatterplot(
     merged_top_gsea["gene_set_coord"],
     merged_top_gsea["experiment_coord"],
-    size=-np.log10(merged_top_gsea["qval"]).rename("-log10(q value)"),
+    size=-np.log10(merged_top_gsea["padj"]).rename("-log10(q value)"),
     hue=merged_top_gsea["direction"].rename("Direction"),
     ax=ax,
     palette={"Downregulated": "#3d84a8", "Upregulated": "#f38181"},
@@ -560,8 +539,8 @@ g.legend(loc="center left", bbox_to_anchor=(1.25, 0.5), ncol=1)
 
 ax.set_yticks(np.arange(len(select_names)))
 ax.set_yticklabels(select_names, rotation=0)
-ax.set_xticks(np.arange(len(top_sets)))
-ax.set_xticklabels(set_labels, rotation=45, ha="right")
+ax.set_xticks(set_labels["gene_set_coord"])
+ax.set_xticklabels(set_labels["pathway"], rotation=45, ha="right")
 # ax.xaxis.tick_top()
 
 ax.spines["top"].set_visible(False)
@@ -580,39 +559,4 @@ ax.set_ylim(-0.5, len(select_names) - 0.5)
 ax.set_xlim(-0.5, len(set_labels) - 0.5)
 
 # plt.savefig("../plots/gsea_summary.pdf", bbox_inches="tight", dpi=512, transparent=True)
-```
-
-```python
-plt.figure(figsize=(6, 2))
-ax = plt.subplot(111)
-
-merged_top_gsea = merged_top_gsea[merged_top_gsea["qval"] < 0.1]
-
-set_labels = [format_set(x) for x in top_sets]
-
-for i in np.arange(0, len(set_labels) - 1, 2) + 0.5:
-    ax.axvspan(i - 1, i, facecolor="lightgrey", alpha=0.333, zorder=-1)
-
-g = sns.scatterplot(
-    merged_top_gsea["gene_set_coord"],
-    merged_top_gsea["experiment_coord"],
-    size=-np.log10(merged_top_gsea["qval"]),
-    hue=merged_top_gsea["direction"],
-    ax=ax,
-    palette={"Upregulated": "#3d84a8", "Downregulated": "#f38181"},
-    linewidth=0,
-)
-
-g.legend(loc="center left", bbox_to_anchor=(1.25, 0.5), ncol=1)
-
-ax.set_yticks(np.arange(len(select_names)))
-ax.set_yticklabels(select_names, rotation=0)
-ax.set_xticks(np.arange(len(top_sets)))
-ax.set_xticklabels(set_labels, rotation=45, ha="right")
-# ax.xaxis.tick_top()
-
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-
-ax.set_xlim(-0.5, len(set_labels) - 0.5)
 ```

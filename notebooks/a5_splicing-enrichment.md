@@ -102,14 +102,6 @@ rpl22_b_ko2_se = load_se("rpl22_b_ko2")
 rpl22l1_oe_mxe = load_mxe("rpl22l1_oe")
 ```
 
-```python
-mxe = pd.read_csv(f"../data/raw/rmats_output/{'rpl22l1_oe'}/MXE.MATS.JC.txt", sep="\t", index_col=0)
-```
-
-```python
-plt.hist(rpl22l1_oe_mxe["exon_length"])
-```
-
 # Extract SE intervals
 
 ```python
@@ -150,25 +142,25 @@ output_diff_se(
     rpl22l1_oe_se,
     rpl22l1_oe_se["FDR"] < 0.01,
     "RPL22L1_OE_SE",
-    padding=100,
+    padding=16,
 )
 output_diff_se(
     rpl22l1_kd1_se,
     (rpl22l1_kd1_se["FDR"] < 0.01) & (rpl22l1_kd2_se["FDR"] < 0.01),
     "RPL22L1_KD_SE",
-    padding=100,
+    padding=16,
 )
 output_diff_se(
     rpl22_a_ko1_se,
     (rpl22_a_ko1_se["FDR"] < 0.01) & (rpl22_a_ko2_se["FDR"] < 0.01),
     "RPL22_A_KO_SE",
-    padding=100,
+    padding=16,
 )
 output_diff_se(
     rpl22_b_ko1_se,
     (rpl22_b_ko1_se["FDR"] < 0.01) & (rpl22_b_ko2_se["FDR"] < 0.01),
     "RPL22_B_KO_SE",
-    padding=100,
+    padding=16,
 )
 ```
 
@@ -230,7 +222,7 @@ output_diff_mxe(
     rpl22l1_oe_mxe,
     rpl22l1_oe_mxe["FDR"] < 0.01,
     "RPL22L1_OE_MXE",
-    padding=100,
+    padding=16,
 )
 ```
 
