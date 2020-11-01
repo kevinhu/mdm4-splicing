@@ -23,39 +23,7 @@ import config
 config.config_visuals()
 ```
 
-```python
-rpl22_oe_rmats = pd.read_hdf("../data/processed/rmats_merge/rpl22_oe.h5", key="rmats")
-rpl22l1_oe_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22l1_oe.h5", key="rmats"
-)
-rpl22l1_kd1_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22l1_kd1.h5", key="rmats"
-)
-rpl22l1_kd2_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22l1_kd2.h5", key="rmats"
-)
-rpl22_a_ko1_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22_a_ko1.h5", key="rmats"
-)
-rpl22_a_ko2_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22_a_ko2.h5", key="rmats"
-)
-rpl22_b_ko1_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22_b_ko1.h5", key="rmats"
-)
-rpl22_b_ko2_rmats = pd.read_hdf(
-    "../data/processed/rmats_merge/rpl22_b_ko2.h5", key="rmats"
-)
-
-rpl22_oe_rmats = rpl22_oe_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22l1_oe_rmats = rpl22l1_oe_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22l1_kd1_rmats = rpl22l1_kd1_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22l1_kd2_rmats = rpl22l1_kd2_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_a_ko1_rmats = rpl22_a_ko1_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_a_ko2_rmats = rpl22_a_ko2_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_b_ko1_rmats = rpl22_b_ko1_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-rpl22_b_ko2_rmats = rpl22_b_ko2_rmats.rename({"PValue": "pval", "FDR": "qval"}, axis=1)
-```
+# Load splicing results
 
 ```python
 from functools import reduce
@@ -63,6 +31,7 @@ def concat_cols(df, cols, delim):
     cols_str = [df[x].astype(str) for x in cols]
 
     return reduce(lambda a, b: a + delim + b, cols_str)
+
 def load_se(experiment):
     se = pd.read_csv("../data/raw/rmats_output/"+ experiment +
                      "/SE.MATS.JC.txt", sep="\t", index_col=0)
@@ -90,45 +59,86 @@ rpl22_b_ko2_se = load_se("rpl22_b_ko2")
 
 ```
 
+# Extract exon intervals
+
 ```python
-diff_exons = rpl22l1_oe_se["FDR"] < 0.01
-# diff_exons = (rpl22l1_oe_se["FDR"] < 0.01) & ((rpl22_a_ko2_se["FDR"] < 0.01))
+def output_diff_exons(exon_set, filter_set, output_name, start_col, end_col, padding):
 
-padding = 100
-# max_len = 10000
+    exon_set = exon_set.copy(deep=True)
 
-exon_set = rpl22l1_oe_se[
-    ["chr", "exonStart_0base", "exonEnd", "strand", "exon_length", "geneSymbol"]
-].copy(deep=True)
-# exon_set = exon_set[exon_set["exon_length"] <= max_len]
+    exon_set["chr"] = exon_set["chr"].apply(lambda x: x[3:])
+    exon_set["start"] = exon_set[start_col] - padding
+    exon_set["end"] = exon_set[end_col] + padding
+    exon_set["id"] = range(len(exon_set))
+    exon_set["id"] = exon_set["geneSymbol"] + "_" + exon_set["id"].astype(str)
 
-exon_set["chr"] = exon_set["chr"].apply(lambda x: x[3:])
-exon_set["start"] = exon_set["exonStart_0base"] - padding
-exon_set["end"] = exon_set["exonEnd"] + padding
-exon_set["id"] = range(len(exon_set))
-exon_set["id"] = exon_set["geneSymbol"] + "_" + exon_set["id"].astype(str)
+    pos_exons = exon_set[filter_set]
+    neg_exons = exon_set[~filter_set]
 
-pos_exons = exon_set[diff_exons]
-neg_exons = exon_set[~diff_exons]
+    print(f"Positive exons: {len(pos_exons)}")
+    print(f"Negative exons: {len(neg_exons)}")
 
-print(len(pos_exons),len(neg_exons))
+    pos_exons[["chr", "start", "end", "id", "exon_length", "strand"]].to_csv(
+        f"../data/intermediate/extracted_sequences/{output_name}_pos.bed",
+        sep="\t",
+        header=False,
+        index=False,
+    )
+    neg_exons[["chr", "start", "end", "id", "exon_length", "strand"]].to_csv(
+        f"../data/intermediate/extracted_sequences/{output_name}_neg.bed",
+        sep="\t",
+        header=False,
+        index=False,
+    )
 
-pos_exons[["chr", "start", "end", "id", "exon_length", "strand"]].to_csv(
-    "../data/intermediate/diff_exons_pos.bed", sep="\t", header=False, index=False
+
+output_diff_exons(
+    rpl22l1_oe_se,
+    rpl22l1_oe_se["FDR"] < 0.01,
+    "RPL22L1_OE_SE",
+    "exonStart_0base",
+    "exonEnd",
+    padding=100,
 )
-neg_exons[["chr", "start", "end", "id", "exon_length", "strand"]].to_csv(
-    "../data/intermediate/diff_exons_neg.bed", sep="\t", header=False, index=False
+output_diff_exons(
+    rpl22l1_kd1_se,
+    (rpl22l1_kd1_se["FDR"] < 0.01) & (rpl22l1_kd2_se["FDR"] < 0.01),
+    "RPL22L1_KD_SE",
+    "exonStart_0base",
+    "exonEnd",
+    padding=100,
+)
+output_diff_exons(
+    rpl22_a_ko1_se,
+    (rpl22_a_ko1_se["FDR"] < 0.01) & (rpl22_a_ko2_se["FDR"] < 0.01),
+    "RPL22_A_KO_SE",
+    "exonStart_0base",
+    "exonEnd",
+    padding=100,
+)
+output_diff_exons(
+    rpl22_b_ko1_se,
+    (rpl22_b_ko1_se["FDR"] < 0.01) & (rpl22_b_ko2_se["FDR"] < 0.01),
+    "RPL22_B_KO_SE",
+    "exonStart_0base",
+    "exonEnd",
+    padding=100,
 )
 ```
 
-```python
-!bedtools getfasta -s -name \
-    -fi ../data/raw/reference/hg19.fa -bed \
-    ../data/intermediate/diff_exons_pos.bed \
-    > ../data/intermediate/diff_exons_pos.fasta
+# Extract output sequences
 
-!bedtools getfasta -s -name \
+```python
+output_names = ["RPL22L1_OE_SE","RPL22L1_KD_SE","RPL22_A_KO_SE","RPL22_B_KO_SE"]
+
+for name in output_names:
+    !bedtools getfasta -s -name \
     -fi ../data/raw/reference/hg19.fa -bed \
-    ../data/intermediate/diff_exons_neg.bed \
-    > ../data/intermediate/diff_exons_neg.fasta
+    ../data/intermediate/extracted_sequences/{name}_pos.bed \
+    > ../data/intermediate/extracted_sequences/{name}_pos.fasta
+
+    !bedtools getfasta -s -name \
+        -fi ../data/raw/reference/hg19.fa -bed \
+        ../data/intermediate/extracted_sequences/{name}_neg.bed \
+        > ../data/intermediate/extracted_sequences/{name}_neg.fasta
 ```
