@@ -549,3 +549,75 @@ ax.set_xlim(-0.5, len(set_labels) - 0.5)
 
 plt.savefig("../plots/gsea_summary.pdf", bbox_inches="tight", dpi=512, transparent=True)
 ```
+
+# Splicing factors
+
+```python
+t2g = pd.read_csv("../data/intermediate/sleuth_diff/ensembl_t2g.csv")
+
+entrez_to_ensembl = t2g[["ens_gene","entrez_gene"]].dropna()
+entrez_to_ensembl["entrez_gene"] = entrez_to_ensembl["entrez_gene"].astype(int)
+
+entrez_to_ensembl = dict(zip(entrez_to_ensembl["entrez_gene"],entrez_to_ensembl["ens_gene"]))
+
+splicing_controls = experiments["rpl22l1_oe"][0]
+splicing_treatments = experiments["rpl22l1_oe"][1]
+```
+
+```python
+splicing_genes = rpl22l1_oe_fgsea.loc[
+    [
+        "GO_RNA_SPLICING",
+        "GO_SPLICEOSOMAL_COMPLEX",
+        "GO_RNA_SPLICING_VIA_TRANSESTERIFICATION_REACTIONS",
+    ],
+    "leadingEdge",
+]
+splicing_genes = ",".join(splicing_genes).split(",")
+splicing_genes = list(set(splicing_genes))
+splicing_genes = [entrez_to_ensembl[int(x)] for x in splicing_genes]
+
+splicing_genes = [x for x in splicing_genes if x in rpl22l1_oe_genes.index]
+
+splicing_expression = rpl22l1_oe_genes.loc[splicing_genes]
+
+splicing_expression = splicing_expression[
+    splicing_expression["median_foldchange"] > 2
+]
+
+
+splicing_expression = splicing_expression[
+    splicing_controls + splicing_treatments + ["hgnc_gene"]
+]
+
+
+splicing_expression = splicing_expression.melt(
+    id_vars=["hgnc_gene"], value_vars=splicing_controls + splicing_treatments
+)
+splicing_expression = splicing_expression.rename(
+    {"variable": "experiment", "value": "expression"}, axis=1
+)
+
+splicing_expression["group"] = splicing_expression["experiment"].apply(
+    lambda x: "GFP_OE" if x in splicing_controls else "RPL22L1_OE"
+)
+
+splicing_expression["expression"] = np.log2(splicing_expression["expression"] + 1)
+
+splicing_expression = splicing_expression.sort_values(by=["group", "expression"])
+
+splicing_expression.shape
+```
+
+```python
+sns.catplot(data=splicing_expression,
+            kind="bar",
+            y="hgnc_gene",
+            x="expression",
+            hue="group"
+           )
+```
+
+```python
+splicing_expression
+```
