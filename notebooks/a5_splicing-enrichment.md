@@ -142,25 +142,25 @@ output_diff_se(
     rpl22l1_oe_se,
     rpl22l1_oe_se["FDR"] < 0.01,
     "RPL22L1_OE_SE",
-    padding=16,
+    padding=1000,
 )
 output_diff_se(
     rpl22l1_kd1_se,
     (rpl22l1_kd1_se["FDR"] < 0.01) & (rpl22l1_kd2_se["FDR"] < 0.01),
     "RPL22L1_KD_SE",
-    padding=16,
+    padding=1000,
 )
 output_diff_se(
     rpl22_a_ko1_se,
     (rpl22_a_ko1_se["FDR"] < 0.01) & (rpl22_a_ko2_se["FDR"] < 0.01),
     "RPL22_A_KO_SE",
-    padding=16,
+    padding=1000,
 )
 output_diff_se(
     rpl22_b_ko1_se,
     (rpl22_b_ko1_se["FDR"] < 0.01) & (rpl22_b_ko2_se["FDR"] < 0.01),
     "RPL22_B_KO_SE",
-    padding=16,
+    padding=1000,
 )
 ```
 
@@ -222,7 +222,7 @@ output_diff_mxe(
     rpl22l1_oe_mxe,
     rpl22l1_oe_mxe["FDR"] < 0.01,
     "RPL22L1_OE_MXE",
-    padding=16,
+    padding=1000,
 )
 ```
 
@@ -233,9 +233,9 @@ output_names = ["RPL22L1_OE_SE","RPL22L1_KD_SE","RPL22_A_KO_SE","RPL22_B_KO_SE",
 
 for name in output_names:
     !bedtools getfasta -s -name \
-    -fi ../data/raw/reference/hg19.fa -bed \
-    ../data/intermediate/extracted_sequences/{name}_pos.bed \
-    > ../data/intermediate/extracted_sequences/{name}_pos.fasta
+        -fi ../data/raw/reference/hg19.fa -bed \
+        ../data/intermediate/extracted_sequences/{name}_pos.bed \
+        > ../data/intermediate/extracted_sequences/{name}_pos.fasta
 
     !bedtools getfasta -s -name \
         -fi ../data/raw/reference/hg19.fa -bed \
