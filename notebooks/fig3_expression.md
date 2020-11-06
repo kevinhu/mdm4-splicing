@@ -560,64 +560,108 @@ entrez_to_ensembl["entrez_gene"] = entrez_to_ensembl["entrez_gene"].astype(int)
 
 entrez_to_ensembl = dict(zip(entrez_to_ensembl["entrez_gene"],entrez_to_ensembl["ens_gene"]))
 
-splicing_controls = experiments["rpl22l1_oe"][0]
-splicing_treatments = experiments["rpl22l1_oe"][1]
+
 ```
 
 ```python
-splicing_genes = rpl22l1_oe_fgsea.loc[
+def plot_splicing(gene_sets, gsea, expression, names, experiment_name):
+
+    splicing_genes = gsea.loc[
+        gene_sets, "leadingEdge",
+    ]
+    splicing_genes = ",".join(splicing_genes).split(",")
+    splicing_genes = list(set(splicing_genes))
+    splicing_genes = [entrez_to_ensembl[int(x)] for x in splicing_genes]
+
+    splicing_genes = [x for x in splicing_genes if x in expression.index]
+
+    splicing_expression = expression.loc[splicing_genes]
+    
+    splicing_expression = splicing_expression.head(16)
+
+#     splicing_expression = splicing_expression[
+#         np.abs(np.log2(splicing_expression["median_foldchange"])) > 1
+#     ]
+    
+    splicing_controls = experiments[experiment_name][0]
+    splicing_treatments = experiments[experiment_name][1]
+
+    splicing_expression = splicing_expression[
+        splicing_controls + splicing_treatments + ["hgnc_gene"]
+    ]
+    
+
+    splicing_expression = splicing_expression.melt(
+        id_vars=["hgnc_gene"], value_vars=splicing_controls + splicing_treatments
+    )
+    splicing_expression = splicing_expression.rename(
+        {"variable": "experiment", "value": "expression"}, axis=1
+    )
+
+    splicing_expression["group"] = splicing_expression["experiment"].apply(
+        lambda x: False if x in splicing_controls else True
+    )
+
+    splicing_expression["expression"] = np.log2(splicing_expression["expression"] + 1)
+
+    splicing_expression = splicing_expression.sort_values(by=["group", "expression"])
+    
+    splicing_expression["group"] = splicing_expression["group"].apply({True:names[1],False:names[0]}.get)
+
+    ax = sns.catplot(
+        data=splicing_expression, kind="bar", y="hgnc_gene", x="expression", hue="group",
+        palette={names[1]:"#f67280",names[0]:"#393e46"},
+        capsize=.2
+    )
+    
+    plt.ylabel("")
+    plt.xlabel("log2(TPM+1)")
+```
+
+```python
+plot_splicing(
     [
-        "GO_RNA_SPLICING",
-        "GO_SPLICEOSOMAL_COMPLEX",
-        "GO_RNA_SPLICING_VIA_TRANSESTERIFICATION_REACTIONS",
+        "HALLMARK_P53_PATHWAY",
     ],
-    "leadingEdge",
-]
-splicing_genes = ",".join(splicing_genes).split(",")
-splicing_genes = list(set(splicing_genes))
-splicing_genes = [entrez_to_ensembl[int(x)] for x in splicing_genes]
-
-splicing_genes = [x for x in splicing_genes if x in rpl22l1_oe_genes.index]
-
-splicing_expression = rpl22l1_oe_genes.loc[splicing_genes]
-
-splicing_expression = splicing_expression[
-    splicing_expression["median_foldchange"] > 2
-]
-
-
-splicing_expression = splicing_expression[
-    splicing_controls + splicing_treatments + ["hgnc_gene"]
-]
-
-
-splicing_expression = splicing_expression.melt(
-    id_vars=["hgnc_gene"], value_vars=splicing_controls + splicing_treatments
+    rpl22l1_kd1_fgsea,
+    rpl22l1_kd1_genes,
+    ["shLuc","RPL22L1_KD1"],
+    "rpl22l1_kd1"
 )
-splicing_expression = splicing_expression.rename(
-    {"variable": "experiment", "value": "expression"}, axis=1
-)
-
-splicing_expression["group"] = splicing_expression["experiment"].apply(
-    lambda x: "GFP_OE" if x in splicing_controls else "RPL22L1_OE"
-)
-
-splicing_expression["expression"] = np.log2(splicing_expression["expression"] + 1)
-
-splicing_expression = splicing_expression.sort_values(by=["group", "expression"])
-
-splicing_expression.shape
 ```
 
 ```python
-sns.catplot(data=splicing_expression,
-            kind="bar",
-            y="hgnc_gene",
-            x="expression",
-            hue="group"
-           )
+plot_splicing(
+    [
+        "HALLMARK_P53_PATHWAY",
+    ],
+    rpl22l1_kd2_fgsea,
+    rpl22l1_kd2_genes,
+    ["shLuc","RPL22L1_KD2"],
+    "rpl22l1_kd2"
+)
 ```
 
 ```python
-splicing_expression
+plot_splicing(
+    [
+        "HALLMARK_P53_PATHWAY",
+    ],
+    rpl22l1_oe_fgsea,
+    rpl22l1_oe_genes,
+    ["GFP_OE","RPL22L1_OE"],
+    "rpl22l1_oe"
+)
+```
+
+```python
+plot_splicing(
+    [
+        "GO_RNA_SPLICING"
+    ],
+    rpl22l1_oe_fgsea,
+    rpl22l1_oe_genes,
+    ["GFP_OE","RPL22L1_OE"],
+    "rpl22l1_oe"
+)
 ```
