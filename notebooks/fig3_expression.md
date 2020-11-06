@@ -295,11 +295,6 @@ up = upsetplot.plot(rpl22_ko_pivot, sort_categories_by=None, show_counts=True)
 
 up["intersections"].set_yscale("symlog")
 
-# up["intersections"].set_ylim(0.5)
-
-# for patch in up["intersections"]:
-#     patch.set_rasterized(True)
-
 plt.savefig(
     "../plots/RPL22_transcript_intersections.pdf",
     transparent=True,
@@ -515,13 +510,10 @@ sns.set_style(
     "whitegrid", {"grid.linestyle": "--", "xtick.bottom": True, "ytick.left": True}
 )
 
-plt.figure(figsize=(4, 2))
+plt.figure(figsize=(6, 2))
 ax = plt.subplot(111)
 
 merged_top_gsea = merged_top_gsea[merged_top_gsea["padj"] < 0.1]
-
-# for i in np.arange(0, len(set_labels), 2)+0.5:
-#     ax.axvspan(i-1, i, facecolor='lightgrey', alpha=0.333, zorder=-1)
 
 g = sns.scatterplot(
     merged_top_gsea["gene_set_coord"],
@@ -541,13 +533,10 @@ ax.set_yticks(np.arange(len(select_names)))
 ax.set_yticklabels(select_names, rotation=0)
 ax.set_xticks(set_labels["gene_set_coord"])
 ax.set_xticklabels(set_labels["pathway"], rotation=45, ha="right")
-# ax.xaxis.tick_top()
 
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
 
-
-# ax.grid(which='major',linestyle='-', linewidth='0.5')
 
 ax.set_xlabel("")
 ax.set_ylabel("")
@@ -558,5 +547,5 @@ plt.axis("equal")
 ax.set_ylim(-0.5, len(select_names) - 0.5)
 ax.set_xlim(-0.5, len(set_labels) - 0.5)
 
-# plt.savefig("../plots/gsea_summary.pdf", bbox_inches="tight", dpi=512, transparent=True)
+plt.savefig("../plots/gsea_summary.pdf", bbox_inches="tight", dpi=512, transparent=True)
 ```
