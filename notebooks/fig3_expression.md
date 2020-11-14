@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.5.0
+      jupytext_version: 1.6.0
   kernelspec:
     display_name: Python 3
     language: python
@@ -576,20 +576,19 @@ def plot_splicing(gene_sets, gsea, expression, names, experiment_name):
     splicing_genes = [x for x in splicing_genes if x in expression.index]
 
     splicing_expression = expression.loc[splicing_genes]
-    
+
     splicing_expression = splicing_expression.head(16)
 
-#     splicing_expression = splicing_expression[
-#         np.abs(np.log2(splicing_expression["median_foldchange"])) > 1
-#     ]
-    
+    #     splicing_expression = splicing_expression[
+    #         np.abs(np.log2(splicing_expression["median_foldchange"])) > 1
+    #     ]
+
     splicing_controls = experiments[experiment_name][0]
     splicing_treatments = experiments[experiment_name][1]
 
     splicing_expression = splicing_expression[
         splicing_controls + splicing_treatments + ["hgnc_gene"]
     ]
-    
 
     splicing_expression = splicing_expression.melt(
         id_vars=["hgnc_gene"], value_vars=splicing_controls + splicing_treatments
@@ -605,63 +604,74 @@ def plot_splicing(gene_sets, gsea, expression, names, experiment_name):
     splicing_expression["expression"] = np.log2(splicing_expression["expression"] + 1)
 
     splicing_expression = splicing_expression.sort_values(by=["group", "expression"])
-    
-    splicing_expression["group"] = splicing_expression["group"].apply({True:names[1],False:names[0]}.get)
+
+    splicing_expression["group"] = splicing_expression["group"].apply(
+        {True: names[1], False: names[0]}.get
+    )
 
     ax = sns.catplot(
-        data=splicing_expression, kind="bar", y="hgnc_gene", x="expression", hue="group",
-        palette={names[1]:"#f67280",names[0]:"#393e46"},
-        capsize=.2
+        data=splicing_expression,
+        kind="bar",
+        y="hgnc_gene",
+        x="expression",
+        hue="group",
+        palette={names[1]: "#f67280", names[0]: "#B1B4B1"},
+        capsize=0.2,
+        height=4,
+        aspect=0.7,
+        legend_out=True,
     )
-    
+
     plt.ylabel("")
     plt.xlabel("log2(TPM+1)")
 ```
 
 ```python
 plot_splicing(
-    [
-        "HALLMARK_P53_PATHWAY",
-    ],
+    ["HALLMARK_P53_PATHWAY",],
     rpl22l1_kd1_fgsea,
     rpl22l1_kd1_genes,
-    ["shLuc","RPL22L1_KD1"],
-    "rpl22l1_kd1"
+    ["shLuc", "RPL22L1_KD1"],
+    "rpl22l1_kd1",
 )
+
+plt.title("Hallmark p53 pathway genes")
+
+plt.savefig("/Users/khu/Desktop/RPL22L1_KD1_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
 ```
 
 ```python
 plot_splicing(
-    [
-        "HALLMARK_P53_PATHWAY",
-    ],
+    ["HALLMARK_P53_PATHWAY",],
     rpl22l1_kd2_fgsea,
     rpl22l1_kd2_genes,
-    ["shLuc","RPL22L1_KD2"],
-    "rpl22l1_kd2"
+    ["shLuc", "RPL22L1_KD2"],
+    "rpl22l1_kd2",
 )
+
+plt.savefig("/Users/khu/Desktop/RPL22L1_KD2_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
 ```
 
 ```python
 plot_splicing(
-    [
-        "HALLMARK_P53_PATHWAY",
-    ],
+    ["HALLMARK_P53_PATHWAY",],
     rpl22l1_oe_fgsea,
     rpl22l1_oe_genes,
-    ["GFP_OE","RPL22L1_OE"],
-    "rpl22l1_oe"
+    ["GFP_OE", "RPL22L1_OE"],
+    "rpl22l1_oe",
 )
+
+plt.savefig("/Users/khu/Desktop/RPL22L1_OE_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
 ```
 
 ```python
 plot_splicing(
-    [
-        "GO_RNA_SPLICING"
-    ],
+    ["GO_RNA_SPLICING"],
     rpl22l1_oe_fgsea,
     rpl22l1_oe_genes,
-    ["GFP_OE","RPL22L1_OE"],
-    "rpl22l1_oe"
+    ["GFP_OE", "RPL22L1_OE"],
+    "rpl22l1_oe",
 )
+
+plt.savefig("/Users/khu/Desktop/RPL22L1_OE_GO_RNA_splicing.pdf",bbox_inches="tight",transparent=True)
 ```

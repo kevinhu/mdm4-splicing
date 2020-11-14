@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.5.0
+      jupytext_version: 1.6.0
   kernelspec:
     display_name: Python 3
     language: python
@@ -67,7 +67,13 @@ sns.swarmplot(
     s=4
 )
 
-plt.show()
+plt.ylabel("MDM4 exon 6 inclusion")
+
+plt.savefig("/Users/khu/Desktop/TP53-WT_RPL22_vs_MDM4-6-inclusion.pdf",transparent=True,bbox_inches="tight")
+
+```
+
+```python
 
 plt.figure(figsize=(4, 6))
 
@@ -83,7 +89,7 @@ sns.swarmplot(
     s=4
 )
 
-plt.show()
+plt.savefig("/Users/khu/Desktop/TP53-WT_RPL22_vs_MDM4-Avana.pdf",transparent=True,bbox_inches="tight")
 ```
 
 ```python
@@ -101,5 +107,23 @@ sns.swarmplot(
     s=4
 )
 
-plt.show()
+plt.savefig("/Users/khu/Desktop/TP53-WT_RPL22_vs_MDM4-DRIVE.pdf",transparent=True,bbox_inches="tight")
+```
+
+```python
+plt.figure(figsize=(4, 6))
+
+sns.boxplot(
+    rpl22_select["RPL22_status"], rpl22_select["MDM4_DRIVE_dependency"], notch=True
+)
+
+sns.swarmplot(
+    rpl22_select["RPL22_status"],
+    rpl22_select["nutlin-3_PRISM_primary_2.5"],
+    linewidth=1,
+    alpha=0.4,
+    s=4
+)
+
+plt.savefig("/Users/khu/Desktop/TP53-WT_RPL22_vs_nutlin-3_PRISM_primary_2.5.pdf",transparent=True,bbox_inches="tight")
 ```
