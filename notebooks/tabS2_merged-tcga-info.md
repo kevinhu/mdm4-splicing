@@ -20,42 +20,37 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
 
-import sys
-import os
-
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
-
-import galileo as gal
-import huygens as huy
+import cancer_data
 ```
 
 ```python
-tcga_cn_thresholded = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_cn_thresholded.hdf", key="tcga_cn_thresholded"
-)
+def process_tcga_splicing(tcga_splicing):
+    
+    # keep first four identifier fields
+    tcga_splicing.index = tcga_splicing.index.map(lambda x: "-".join(x.split("-")[:4]))
+    # remove last letter
+    tcga_splicing.index = tcga_splicing.index.map(lambda x: x[:-1])
+    tcga_splicing = tcga_splicing[tcga_splicing.index.map(lambda x: x[-2:] != "11")]
+
+    tcga_splicing = tcga_splicing.loc[~tcga_splicing.index.duplicated(keep="first")]
+    
+    return tcga_splicing
 ```
 
 ```python
-tcga_genex = pd.read_hdf(
-    "../../data/processed/TCGA/TCGA_genex_norm.h5", key="tcga_genex"
-)
+tcga_se = cancer_data.load("tcga_se")
+tcga_a3ss = cancer_data.load("tcga_a3ss")
 
-tcga_splicing = pd.read_hdf("../../data/processed/TCGA/merged.h5", key="tcga_splicing")
-tcga_splicing.index = tcga_splicing.index.map(lambda x: x[:15])
-tcga_splicing = tcga_splicing[~tcga_splicing.index.duplicated(keep="first")]
+tcga_genex = cancer_data.load("tcga_normalized_gene_expression")
+tcga_cn_continuous = cancer_data.load("tcga_cn_continuous")
+tcga_cn_thresholded = cancer_data.load("tcga_cn_thresholded")
+tcga_mutations = cancer_data.load("tcga_mutations")
+tcga_msi = cancer_data.load("tcga_msi")
 
-tcga_cn = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_cn_whitelisted.hdf", key="tcga_cn"
-)
-tcga_cn_thresholded = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_cn_thresholded.hdf", key="tcga_cn_thresholded"
-)
+tcga_annotations = cancer_data.load("tcga_annotations")
 
-tcga_mut_mat = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_mut_mat.hdf", key="tcga_mut_mat"
-)
-tcga_msi = pd.read_hdf("../../data/processed/tcga/tcga_msi.h5", key="tcga_msi")
+tcga_se = process_tcga_splicing(tcga_se)
+tcga_a3ss = process_tcga_splicing(tcga_a3ss)
 ```
 
 ```python
@@ -66,22 +61,6 @@ rpl22_tcga = rpl22_tcga.set_index("sampleid")
 rpl22_tcga.index = rpl22_tcga.index.map(lambda x: x[:15])
 
 rpl22_mut = rpl22_tcga["rpl22mut.mc3.k15"].dropna()
-
-tcga_mut_mat["RPL22_chr1_6257785_6257785_T_-"] = rpl22_mut
-```
-
-```python
-tcga_tp53_mutations = pd.read_csv(
-    "../data/external/cbioportal/tp53_mutations.txt", sep="\t"
-)
-tcga_tp53_mutations["TP53"] = tcga_tp53_mutations["TP53"].fillna("WT")
-tcga_tp53_mutations = tcga_tp53_mutations.set_index("SAMPLE_ID")
-```
-
-```python
-tcga_sample_info = pd.read_hdf(
-    "../../data/processed/TCGA/tcga_sample_info.hdf", key="tcga_sample_info"
-)
 ```
 
 # Aggregate attributes
@@ -90,7 +69,7 @@ tcga_sample_info = pd.read_hdf(
 ## Tumor sample info
 
 ```python
-select_sample_info = tcga_sample_info[
+select_sample_info = tcga_annotations[
     ["sample_type", "_primary_disease", "abbreviated_disease"]
 ]
 
@@ -120,18 +99,23 @@ select_msi.columns = ["MANTIS_score", "MSI"]
 ## Exonusage
 
 ```python
-select_exons = [
-    "MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625",
-    "RPL22L1_ENSG00000163584_ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990",
-    "UBAP2L_ENSG00000143569_ENSG00000143569.14_ES_1_154241382:154241430:154241837:154241888:154242675:154243040_154241837:154241888",
+select_se = [
+    "ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625",
+    "ENSG00000143569.14_ES_1_154241382:154241430:154241837:154241888:154242675:154243040_154241837:154241888",
 ]
 
-select_exonusage = tcga_splicing[select_exons]
+select_a3ss = [
+    "ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990",
+]
+
+select_exonusage = pd.concat([tcga_se[select_se],tcga_a3ss[select_a3ss]],axis=1)
 select_exonusage.columns = [
     "MDM4_exon_6_inclusion",
     "RPL22L1_exon_3A_inclusion",
-    "UBAP2L_exon_9_inclusion",
+    "UBAP2L_exon_29_inclusion",
 ]
+
+select_exonusage["RPL22L1_exon_3A_inclusion"] = 1-select_exonusage["RPL22L1_exon_3A_inclusion"]
 ```
 
 ## Gene expression
@@ -150,14 +134,14 @@ select_genex.columns = ["MDM2_mRNA", "MDM4_mRNA", "RPL22_mRNA", "RPL22L1_mRNA"]
 
 ```python
 select_copynumber_genes = [
-    "TP53_chr17_7565097_7590868",
-    "MDM2_chr12_69201952_69244466",
-    "MDM4_chr1_204485507_204527248",
-    "RPL22_chr1_6241329_6260902",
-    "RPL22L1_chr3_170582664_170588272",
+    "TP53",
+    "MDM2",
+    "MDM4",
+    "RPL22",
+    "RPL22L1",
 ]
 
-select_copynumber = tcga_cn[select_copynumber_genes]
+select_copynumber = tcga_cn_continuous[select_copynumber_genes]
 select_copynumber.columns = [
     "TP53_copy_number",
     "MDM2_copy_number",
@@ -188,7 +172,6 @@ merged_tcga_info = pd.concat(
     [
         select_sample_info,
         select_mutations,
-        tcga_tp53_mutations["TP53"].rename("TP53_mutations"),
         select_msi,
         select_exonusage,
         select_genex,

@@ -160,13 +160,25 @@ plt.savefig(
 ```
 
 ```python
-helper.all_bars("ENST00000484819", "transcript")
+UBAP2L_significants = [
+    "ENST00000484819",
+    "ENST00000433615",
+    "ENST00000441890",
+    "ENST00000412596",
+    "ENST00000343815",
+]
 
-plt.savefig(
-    "../plots/UBAP2L_ENST00000484819_expression.pdf",
-    bbox_inches="tight",
-    transparent=True,
-)
+for transcript in UBAP2L_significants:
+    
+    plt.clf()
+
+    helper.all_bars(transcript, "transcript")
+
+    plt.savefig(
+        f"../plots/UBAP2L_{transcript}_expression.pdf",
+        bbox_inches="tight",
+        transparent=True,
+    )
 ```
 
 ```python
