@@ -178,6 +178,178 @@ plt.savefig(
 
 # Overlap between shRNAs and sgRNAs
 
-```python
 
+## Expression
+
+```python
+def expression_expression_overlap(
+    genes_1, genes_2, cutoff, title, label_1, label_2, show_labels=False, ax=None
+):
+
+    if ax is None:
+        fig = plt.figure(figsize=(4, 3))
+        ax = plt.subplot(111)
+
+    significant_1 = genes_1[genes_1["qval"] < cutoff]
+    significant_2 = genes_2[genes_2["qval"] < cutoff]
+
+    ids_1 = set(significant_1.index)
+    ids_2 = set(significant_2.index)
+
+    len_both = len(ids_1 & ids_2)
+
+    if show_labels:
+        set_labels = [label_1, label_2]
+    else:
+        set_labels = ["", ""]
+
+    v = venn2(
+        subsets={
+            "10": len(ids_1) - len_both,
+            "01": len(ids_2) - len_both,
+            "11": len_both,
+        },
+        set_labels=set_labels,
+        ax=ax,
+    )
+
+    for patch_id, color in zip(["10", "11", "01"], ["#9ddfd3", "white", "#03c4a1"]):
+
+        v.get_patch_by_id(patch_id).set_alpha(1.0)
+        v.get_patch_by_id(patch_id).set_color(color)
+        v.get_patch_by_id(patch_id).set_lw(1)
+        v.get_patch_by_id(patch_id).set_ls("solid")
+        v.get_patch_by_id(patch_id).set_edgecolor("black")
+
+    ax.set_title(title)
+
+    return genes_1.loc[ids_1 & ids_2, "hgnc_gene"]
+```
+
+```python
+fig, axes = plt.subplots(1, 3, figsize=(12, 6))
+
+expression_expression_overlap(
+    rpl22l1_kd1_genes,
+    rpl22l1_kd2_genes,
+    0.01,
+    "LNCaP RPL22L1_KD",
+    "KD1 Δ genes",
+    "KD2 Δ genes",
+    True,
+    ax=axes[0],
+)
+expression_expression_overlap(
+    rpl22_a_ko1_genes,
+    rpl22_a_ko2_genes,
+    0.01,
+    "NCI-H2110 RPL22_KO",
+    "KO1 Δ genes",
+    "KO2 Δ genes",
+    True,
+    ax=axes[1],
+)
+expression_expression_overlap(
+    rpl22_b_ko1_genes,
+    rpl22_b_ko2_genes,
+    0.01,
+    "ZR75-1 RPL22_KO",
+    "KO1 Δ genes",
+    "KO2 Δ genes",
+    True,
+    ax=axes[2],
+)
+
+plt.savefig(
+    "../plots/replicate_expression_intersections.pdf",
+    transparent=True,
+    bbox_inches="tight",
+)
+```
+
+## Splicing
+
+```python
+def splicing_splicing_overlap(
+    rmats_1, rmats_2, cutoff, title, label_1, label_2, show_labels=False, ax=None
+):
+
+    if ax is None:
+        fig = plt.figure(figsize=(4, 3))
+        ax = plt.subplot(111)
+
+    significant_1 = rmats_1[rmats_1["qval"] < cutoff]
+    significant_2 = rmats_2[rmats_2["qval"] < cutoff]
+
+    ids_1 = set(significant_1.index)
+    ids_2 = set(significant_2.index)
+
+    len_both = len(ids_1 & ids_2)
+
+    if show_labels:
+        set_labels = [label_1, label_2]
+    else:
+        set_labels = ["", ""]
+
+    v = venn2(
+        subsets={
+            "10": len(ids_1) - len_both,
+            "01": len(ids_2) - len_both,
+            "11": len_both,
+        },
+        set_labels=set_labels,
+        ax=ax,
+    )
+
+    for patch_id, color in zip(["10", "11", "01"], ["#a2d5f2", "white", "#51adcf"]):
+
+        v.get_patch_by_id(patch_id).set_alpha(1.0)
+        v.get_patch_by_id(patch_id).set_color(color)
+        v.get_patch_by_id(patch_id).set_lw(1)
+        v.get_patch_by_id(patch_id).set_ls("solid")
+        v.get_patch_by_id(patch_id).set_edgecolor("black")
+
+    ax.set_title(title)
+
+    return rmats_1.loc[ids_1 & ids_2]
+```
+
+```python
+fig, axes = plt.subplots(1, 3, figsize=(12, 6))
+splicing_splicing_overlap(
+    rpl22l1_kd1_rmats,
+    rpl22l1_kd2_rmats,
+    0.01,
+    "LNCaP RPL22L1_KD",
+    "KD1 Δ events",
+    "KD2 Δ events",
+    True,
+    ax=axes[0],
+)
+splicing_splicing_overlap(
+    rpl22_a_ko1_rmats,
+    rpl22_a_ko2_rmats,
+    0.01,
+    "NCI-H2110 RPL22_KO",
+    "KO1 Δ events",
+    "KO2 Δ events",
+    True,
+    ax=axes[1],
+)
+splicing_splicing_overlap(
+    rpl22_b_ko1_rmats,
+    rpl22_b_ko2_rmats,
+    0.01,
+    "ZR75-1 RPL22_KO",
+    "KO1 Δ events",
+    "KO2 Δ events",
+    True,
+    ax=axes[2],
+)
+
+plt.savefig(
+    "../plots/replicate_splicing_intersections.pdf",
+    transparent=True,
+    bbox_inches="tight",
+)
 ```
