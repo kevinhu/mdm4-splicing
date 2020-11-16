@@ -140,6 +140,8 @@ def expression_splicing_overlap(genes, rmats, cutoff, title, show_labels=False, 
     return genes.loc[genes_ids & rmats_ids,"hgnc_gene"]
 ```
 
+# Overlap between differentially expressed and spliced genes
+
 ```python
 fig, axes = plt.subplots(2, 4, figsize=(12, 6))
 
@@ -172,4 +174,10 @@ expression_splicing_overlap(
 plt.savefig(
     "../plots/expression_splicing_intersections.pdf", transparent=True, bbox_inches="tight"
 )
+```
+
+# Overlap between shRNAs and sgRNAs
+
+```python
+
 ```

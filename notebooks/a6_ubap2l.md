@@ -15,6 +15,7 @@ jupyter:
 ```python
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
