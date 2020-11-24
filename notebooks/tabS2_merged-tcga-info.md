@@ -79,6 +79,7 @@ select_sample_info.columns = ["Sample_type", "Primary_disease", "Abbreviated_dis
 ## Mutations
 
 ```python
+rpl22_tcga["TP53mut"] = rpl22_tcga["TP53mut"].fillna("WT")
 select_mutations = rpl22_tcga[["TP53mut", "rpl22mut.mc3.k15", "rpl22mut.mc3.all"]]
 select_mutations.columns = [
     "TP53_mutation_type",
