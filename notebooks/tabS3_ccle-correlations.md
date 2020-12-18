@@ -127,42 +127,22 @@ corr_kwargs = {"melt": True, "method": "spearman", "pbar": True}
 ```python
 csv_kwargs = {"sep": "\t"}
 
-rpl22l1_3a_genex_overall_corrs.to_csv(
-    "../data/supplementary/S3-a_rpl22l1-3a-genex-overall-corrs.txt", **csv_kwargs
-)
-rpl22l1_3a_exonusage_overall_corrs.to_csv(
-    "../data/supplementary/S3-b_rpl22l1-3a-exonusage-overall-corrs.txt", **csv_kwargs
-)
-rpl22l1_3a_genex_wt_corrs.to_csv(
-    "../data/supplementary/S3-c_rpl22l1-3a-genex-wt-corrs.txt", **csv_kwargs
-)
-rpl22l1_3a_exonusage_wt_corrs.to_csv(
-    "../data/supplementary/S3-d_rpl22l1-3a-exonusage-wt-corrs.txt", **csv_kwargs
-)
+outputs = [
+    [rpl22l1_3a_genex_overall_corrs, "S3-a_rpl22l1-3a-genex-overall-corrs"],
+    [rpl22l1_3a_exonusage_overall_corrs, "S3-b_rpl22l1-3a-exonusage-overall-corrs"],
+    [rpl22l1_3a_genex_wt_corrs, "S3-c_rpl22l1-3a-genex-wt-corrs"],
+    [rpl22l1_3a_exonusage_wt_corrs, "S3-d_rpl22l1-3a-exonusage-wt-corrs"],
+    [mdm4_6_genex_overall_corrs, "S3-e_mdm4-6-genex-overall-corrs"],
+    [mdm4_6_exonusage_overall_corrs, "S3-f_mdm4-6-exonusage-overall-corrs"],
+    [mdm4_6_genex_wt_corrs, "S3-g_mdm4-6-genex-wt-corrs"],
+    [mdm4_6_exonusage_wt_corrs, "S3-h_mdm4-6-exonusage-wt-corrs"],
+    [ubap2l_30_genex_overall_corrs, "S3-i_ubap2l-29-genex-overall-corrs"],
+    [ubap2l_30_exonusage_overall_corrs, "S3-j_ubap2l-29-exonusage-overall-corrs"],
+    [ubap2l_30_genex_wt_corrs, "S3-k_ubap2l-29-genex-wt-corrs"],
+    [ubap2l_30_exonusage_wt_corrs, "S3-l_ubap2l-29-exonusage-wt-corrs"],
+]
 
-mdm4_6_genex_overall_corrs.to_csv(
-    "../data/supplementary/S3-e_mdm4-6-genex-overall-corrs.txt", **csv_kwargs
-)
-mdm4_6_exonusage_overall_corrs.to_csv(
-    "../data/supplementary/S3-f_mdm4-6-exonusage-overall-corrs.txt", **csv_kwargs
-)
-mdm4_6_genex_wt_corrs.to_csv(
-    "../data/supplementary/S3-g_mdm4-6-genex-wt-corrs.txt", **csv_kwargs
-)
-mdm4_6_exonusage_wt_corrs.to_csv(
-    "../data/supplementary/S3-h_mdm4-6-exonusage-wt-corrs.txt", **csv_kwargs
-)
+for table, stem in outputs:
 
-ubap2l_30_genex_overall_corrs.to_csv(
-    "../data/supplementary/S3-i_ubap2l-30-genex-overall-corrs.txt", **csv_kwargs
-)
-ubap2l_30_exonusage_overall_corrs.to_csv(
-    "../data/supplementary/S3-j_ubap2l-30-exonusage-overall-corrs.txt", **csv_kwargs
-)
-ubap2l_30_genex_wt_corrs.to_csv(
-    "../data/supplementary/S3-k_ubap2l-30-genex-wt-corrs.txt", **csv_kwargs
-)
-ubap2l_30_exonusage_wt_corrs.to_csv(
-    "../data/supplementary/S3-l_ubap2l-30-exonusage-wt-corrs.txt", **csv_kwargs
-)
+    table.to_csv(f"../data/supplementary/{stem}.txt", **csv_kwargs)
 ```

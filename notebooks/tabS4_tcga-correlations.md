@@ -166,5 +166,87 @@ corr_kwargs = {"melt": True, "method": "spearman", "pbar": True}
         rpl22_wt_subset["UBAP2L_exon_29_inclusion"], df, **corr_kwargs
     )
     for df in compare_sets
+
 ]
+```
+
+## Merge splicing correlations
+
+```python
+rpl22l1_3a_exonusage_overall_corrs = pd.concat(
+    [
+        rpl22l1_3a_se_overall_corrs,
+        rpl22l1_3a_a3ss_overall_corrs,
+        rpl22l1_3a_a5ss_overall_corrs,
+        rpl22l1_3a_ir_overall_corrs,
+    ]
+)
+
+rpl22l1_3a_exonusage_wt_corrs = pd.concat(
+    [
+        rpl22l1_3a_se_wt_corrs,
+        rpl22l1_3a_a3ss_wt_corrs,
+        rpl22l1_3a_a5ss_wt_corrs,
+        rpl22l1_3a_ir_wt_corrs,
+    ]
+)
+
+mdm4_6_exonusage_overall_corrs = pd.concat(
+    [
+        mdm4_6_se_overall_corrs,
+        mdm4_6_a3ss_overall_corrs,
+        mdm4_6_a5ss_overall_corrs,
+        mdm4_6_ir_overall_corrs,
+    ]
+)
+
+mdm4_6_exonusage_wt_corrs = pd.concat(
+    [
+        mdm4_6_se_wt_corrs,
+        mdm4_6_a3ss_wt_corrs,
+        mdm4_6_a5ss_wt_corrs,
+        mdm4_6_ir_wt_corrs,
+    ]
+)
+
+ubap2l_29_exonusage_overall_corrs = pd.concat(
+    [
+        ubap2l_29_se_overall_corrs,
+        ubap2l_29_a3ss_overall_corrs,
+        ubap2l_29_a5ss_overall_corrs,
+        ubap2l_29_ir_overall_corrs,
+    ]
+)
+
+ubap2l_29_exonusage_wt_corrs = pd.concat(
+    [
+        ubap2l_29_se_wt_corrs,
+        ubap2l_29_a3ss_wt_corrs,
+        ubap2l_29_a5ss_wt_corrs,
+        ubap2l_29_ir_wt_corrs,
+    ]
+)
+```
+
+```python
+csv_kwargs = {"sep": "\t"}
+
+outputs = [
+    [rpl22l1_3a_genex_overall_corrs, "S4-a_rpl22l1-3a-genex-overall-corrs"],
+    [rpl22l1_3a_exonusage_overall_corrs, "S4-b_rpl22l1-3a-exonusage-overall-corrs"],
+    [rpl22l1_3a_genex_wt_corrs, "S4-c_rpl22l1-3a-genex-wt-corrs"],
+    [rpl22l1_3a_exonusage_wt_corrs, "S4-d_rpl22l1-3a-exonusage-wt-corrs"],
+    [mdm4_6_genex_overall_corrs, "S4-e_mdm4-6-genex-overall-corrs"],
+    [mdm4_6_exonusage_overall_corrs, "S4-f_mdm4-6-exonusage-overall-corrs"],
+    [mdm4_6_genex_wt_corrs, "S4-g_mdm4-6-genex-wt-corrs"],
+    [mdm4_6_exonusage_wt_corrs, "S4-h_mdm4-6-exonusage-wt-corrs"],
+    [ubap2l_29_genex_overall_corrs, "S4-i_ubap2l-29-genex-overall-corrs"],
+    [ubap2l_29_exonusage_overall_corrs, "S4-j_ubap2l-29-exonusage-overall-corrs"],
+    [ubap2l_29_genex_wt_corrs, "S4-k_ubap2l-29-genex-wt-corrs"],
+    [ubap2l_29_exonusage_wt_corrs, "S4-l_ubap2l-29-exonusage-wt-corrs"],
+]
+
+for table, stem in outputs:
+
+    table.to_csv(f"../data/supplementary/{stem}.txt", **csv_kwargs)
 ```
