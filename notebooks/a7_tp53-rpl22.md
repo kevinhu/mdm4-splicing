@@ -33,35 +33,6 @@ merged_tcga_info = pd.read_csv("../data/supplementary/S2_merged-tcga-info.txt", 
 ```
 
 ```python
-subset = merged_tcga_info[merged_tcga_info["Primary_disease"]=="stomach adenocarcinoma"]
-
-many.visuals.binary_contingency(subset["RPL22_k15fs_mutation"],
-                                subset["TP53_mutation_type"].dropna()=="WT")
-```
-
-```python
-subset = merged_tcga_info[merged_tcga_info["Primary_disease"]=="colon adenocarcinoma"]
-
-many.visuals.binary_contingency(subset["RPL22_k15fs_mutation"],
-                                subset["TP53_mutation_type"].dropna()=="WT")
-```
-
-```python
-subset = merged_tcga_info[merged_tcga_info["Primary_disease"]=="uterine corpus endometrioid carcinoma"]
-
-many.visuals.binary_contingency(subset["RPL22_k15fs_mutation"],
-                                subset["TP53_mutation_type"].dropna()!="WT")
-```
-
-```python
-merged_tcga_info["RPL22_any_mutation"]
-```
-
-```python
-merged_tcga_info
-```
-
-```python
 def plot_subset(subset_type=None, ax=None, heatmap_kwargs={}):
 
     if ax is None:
@@ -83,21 +54,22 @@ def plot_subset(subset_type=None, ax=None, heatmap_kwargs={}):
         ].copy()
 
     # define TP53 altered
-    subset["TP53_mut"] = subset["TP53_mutation_type"].dropna() != "WT"
+    subset["TP53_mut"] = subset["TP53_mutation_cbioportal"].dropna() != "no alteration"
     subset["TP53_del"] = subset["TP53_copy_number_thresholded"].dropna() <= -1
-
+    subset["RPL22_del"] = subset["RPL22_copy_number_thresholded"].dropna() <= -1
+    
     # drop missing annotations
-    subset = subset[["TP53_del", "TP53_mut", "RPL22_k15fs_mutation"]].dropna()
+    subset = subset[["TP53_del", "TP53_mut", "RPL22_k15fs_mutation","RPL22_del"]].dropna()
 
     # sort before plotting
     subset = subset.sort_values(
-        ["TP53_mut", "TP53_del", "RPL22_k15fs_mutation"], ascending=False
+        ["TP53_mut", "TP53_del", "RPL22_k15fs_mutation","RPL22_del"], ascending=False
     )
 
     subset["RPL22_k15fs_mutation"] *= 2
 
     sns.heatmap(
-        subset[["TP53_del", "TP53_mut", "RPL22_k15fs_mutation"]].astype(int).T,
+        subset[["TP53_del", "TP53_mut", "RPL22_k15fs_mutation","RPL22_del"]].astype(int).T,
         cbar=False,
         xticklabels=False,
         cmap=sns.color_palette(["whitesmoke", "black", "#c05555"]),
@@ -106,7 +78,7 @@ def plot_subset(subset_type=None, ax=None, heatmap_kwargs={}):
     )
 
     # set tick labels
-    ax.set_yticklabels(["TP53 deletion", "TP53 mutation", "RPL22 k15fs"])
+    ax.set_yticklabels(["TP53 deletion", "TP53 mutation", "RPL22 k15fs","RPL22 deletion"])
     ax.tick_params(axis="both", which="both", length=0)
 
     if subset_type:

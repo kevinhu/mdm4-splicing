@@ -63,6 +63,11 @@ rpl22_tcga.index = rpl22_tcga.index.map(lambda x: x[:15])
 rpl22_mut = rpl22_tcga["rpl22mut.mc3.k15"].dropna()
 ```
 
+```python
+cbp_alterations = pd.read_csv("../data/external/cbioportal/tp53_rpl22.tsv",sep="\t")
+cbp_alterations = cbp_alterations.set_index("Sample ID")
+```
+
 # Aggregate attributes
 
 
@@ -85,6 +90,20 @@ select_mutations.columns = [
     "TP53_mutation_type",
     "RPL22_k15fs_mutation",
     "RPL22_any_mutation",
+]
+```
+
+## cbioportal alterations
+
+```python
+select_cbp = cbp_alterations[
+    ["RPL22: MUT", "RPL22: HOMDEL", "TP53: MUT", "TP53: HOMDEL"]
+].replace({"not profiled":np.nan})
+select_cbp.columns = [
+    "RPL22_mutation_cbioportal",
+    "RPL22_homdel_cbioportal",
+    "TP53_mutation_cbioportal",
+    "TP53_homdel_cbioportal",
 ]
 ```
 
@@ -112,8 +131,8 @@ select_a3ss = [
 select_exonusage = pd.concat([tcga_se[select_se],tcga_a3ss[select_a3ss]],axis=1)
 select_exonusage.columns = [
     "MDM4_exon_6_inclusion",
-    "RPL22L1_exon_3A_inclusion",
     "UBAP2L_exon_29_inclusion",
+    "RPL22L1_exon_3A_inclusion",
 ]
 
 select_exonusage["RPL22L1_exon_3A_inclusion"] = 1-select_exonusage["RPL22L1_exon_3A_inclusion"]
@@ -168,6 +187,8 @@ select_copynumber_thresholded.columns = [
 ]
 ```
 
+# Merge
+
 ```python
 merged_tcga_info = pd.concat(
     [
@@ -178,6 +199,7 @@ merged_tcga_info = pd.concat(
         select_genex,
         select_copynumber,
         select_copynumber_thresholded,
+        select_cbp,
     ],
     join="outer",
     axis=1,
