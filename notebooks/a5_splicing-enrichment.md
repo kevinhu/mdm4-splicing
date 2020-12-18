@@ -242,3 +242,8 @@ for name in output_names:
         ../data/intermediate/extracted_sequences/{name}_neg.bed \
         > ../data/intermediate/extracted_sequences/{name}_neg.fasta
 ```
+
+```python
+for x in some_list:
+    !echo {x}
+```
