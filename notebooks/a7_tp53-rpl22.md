@@ -29,10 +29,6 @@ config.config_visuals()
 ```
 
 ```python
-merged_tcga_info = pd.read_csv("../data/supplementary/S2_merged-tcga-info.txt", sep="\t",index_col=0)
-```
-
-```python
 def plot_subset(subset_type=None, ax=None, heatmap_kwargs={}):
 
     if ax is None:
