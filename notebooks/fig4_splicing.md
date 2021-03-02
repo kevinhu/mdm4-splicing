@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.6.0
+      jupytext_version: 1.9.1
   kernelspec:
     display_name: Python 3
     language: python
@@ -87,6 +87,21 @@ splice_types = ["A3SS", "A5SS", "MXE", "RI", "SE"]
 ```
 
 # Differential splicing
+
+```python
+axes = helper.all_bars(
+    "MDM4_ENSG00000198625_204506557_204506625_204501318_204501374_204507336_204507436",
+    "splicing",
+)
+
+for ax in axes:
+    ax.set_ylim(0, 1.05)
+
+axes[0].set_yticks([0, 0.25, 0.5, 0.75, 1.0])
+axes[0].set_ylabel("MDM4 exon 6 PSI")
+
+plt.savefig("../plots/MDM4_6_splicing.pdf", bbox_inches="tight", transparent=True)
+```
 
 ```python
 axes = helper.all_bars(

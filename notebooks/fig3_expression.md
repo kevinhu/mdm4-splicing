@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.2'
-      jupytext_version: 1.6.0
+      jupytext_version: 1.9.1
   kernelspec:
     display_name: Python 3
     language: python
@@ -108,6 +108,22 @@ rpl22_b_ko2_transcripts = pd.read_hdf(
 ```
 
 # Differential expression
+
+```python
+helper.all_bars("ENSG00000254772", "gene")
+plt.title("EEF1A1 expression")
+plt.savefig("../plots/EEF1G_ENSG00000254772_expression.pdf",
+    bbox_inches="tight",
+    transparent=True,)
+```
+
+```python
+helper.all_bars("ENSG00000156508", "gene")
+plt.title("EEF1A1 expression")
+plt.savefig("../plots/EEF1A1_ENSG00000156508_expression.pdf",
+    bbox_inches="tight",
+    transparent=True,)
+```
 
 ```python
 helper.all_bars("ENSG00000163584", "gene")
