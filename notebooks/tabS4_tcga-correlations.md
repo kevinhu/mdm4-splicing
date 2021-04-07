@@ -16,6 +16,10 @@ jupyter:
 import numpy as np
 import pandas as pd
 
+from statsmodels.stats.multitest import multipletests
+
+import gc
+
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import seaborn as sns
@@ -59,11 +63,6 @@ tcga_genex = tcga_genex[tcga_genex.index.map(lambda x: x[-2:] != "11")]
 ## TCGA splicing
 
 ```python
-tcga_se = cancer_data.load("tcga_se")
-tcga_a3ss = cancer_data.load("tcga_a3ss")
-tcga_a5ss = cancer_data.load("tcga_a5ss")
-tcga_ir = cancer_data.load("tcga_ir")
-
 def preprocess_splicing(df):
     
     df.index = df.index.map(lambda x: x[:15])
@@ -73,6 +72,13 @@ def preprocess_splicing(df):
     df = df[df.index.map(lambda x: x[-2:] != "11")]
     
     return df
+```
+
+```python
+tcga_se = cancer_data.load("tcga_se")
+tcga_a3ss = cancer_data.load("tcga_a3ss")
+tcga_a5ss = cancer_data.load("tcga_a5ss")
+tcga_ir = cancer_data.load("tcga_ir")
 
 tcga_se = preprocess_splicing(tcga_se)
 tcga_a3ss = preprocess_splicing(tcga_a3ss)
@@ -82,13 +88,75 @@ tcga_ir = preprocess_splicing(tcga_ir)
 
 # Compute correlations
 
+```python
+corr_kwargs = {"melt": True, "method": "spearman", "pbar": True}
+```
+
+## MX correlations
+
+```python
+mx_sets = ["tcga_mx_1","tcga_mx_2","tcga_mx_3","tcga_mx_4","tcga_mx_5"]
+
+def correlate_mx(series):
+    
+    merged = []
+    
+    for mx_set_name in mx_sets:
+        
+        print(f"Loading {mx_set_name}")
+
+        mx_set = cancer_data.load(mx_set_name)
+        mx_set = preprocess_splicing(mx_set)
+
+        correlations = many.stats.mat_corr_naive(series,mx_set,**corr_kwargs)
+        merged.append(correlations)
+
+        del mx_set
+        gc.collect()   
+        
+    merged = pd.concat(merged)
+    
+    return merged
+```
+
+```python
+rpl22l1_3a_mx_overall_corrs = correlate_mx(
+    merged_tcga_info["RPL22L1_exon_3A_inclusion"]
+)
+rpl22l1_3a_mx_wt_corrs = correlate_mx(rpl22_wt_subset["RPL22L1_exon_3A_inclusion"])
+mdm4_6_mx_overall_corrs = correlate_mx(merged_tcga_info["MDM4_exon_6_inclusion"])
+mdm4_6_mx_wt_corrs = correlate_mx(rpl22_wt_subset["MDM4_exon_6_inclusion"])
+ubap2l_29_mx_overall_corrs = correlate_mx(merged_tcga_info["UBAP2L_exon_29_inclusion"])
+ubap2l_29_mx_wt_corrs = correlate_mx(rpl22_wt_subset["UBAP2L_exon_29_inclusion"])
+```
+
+```python
+csv_kwargs = {"sep": "\t"}
+
+rpl22l1_3a_mx_overall_corrs.to_csv(
+    f"../data/supplementary/rpl22l1_3a_mx_overall_corrs.txt", **csv_kwargs
+)
+rpl22l1_3a_mx_wt_corrs.to_csv(
+    f"../data/supplementary/rpl22l1_3a_mx_wt_corrs.txt", **csv_kwargs
+)
+mdm4_6_mx_overall_corrs.to_csv(
+    f"../data/supplementary/mdm4_6_mx_overall_corrs.txt", **csv_kwargs
+)
+mdm4_6_mx_wt_corrs.to_csv(
+    f"../data/supplementary/mdm4_6_mx_wt_corrs.txt", **csv_kwargs
+)
+ubap2l_29_mx_overall_corrs.to_csv(
+    f"../data/supplementary/ubap2l_29_mx_overall_corrs.txt", **csv_kwargs
+)
+ubap2l_29_mx_wt_corrs.to_csv(
+    f"../data/supplementary/ubap2l_29_mx_wt_corrs.txt", **csv_kwargs
+)
+```
 
 ## Splicing vs gene expression and splicing
 
 ```python
 compare_sets = [tcga_genex, tcga_se, tcga_a3ss, tcga_a5ss, tcga_ir]
-
-corr_kwargs = {"melt": True, "method": "spearman", "pbar": True}
 
 (
     rpl22l1_3a_genex_overall_corrs,
@@ -179,6 +247,7 @@ rpl22l1_3a_exonusage_overall_corrs = pd.concat(
         rpl22l1_3a_a3ss_overall_corrs,
         rpl22l1_3a_a5ss_overall_corrs,
         rpl22l1_3a_ir_overall_corrs,
+        rpl22l1_3a_mx_overall_corrs,
     ]
 )
 
@@ -188,6 +257,7 @@ rpl22l1_3a_exonusage_wt_corrs = pd.concat(
         rpl22l1_3a_a3ss_wt_corrs,
         rpl22l1_3a_a5ss_wt_corrs,
         rpl22l1_3a_ir_wt_corrs,
+        rpl22l1_3a_mx_wt_corrs,
     ]
 )
 
@@ -197,6 +267,7 @@ mdm4_6_exonusage_overall_corrs = pd.concat(
         mdm4_6_a3ss_overall_corrs,
         mdm4_6_a5ss_overall_corrs,
         mdm4_6_ir_overall_corrs,
+        mdm4_6_mx_overall_corrs,
     ]
 )
 
@@ -206,6 +277,7 @@ mdm4_6_exonusage_wt_corrs = pd.concat(
         mdm4_6_a3ss_wt_corrs,
         mdm4_6_a5ss_wt_corrs,
         mdm4_6_ir_wt_corrs,
+        mdm4_6_mx_wt_corrs,
     ]
 )
 
@@ -215,6 +287,7 @@ ubap2l_29_exonusage_overall_corrs = pd.concat(
         ubap2l_29_a3ss_overall_corrs,
         ubap2l_29_a5ss_overall_corrs,
         ubap2l_29_ir_overall_corrs,
+        ubap2l_29_mx_overall_corrs,
     ]
 )
 
@@ -224,9 +297,39 @@ ubap2l_29_exonusage_wt_corrs = pd.concat(
         ubap2l_29_a3ss_wt_corrs,
         ubap2l_29_a5ss_wt_corrs,
         ubap2l_29_ir_wt_corrs,
+        ubap2l_29_mx_wt_corrs,
     ]
 )
 ```
+
+## Recalculate q-values
+
+```python
+def format_exonusage(df):
+    
+    df["qval"] = -np.log10(
+        multipletests(
+            10 ** (-df["pval"]),
+            alpha=0.01,
+            method="fdr_bh",
+        )[1]
+    )
+
+
+    df = df.sort_values("pval", ascending=False)
+    df = df.reset_index(drop=True)
+    
+    return df
+
+rpl22l1_3a_exonusage_overall_corrs = format_exonusage(rpl22l1_3a_exonusage_overall_corrs)
+rpl22l1_3a_exonusage_wt_corrs = format_exonusage(rpl22l1_3a_exonusage_wt_corrs)
+mdm4_6_exonusage_overall_corrs = format_exonusage(mdm4_6_exonusage_overall_corrs)
+mdm4_6_exonusage_wt_corrs = format_exonusage(mdm4_6_exonusage_wt_corrs)
+ubap2l_29_exonusage_overall_corrs = format_exonusage(ubap2l_29_exonusage_overall_corrs)
+ubap2l_29_exonusage_wt_corrs = format_exonusage(ubap2l_29_exonusage_wt_corrs)
+```
+
+## Export tables
 
 ```python
 csv_kwargs = {"sep": "\t"}
