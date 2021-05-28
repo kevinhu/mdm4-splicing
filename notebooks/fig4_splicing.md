@@ -306,19 +306,41 @@ def get_overlaps(
 # Intersections
 
 ```python
+rpl22_a_rmats = (
+    pd.concat(
+        [rpl22_a_ko1_rmats["qval"], rpl22_a_ko2_rmats["qval"]], axis=1
+    )
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22_a_rmats = pd.DataFrame(rpl22_a_rmats)
+rpl22_a_rmats["gene_id"] = rpl22_a_ko1_rmats["gene_id"].combine_first(
+    rpl22_a_ko2_rmats["gene_id"]
+)
+
+rpl22_b_rmats = (
+    pd.concat(
+        [rpl22_b_ko1_rmats["qval"], rpl22_b_ko2_rmats["qval"]], axis=1
+    )
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22_b_rmats = pd.DataFrame(rpl22_b_rmats)
+rpl22_b_rmats["gene_id"] = rpl22_b_ko1_rmats["gene_id"].combine_first(
+    rpl22_b_ko2_rmats["gene_id"]
+)
+```
+
+```python
 rpl22_int_rmats = [
-    rpl22_b_ko2_rmats,
-    rpl22_b_ko1_rmats,
-    rpl22_a_ko2_rmats,
-    rpl22_a_ko1_rmats,
+    rpl22_b_rmats,
+    rpl22_a_rmats,
     rpl22_oe_rmats,
 ]
 
 rpl22_int_display_names = [
-    "ZR75-1 RPL22_KO2",
-    "ZR75-1 RPL22_KO1",
-    "NCI-H2110 RPL22_KO2",
-    "NCI-H2110 RPL22_KO1",
+    "ZR75-1 RPL22_KO",
+    "NCI-H2110 RPL22_KO",
     "LNCaP RPL22_OE",
 ]
 
@@ -339,7 +361,7 @@ up = upsetplot.plot(rpl22_ko_pivot, sort_categories_by=None, show_counts=True)
 up["intersections"].set_yscale("symlog")
 
 plt.savefig(
-    "../plots/RPL22_exon_intersections.pdf", transparent=True, bbox_inches="tight"
+    "../plots/3d_RPL22-exon-intersections.pdf", transparent=True, bbox_inches="tight"
 )
 ```
 

@@ -291,19 +291,41 @@ def get_overlaps(diffs, names, cutoff=0.01, direction=None, filter_empty=True):
 ## Between RPL22L1 shRNAs
 
 ```python
+rpl22_a_transcripts = (
+    pd.concat(
+        [rpl22_a_ko1_transcripts["qval"], rpl22_a_ko2_transcripts["qval"]], axis=1
+    )
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22_a_transcripts = pd.DataFrame(rpl22_a_transcripts)
+rpl22_a_transcripts["hgnc_gene"] = rpl22_a_ko1_transcripts["hgnc_gene"].combine_first(
+    rpl22_a_ko2_transcripts["hgnc_gene"]
+)
+
+rpl22_b_transcripts = (
+    pd.concat(
+        [rpl22_b_ko1_transcripts["qval"], rpl22_b_ko2_transcripts["qval"]], axis=1
+    )
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22_b_transcripts = pd.DataFrame(rpl22_b_transcripts)
+rpl22_b_transcripts["hgnc_gene"] = rpl22_b_ko1_transcripts["hgnc_gene"].combine_first(
+    rpl22_b_ko2_transcripts["hgnc_gene"]
+)
+```
+
+```python
 rpl22_int_rmats = [
-    rpl22_b_ko2_transcripts,
-    rpl22_b_ko1_transcripts,
-    rpl22_a_ko2_transcripts,
-    rpl22_a_ko1_transcripts,
+    rpl22_b_transcripts,
+    rpl22_a_transcripts,
     rpl22_oe_transcripts,
 ]
 
 rpl22_int_display_names = [
-    "ZR75-1 RPL22_KO2",
-    "ZR75-1 RPL22_KO1",
-    "NCI-H2110 RPL22_KO2",
-    "NCI-H2110 RPL22_KO1",
+    "ZR75-1 RPL22_KO",
+    "NCI-H2110 RPL22_KO",
     "LNCaP RPL22_OE",
 ]
 
@@ -324,7 +346,7 @@ up = upsetplot.plot(rpl22_ko_pivot, sort_categories_by=None, show_counts=True)
 up["intersections"].set_yscale("symlog")
 
 plt.savefig(
-    "../plots/RPL22_transcript_intersections.pdf",
+    "../plots/2c_RPL22-transcript-intersections.pdf",
     transparent=True,
     bbox_inches="tight",
     dpi=25,
