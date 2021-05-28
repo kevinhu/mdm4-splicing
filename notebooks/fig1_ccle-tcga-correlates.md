@@ -14,6 +14,7 @@ jupyter:
 
 ```python
 import numpy as np
+import math
 import pandas as pd
 
 import matplotlib.pyplot as plt
@@ -163,9 +164,29 @@ def tcga_rpl22_status(row):
             return "ΔCN=" + str(int(row["RPL22_copy_number_thresholded"]))
         
         return np.nan
+    
 
+def ccle_rpl22_status(row):
+    if row["RPL22_k15"] == True:
+        return "K15.fs"
+
+    else:
+        if not np.isnan(row["RPL22_copynumber"]):
+            
+            copynumber_ploidy = 2**row["RPL22_copynumber"] - 1
+            copynumber_delta = round(copynumber_ploidy*2-2)
+            if copynumber_delta < -2:
+                copynumber_delta = -2
+            if copynumber_delta > 2:
+                copynumber_delta = 2
+            
+            return "ΔCN=" + str(int(copynumber_delta))
+        
+        return np.nan
 
 merged_tcga_info["RPL22_status"] = merged_tcga_info.apply(tcga_rpl22_status, axis=1)
+merged_ccle_info["RPL22_status"] = merged_ccle_info.apply(ccle_rpl22_status, axis=1)
+
 
 rpl22_order = ["K15.fs", "ΔCN=-2", "ΔCN=-1", "ΔCN=0", "ΔCN=1", "ΔCN=2"]
 
@@ -231,20 +252,38 @@ def plot_rpl22(rpl22_info, y, ylabel="y"):
     ax.spines["bottom"].set_position(("axes", -0.025))
 ```
 
+## TCGA
+
 ```python
-plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["MDM2_mRNA"], "MDM2 mRNA expression")
+plot_rpl22(
+    merged_tcga_info[["RPL22_status"]],
+    merged_tcga_info["MDM2_mRNA"],
+    "MDM2 mRNA expression",
+)
 ```
 
 ```python
-plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["MDM4_mRNA"], "MDM2 mRNA expression")
+plot_rpl22(
+    merged_tcga_info[["RPL22_status"]],
+    merged_tcga_info["MDM4_mRNA"],
+    "MDM2 mRNA expression",
+)
 ```
 
 ```python
-plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["RPL22L1_mRNA"], "MDM2 mRNA expression")
+plot_rpl22(
+    merged_tcga_info[["RPL22_status"]],
+    merged_tcga_info["RPL22L1_mRNA"],
+    "MDM2 mRNA expression",
+)
 ```
 
 ```python
-plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["RPL22L1_exon_3A_inclusion"], "MDM2 mRNA expression")
+plot_rpl22(
+    merged_tcga_info[["RPL22_status"]],
+    merged_tcga_info["RPL22L1_exon_3A_inclusion"],
+    "MDM2 mRNA expression",
+)
 
 plt.savefig(
     "../plots/rpl22l1-exon-3a_rpl22_tcga.pdf", bbox_inches="tight", transparent=True
@@ -252,10 +291,28 @@ plt.savefig(
 ```
 
 ```python
-plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["MDM4_exon_6_inclusion"], "MDM4 exon 6 inclusion")
+plot_rpl22(
+    merged_tcga_info[["RPL22_status"]],
+    merged_tcga_info["MDM4_exon_6_inclusion"],
+    "MDM4 exon 6 inclusion",
+)
 
 plt.savefig(
     "../plots/1e_rpl22l1-exon-3a_rpl22-tcga.pdf", bbox_inches="tight", transparent=True
+)
+```
+
+## CCLE
+
+```python
+plot_rpl22(
+    merged_ccle_info[["RPL22_status"]],
+    merged_ccle_info["RPL22L1_Avana_dependency"],
+    "MDM2 mRNA expression",
+)
+
+plt.savefig(
+    "../plots/1g_rpl22l1-avana_rpl22-tcga.pdf", bbox_inches="tight", transparent=True
 )
 ```
 
