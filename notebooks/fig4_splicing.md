@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.11.2
   kernelspec:
     display_name: Python 3
     language: python
@@ -90,7 +90,7 @@ splice_types = ["A3SS", "A5SS", "MXE", "RI", "SE"]
 
 ```python
 axes = helper.all_bars(
-    "MDM4_ENSG00000198625_204506557_204506625_204501318_204501374_204507336_204507436",
+    "MDM4_ENSG00000198625_chr1_204506557_204506625_204501318_204501374_204507336_204507436",
     "splicing",
 )
 
@@ -105,22 +105,7 @@ plt.savefig("../plots/MDM4_6_splicing.pdf", bbox_inches="tight", transparent=Tru
 
 ```python
 axes = helper.all_bars(
-    "MDM4_ENSG00000198625_204506557_204506625_204501318_204501374_204507336_204507436",
-    "splicing",
-)
-
-for ax in axes:
-    ax.set_ylim(0, 1.05)
-
-axes[0].set_yticks([0, 0.25, 0.5, 0.75, 1.0])
-axes[0].set_ylabel("MDM4 exon 6 PSI")
-
-plt.savefig("../plots/MDM4_6_splicing.pdf", bbox_inches="tight", transparent=True)
-```
-
-```python
-axes = helper.all_bars(
-    "RPL22L1_ENSG00000163584_170585801_170585990_170585801_170585923_170586086_170586176",
+    "RPL22L1_ENSG00000163584_chr3_170585801_170585990_170585801_170585923_170586086_170586176",
     "splicing",
 )
 
@@ -134,7 +119,7 @@ plt.savefig("../plots/RPL22L1_3A_splicing.pdf", bbox_inches="tight", transparent
 
 ```python
 axes = helper.all_bars(
-    "UBAP2L_ENSG00000143569_154241837_154241888_154241232_154241430_154242675_154243040",
+    "UBAP2L_ENSG00000143569_chr1_154241837_154241888_154241232_154241430_154242675_154243040",
     "splicing",
 )
 
@@ -355,6 +340,68 @@ up["intersections"].set_yscale("symlog")
 
 plt.savefig(
     "../plots/RPL22_exon_intersections.pdf", transparent=True, bbox_inches="tight"
+)
+```
+
+```python
+joined_splicing = pd.concat([
+    rpl22_b_ko2_rmats["qval"].rename("ZR75-1 RPL22_KO2"),
+    rpl22_b_ko1_rmats["qval"].rename("ZR75-1 RPL22_KO1"),
+    rpl22_a_ko2_rmats["qval"].rename("NCI-H2110 RPL22_KO2"),
+    rpl22_a_ko1_rmats["qval"].rename("NCI-H2110 RPL22_KO1"),
+    rpl22_oe_rmats["qval"].rename("LNCaP RPL22_OE"),
+],axis=1,join="outer")
+
+joined_splicing = joined_splicing < 0.01
+joined_splicing = joined_splicing[joined_splicing.any(axis=1)]
+
+joined_splicing = joined_splicing.sort_values(by=list(joined_splicing.columns))
+```
+
+```python
+plt.figure(figsize=(12, 2))
+sns.heatmap(
+    joined_splicing[joined_splicing.sum(axis=1) >= 2].T,
+    cbar=False,
+    xticklabels=False,
+    cmap=sns.color_palette(["whitesmoke", "black"]),
+)
+
+plt.savefig(
+    "../plots/4d_splicing-intersection.pdf",
+    dpi=512,
+    transparent=True,
+    bbox_inches="tight",
+)
+```
+
+```python
+joined_splicing = pd.concat([
+    rpl22l1_kd2_rmats["qval"].rename("LNCaP RPL22L1_KD2"),
+    rpl22l1_kd1_rmats["qval"].rename("LNCaP RPL22L1_KD1"),
+    rpl22l1_oe_rmats["qval"].rename("LNCaP RPL22L1_OE"),
+],axis=1,join="outer")
+
+joined_splicing = joined_splicing < 0.01
+joined_splicing = joined_splicing[joined_splicing.any(axis=1)]
+
+joined_splicing = joined_splicing.sort_values(by=list(joined_splicing.columns))
+```
+
+```python
+plt.figure(figsize=(6, 1))
+sns.heatmap(
+    joined_splicing[joined_splicing.sum(axis=1)>=2].T,
+    cbar=False,
+    xticklabels=False,
+    cmap=sns.color_palette(["whitesmoke", "black"]),
+)
+
+plt.savefig(
+    "../plots/4e_splicing-intersection.pdf",
+    dpi=512,
+    transparent=True,
+    bbox_inches="tight",
 )
 ```
 

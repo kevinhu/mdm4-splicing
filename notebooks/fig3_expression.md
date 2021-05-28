@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.11.2
   kernelspec:
     display_name: Python 3
     language: python
@@ -350,6 +350,68 @@ rpl22l1_ko_ints, rpl22l1_ko_int_names, rpl22l1_ko_int_sizes = get_overlaps(
 ```
 
 ```python
+joined_transcripts = pd.concat([
+    rpl22l1_kd2_transcripts["qval"].rename("LNCaP RPL22L1_KD2"),
+    rpl22l1_kd1_transcripts["qval"].rename("LNCaP RPL22L1_KD1"),
+    rpl22l1_oe_transcripts["qval"].rename("LNCaP RPL22L1_OE"),
+],axis=1,join="outer")
+
+joined_transcripts = joined_transcripts < 0.01
+joined_transcripts = joined_transcripts[joined_transcripts.any(axis=1)]
+
+joined_transcripts = joined_transcripts.sort_values(by=list(joined_transcripts.columns))
+```
+
+```python
+plt.figure(figsize=(6, 1))
+sns.heatmap(
+    joined_transcripts[joined_transcripts.sum(axis=1) >= 2].T,
+    cbar=False,
+    xticklabels=False,
+    cmap=sns.color_palette(["whitesmoke", "black"]),
+)
+
+plt.savefig(
+    "../plots/2c_rnaseq-intersection.pdf",
+    dpi=512,
+    transparent=True,
+    bbox_inches="tight",
+)
+```
+
+```python
+joined_transcripts = pd.concat([
+    rpl22_b_ko2_transcripts["qval"].rename("ZR75-1 RPL22_KO2"),
+    rpl22_b_ko1_transcripts["qval"].rename("ZR75-1 RPL22_KO1"),
+    rpl22_a_ko2_transcripts["qval"].rename("NCI-H2110 RPL22_KO2"),
+    rpl22_a_ko1_transcripts["qval"].rename("NCI-H2110 RPL22_KO1"),
+    rpl22_oe_transcripts["qval"].rename("LNCaP RPL22_OE"),
+],axis=1,join="outer")
+
+joined_transcripts = joined_transcripts < 0.01
+joined_transcripts = joined_transcripts[joined_transcripts.any(axis=1)]
+
+joined_transcripts = joined_transcripts.sort_values(by=list(joined_transcripts.columns))
+```
+
+```python
+plt.figure(figsize=(8, 2))
+sns.heatmap(
+    joined_transcripts[joined_transcripts.sum(axis=1) >= 2].T,
+    cbar=False,
+    xticklabels=False,
+    cmap=sns.color_palette(["whitesmoke", "black"]),
+)
+
+plt.savefig(
+    "../plots/2d_rnaseq-intersection.pdf",
+    dpi=512,
+    transparent=True,
+    bbox_inches="tight",
+)
+```
+
+```python
 rpl22l1_ko_pivot = upsetplot.from_memberships(
     rpl22l1_ko_int_names, rpl22l1_ko_int_sizes
 )
@@ -665,7 +727,7 @@ plot_splicing(
 
 plt.title("Hallmark p53 pathway genes")
 
-plt.savefig("/Users/khu/Desktop/RPL22L1_KD1_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
+plt.savefig("../plots/RPL22L1_KD1_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
 ```
 
 ```python
@@ -677,7 +739,7 @@ plot_splicing(
     "rpl22l1_kd2",
 )
 
-plt.savefig("/Users/khu/Desktop/RPL22L1_KD2_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
+plt.savefig("../plots/RPL22L1_KD2_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
 ```
 
 ```python
@@ -689,7 +751,7 @@ plot_splicing(
     "rpl22l1_oe",
 )
 
-plt.savefig("/Users/khu/Desktop/RPL22L1_OE_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
+plt.savefig("../plots/RPL22L1_OE_hallmark_p53.pdf",bbox_inches="tight",transparent=True)
 ```
 
 ```python
@@ -701,5 +763,5 @@ plot_splicing(
     "rpl22l1_oe",
 )
 
-plt.savefig("/Users/khu/Desktop/RPL22L1_OE_GO_RNA_splicing.pdf",bbox_inches="tight",transparent=True)
+plt.savefig("../plots/RPL22L1_OE_GO_RNA_splicing.pdf",bbox_inches="tight",transparent=True)
 ```

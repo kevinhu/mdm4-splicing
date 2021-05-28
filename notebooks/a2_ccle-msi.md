@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.11.2
   kernelspec:
     display_name: Python 3
     language: python
@@ -23,11 +23,6 @@ import seaborn as sns
 import sys
 import os
 
-sys.path.append(os.path.relpath("../../huygens"))
-sys.path.append(os.path.relpath("../../galileo"))
-
-import galileo as gal
-import huygens as huy
 ```
 
 # Load annotations
@@ -300,7 +295,7 @@ with open("../scripts/7_fetch-msi-slices.sh", "w") as f:
     ):
 
         f.write(
-            "export GCS_OAUTH_TOKEN=$(gcloud auth application-default print-access-token) && samtools view -b -h -M -L ../data/raw/MSI_exon_bounds.bed {} > ../data/raw/WGS_slices/{}.bam\n".format(
+            "GCS_OAUTH_TOKEN=$(gcloud auth application-default print-access-token) samtools view -b -h -M -L ../data/raw/MSI_exon_bounds.bed {} > ../data/raw/WGS_slices/{}.bam\n".format(
                 bam_path, ach_id
             )
         )

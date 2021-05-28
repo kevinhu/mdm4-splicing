@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.11.2
   kernelspec:
     display_name: Python 3
     language: python
@@ -128,6 +128,7 @@ select_a3ss = [
     "ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990",
 ]
 
+                        
 select_exonusage = pd.concat([tcga_se[select_se],tcga_a3ss[select_a3ss]],axis=1)
 select_exonusage.columns = [
     "MDM4_exon_6_inclusion",

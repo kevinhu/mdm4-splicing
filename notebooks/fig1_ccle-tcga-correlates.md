@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.11.2
   kernelspec:
     display_name: Python 3
     language: python
@@ -34,48 +34,138 @@ import config
 config.config_visuals()
 ```
 
-# Transcripts to genes
+# Load data
 
 ```python
-t2g = pd.read_csv("../data/intermediate/sleuth_diff/ensembl_t2g.csv")
-t2g["format_gene_id"] = t2g["hgnc_gene"].fillna("") + "_" + t2g["ens_gene"]
-
-format_gene_map = dict(zip(t2g["ens_gene"], t2g["format_gene_id"]))
-```
-
-## RPL22 mutants
-
-```python
-rpl22_tcga = pd.read_csv("../data/raw/rpl22.tcga.data.csv")
-
-rpl22_tcga = rpl22_tcga.dropna(subset=["sampleid"])
-rpl22_tcga = rpl22_tcga.set_index("sampleid")
-rpl22_tcga.index = rpl22_tcga.index.map(lambda x: x[:15])
-
-rpl22_mut = rpl22_tcga["rpl22mut.mc3.k15"].dropna()
-```
-
-```python
-rpl22_info = pd.concat(
-    [rpl22_mut.rename("RPL22_k15"), tcga_cn_thresholded["RPL22"].rename("RPL22_cn")],
-    axis=1,
-    sort=True,
-    join="inner",
+merged_ccle_info = pd.read_csv(
+    "../data/supplementary/S1_merged-ccle-info.txt", sep="\t", index_col=0
 )
+merged_tcga_info = pd.read_csv(
+    "../data/supplementary/S2_merged-tcga-info.txt", sep="\t", index_col=0
+)
+```
+
+```python
+merged_tcga_info[merged_tcga_info["MSI"]==True]["Abbreviated_disease"].value_counts()
+```
+
+# MSI occurrence
+
+```python
+tcga_msi_types = ["COAD", "STAD", "UCEC"]
+ccle_msi_types = [
+    "Colon/Colorectal Cancer",
+    "Endometrial/Uterine Cancer",
+    "Ovarian Cancer",
+    "Gastric Cancer",
+]
+
+merged_ccle_info["RPL22_k15"] = (
+    merged_ccle_info["RPL22_mutation"]
+    .dropna()
+    .apply(lambda x: "chr1_6257785-6257785_T>-" in x)
+)
+
+tcga_msi_type_filtered = merged_tcga_info[
+    merged_tcga_info["Abbreviated_disease"].isin(tcga_msi_types)
+]
+ccle_msi_type_filtered = merged_ccle_info[
+    merged_ccle_info["Primary_disease"].isin(ccle_msi_types)
+]
+
+tcga_msi_type_filtered = tcga_msi_type_filtered.dropna(
+    subset=["MSI", "RPL22_k15fs_mutation"], axis=0
+)
+ccle_msi_type_filtered = ccle_msi_type_filtered.dropna(
+    subset=["MSI", "RPL22_k15"], axis=0
+)
+
+tcga_msi_type_filtered = tcga_msi_type_filtered[tcga_msi_type_filtered["MSI"]==True]
+ccle_msi_type_filtered = ccle_msi_type_filtered[ccle_msi_type_filtered["MSI"]==True]
+
+ccle_msi_type_filtered["Primary_disease"] = ccle_msi_type_filtered[
+    "Primary_disease"
+].replace(
+    {
+        "Colon/Colorectal Cancer": "Colon",
+        "Endometrial/Uterine Cancer": "Endometrial",
+        "Ovarian Cancer": "Ovarian",
+        "Gastric Cancer": "Gastric",
+    }
+)
+```
+
+```python
+fig, axes = plt.subplots(2, 1, figsize=(4, 4))
+
+ax = axes[0]
+
+ccle_msi_type_filtered.groupby(["Primary_disease", "RPL22_k15"]).size().unstack(
+    -1
+).plot(
+    kind="bar",
+    stacked=True,
+    ax=ax,
+    legend=False,
+    cmap=mpl.colors.ListedColormap(["#e1e5ea", "#b83b5e"]),
+)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+ax.set_xlabel("")
+ax.set_ylabel("Count")
+ax.set_xticklabels(
+    ax.get_xticklabels(),
+    rotation=45,
+    horizontalalignment="right",
+)
+ax.set_title("CCLE")
+
+ax = axes[1]
+
+tcga_msi_type_filtered.groupby(
+    ["Abbreviated_disease", "RPL22_k15fs_mutation"]
+).size().unstack(-1).plot(
+    kind="bar",
+    stacked=True,
+    ax=ax,
+    legend=False,
+    cmap=mpl.colors.ListedColormap(["#e1e5ea", "#b83b5e"]),
+)
+
+ax.spines["top"].set_visible(False)
+ax.spines["right"].set_visible(False)
+
+ax.set_xlabel("")
+ax.set_ylabel("Count")
+ax.set_xticklabels(
+    ax.get_xticklabels(),
+    rotation=45,
+    horizontalalignment="right",
+)
+ax.set_title("TCGA")
+
+plt.subplots_adjust(hspace=1)
+
+plt.savefig("../plots/1_msi-totals.pdf", transparent=True, bbox_inches="tight")
 ```
 
 # Boxplots
 
 ```python
-def rpl22_status(row):
-    if row["RPL22_k15"]:
+def tcga_rpl22_status(row):
+    if row["RPL22_k15fs_mutation"] == True:
         return "K15.fs"
 
     else:
-        return "ΔCN=" + str(int(row["RPL22_cn"]))
+        if not np.isnan(row["RPL22_copy_number_thresholded"]):
+            return "ΔCN=" + str(int(row["RPL22_copy_number_thresholded"]))
+        
+        return np.nan
 
 
-rpl22_info["RPL22_status"] = rpl22_info.apply(rpl22_status, axis=1)
+merged_tcga_info["RPL22_status"] = merged_tcga_info.apply(tcga_rpl22_status, axis=1)
 
 rpl22_order = ["K15.fs", "ΔCN=-2", "ΔCN=-1", "ΔCN=0", "ΔCN=1", "ΔCN=2"]
 
@@ -86,7 +176,7 @@ rpl22_hues = dict(zip(rpl22_order, [mut_hue] + [wt_hue] * 5))
 ```
 
 ```python
-def plot_rpl22(y, ylabel="y"):
+def plot_rpl22(rpl22_info, y, ylabel="y"):
 
     plt.figure(figsize=(4, 3))
 
@@ -124,11 +214,11 @@ def plot_rpl22(y, ylabel="y"):
 
     if pval == 0:
         plt.text(
-            0.05, 1.025, "P < " + huy.as_si(10 ** (-320), 2), transform=ax.transAxes
+            0.05, 1.025, "P < " + many.visuals.as_si(10 ** (-320), 2), transform=ax.transAxes
         )
 
     else:
-        plt.text(0.05, 1.025, "P = " + huy.as_si(pval, 2), transform=ax.transAxes)
+        plt.text(0.05, 1.025, "P = " + many.visuals.as_si(pval, 2), transform=ax.transAxes)
 
     xticks = [x + "\n (" + str(int(rpl22_counts.loc[x])) + ")" for x in rpl22_order]
 
@@ -142,25 +232,19 @@ def plot_rpl22(y, ylabel="y"):
 ```
 
 ```python
-plot_rpl22(tcga_genex["MDM2_10743"], "MDM2 mRNA expression")
+plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["MDM2_mRNA"], "MDM2 mRNA expression")
 ```
 
 ```python
-plot_rpl22(tcga_genex["MDM4_10744"], "MDM4 mRNA expression")
+plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["MDM4_mRNA"], "MDM2 mRNA expression")
 ```
 
 ```python
-plot_rpl22(tcga_genex["RPL22L1_15209"], "RPL22L1 mRNA expression")
+plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["RPL22L1_mRNA"], "MDM2 mRNA expression")
 ```
 
 ```python
-plot_rpl22(
-    1
-    - tcga_splicing[
-        "RPL22L1_ENSG00000163584_ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990"
-    ],
-    "RPL22L1 exon 3A inclusion",
-)
+plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["RPL22L1_exon_3A_inclusion"], "MDM2 mRNA expression")
 
 plt.savefig(
     "../plots/rpl22l1-exon-3a_rpl22_tcga.pdf", bbox_inches="tight", transparent=True
@@ -168,263 +252,86 @@ plt.savefig(
 ```
 
 ```python
-plot_rpl22(
-    tcga_splicing[
-        "MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625"
-    ],
-    "MDM4 exon 6 inclusion",
-)
+plot_rpl22(merged_tcga_info[["RPL22_status"]], merged_tcga_info["MDM4_exon_6_inclusion"], "MDM4 exon 6 inclusion")
 
 plt.savefig(
-    "../plots/mdm4-exon-6_rpl22_tcga.pdf", bbox_inches="tight", transparent=True
-)
-```
-
-```python
-rpl22_mdm4 = pd.concat(
-    [
-        tcga_splicing[
-            "RPL22L1_ENSG00000163584_ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990"
-        ]
-        .rename("RPL22L1_3A")
-        .dropna(),
-        tcga_cn_thresholded["RPL22"].dropna(),
-    ],
-    join="inner",
-    axis=1,
-)
-
-rpl22_neutral = rpl22_mdm4[rpl22_mdm4["RPL22"] == 0]
-```
-
-```python
-corrs = gal.mat_corrs_naive(rpl22_neutral["RPL22L1_3A"], tcga_splicing, pbar=True)
-```
-
-# Scatterplots
-
-```python
-def density_scatter(x, y):
-
-    x = x.dropna()
-    y = y.dropna()
-
-    x, y = x.align(y, join="inner")
-
-    xy = np.vstack([x, y])
-    z = gaussian_kde(xy)(xy)
-
-    idx = z.argsort()
-    x, y, z = x[idx], y[idx], z[idx]
-
-    plt.figure(figsize=(3, 3))
-    ax = plt.subplot(111)
-
-    ax.scatter(x, y, c=z, s=8, cmap="Blues", rasterized=True, vmin=min(z) - 1)
-
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-
-    return ax
-```
-
-## RPL22L1 3A vs expression
-
-```python
-x = (
-    1
-    - tcga_splicing[
-        "RPL22L1_ENSG00000163584_ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990"
-    ]
-)
-y = tcga_genex["RPL22L1_15209"]
-
-ax = density_scatter(x, y)
-
-ax.set_xlabel("RPL22L1 exon 3A inclusion")
-ax.set_ylabel("RPL22L1 mRNA expression")
-
-plt.savefig(
-    "../plots/rpl22l1_splicing_expression_density.pdf",
-    dpi=2048,
-    bbox_inches="tight",
-    background="transparent",
-)
-
-plt.figure(figsize=(3, 3))
-
-huy.regression(x, y)
-
-plt.xlabel("RPL22L1 exon 3A inclusion")
-plt.ylabel("RPL22L1 mRNA expression")
-
-plt.savefig(
-    "../plots/rpl22l1_splicing_expression_annotated.pdf",
-    dpi=2048,
-    bbox_inches="tight",
-    background="transparent",
-)
-```
-
-## RPL22L1 3A vs MDM4 6
-
-```python
-x = (
-    1
-    - tcga_splicing[
-        "RPL22L1_ENSG00000163584_ENSG00000163584.13_A3_3_170586086:170586168:170585801:170585923:170585801:170585990_170585923:170585990"
-    ]
-)
-y = tcga_splicing[
-    "MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625"
-]
-
-ax = density_scatter(x, y)
-
-ax.set_xlabel("RPL22L1 exon 3A inclusion")
-ax.set_ylabel("MDM4 exon 6 inclusion")
-
-plt.savefig(
-    "../plots/rpl22l1_mdm4_co-splicing_density.pdf",
-    dpi=2048,
-    bbox_inches="tight",
-    background="transparent",
-)
-
-plt.figure(figsize=(3, 3))
-
-huy.regression(x, y)
-
-plt.xlabel("RPL22L1 exon 3A inclusion")
-plt.ylabel("MDM4 exon 6 inclusion")
-
-plt.xlim(-0.05, 1.05)
-plt.ylim(-0.05, 1.05)
-
-plt.savefig(
-    "../plots/rpl22l1_mdm4_co-splicing_annotated.pdf",
-    dpi=2048,
-    bbox_inches="tight",
-    transparent=True,
+    "../plots/1e_rpl22l1-exon-3a_rpl22-tcga.pdf", bbox_inches="tight", transparent=True
 )
 ```
 
 # TCGA correlations
 
 ```python
-MIN_SAMPLES = 100
-
-mdm4_6_exonusage_overall_corrs = pd.read_csv(
-    "../data/supplementary/S4-f_mdm4-6-exonusage-overall-corrs.txt",
-    sep="\t",
-    index_col=0,
+tcga_mdm4_cosplicing = pd.read_csv(
+    "../data/supplementary/S4-a_tcga-mdm4-cosplicing.txt", sep="\t", index_col=0
+)
+tcga_rpl22l1_cosplicing = pd.read_csv(
+    "../data/supplementary/S4-b_tcga-rpl22l1-cosplicing.txt", sep="\t", index_col=0
 )
 
-mdm4_6_exonusage_overall_corrs["label"] = mdm4_6_exonusage_overall_corrs["b_col"].apply(
-    lambda x: f"{format_gene_map[x.split('.')[0]].split('_')[0]}_{x.split('_')[-1]}"
-)
+tcga_mdm4_cosplicing = tcga_mdm4_cosplicing[np.abs(tcga_mdm4_cosplicing["spearman"]) < 0.99]
+tcga_rpl22l1_cosplicing = tcga_rpl22l1_cosplicing[np.abs(tcga_rpl22l1_cosplicing["spearman"]) < 0.99]
+```
 
-mdm4_6_exonusage_overall_corrs = mdm4_6_exonusage_overall_corrs[
-    mdm4_6_exonusage_overall_corrs["n"] >= MIN_SAMPLES
-]
-mdm4_6_exonusage_overall_corrs = mdm4_6_exonusage_overall_corrs[
-    mdm4_6_exonusage_overall_corrs["spearman"] < 1
-]
+```python
+g19_7_definitions = cancer_data.load("g19_7_definitions")
+ensg_id_to_name = dict(zip(g19_7_definitions["gene_id"],g19_7_definitions["gene_name"]))
+
+tcga_mdm4_cosplicing["label"] = tcga_mdm4_cosplicing["first_splicing_event"].apply(
+    lambda x: f"{ensg_id_to_name.get(x.split('_')[0],'unnamed')}_{x.split('_')[1]}_{x.split('_')[2]}_{x.split('_')[-1]}"
+)
+tcga_rpl22l1_cosplicing["label"] = tcga_rpl22l1_cosplicing["first_splicing_event"].apply(
+    lambda x: f"{ensg_id_to_name.get(x.split('_')[0],'unnamed')}_{x.split('_')[1]}_{x.split('_')[2]}_{x.split('_')[-1]}"
+)
 ```
 
 ```python
 plt.figure(figsize=(3, 4))
 
-labels_mask = mdm4_6_exonusage_overall_corrs["qval"] > 70
+labels_mask = tcga_mdm4_cosplicing["-log10(Q value)"] > 100
 
 labels_mask = labels_mask | (
-    (mdm4_6_exonusage_overall_corrs["spearman"] < 0)
-    & (mdm4_6_exonusage_overall_corrs["qval"] > 65)
+    (tcga_mdm4_cosplicing["spearman"] < 0)
+    & (tcga_mdm4_cosplicing["-log10(Q value)"] > 65)
 )
 labels_mask = labels_mask | (
-    (mdm4_6_exonusage_overall_corrs["qval"] > 25)
-    & (mdm4_6_exonusage_overall_corrs["spearman"] < -0.5)
+    (tcga_mdm4_cosplicing["-log10(Q value)"] > 25)
+    & (tcga_mdm4_cosplicing["spearman"] < -0.5)
 )
 
 many.visuals.dense_plot(
-    mdm4_6_exonusage_overall_corrs["spearman"],
-    mdm4_6_exonusage_overall_corrs["qval"],
+    tcga_mdm4_cosplicing["spearman"],
+    tcga_mdm4_cosplicing["-log10(Q value)"],
     text_adjust=True,
     labels_mask=labels_mask,
-    labels=mdm4_6_exonusage_overall_corrs["label"],
+    labels=tcga_mdm4_cosplicing["label"],
     colormap=None,
 )
-```
 
-```python
+plt.xlabel("Spearman correlation")
+plt.ylabel("-log10(Q value)")
 
-```
-
-```python
-plt.scatter(mdm4_6_exonusage_overall_corrs["spearman"],mdm4_6_exonusage_overall_corrs["qval"])
-```
-
-```python
-mdm4_6_exonusage_overall_corrs.
-```
-
-## Overall correlations
-
-```python
-def volcano(corrs):
-    corrs = corrs.sort_values(by="pval")
-    corrs["qval"] = multipletests(10 ** (-corrs["pval"]), alpha=0.01, method="fdr_bh")[
-        1
-    ]
-
-    labels = pd.Series(corrs.index.map(lambda x: x.split("_")[0]), index=corrs.index)
-
-    pos_ranks = corrs[corrs["corr"] > 0]["qval"].rank()
-    neg_ranks = corrs[corrs["corr"] < 0]["qval"].rank()
-    ranks = pd.concat([pos_ranks, neg_ranks])
-
-    corrs["qval_rank"] = ranks
-
-    pos_ranks = (-corrs[corrs["corr"] > 0]["corr"]).rank()
-    neg_ranks = corrs[corrs["corr"] < 0]["corr"].rank()
-    ranks = pd.concat([pos_ranks, neg_ranks])
-
-    corrs["corr_rank"] = ranks
-
-    ranks = pd.concat([pos_ranks, neg_ranks])
-
-    huy.dense_plot(
-        corrs["corr"],
-        -np.log10(corrs["qval"]),
-        labels_mask=(corrs["corr_rank"] < 6) | (corrs["qval_rank"] < 6),
-        labels=labels,
-        adjust=False,
-        c="black",
-    )
-
-    plt.xlabel("Spearman correlation")
-    plt.ylabel("-log10(q-value)")
-```
-
-```python
-volcano(rpl22_cn_splicing)
 plt.savefig(
-    "../plots/RPL22_cn_vs_splicing.pdf", bbox_inches="tight", transparent=True, dpi=512
+    "../plots/1c_mdm4-cosplicing.pdf", dpi=512, bbox_inches="tight", transparent=True
 )
 ```
 
 ```python
-volcano(mdm4_cosplicing)
-plt.savefig(
-    "../plots/MDM4_cosplicing.pdf", bbox_inches="tight", transparent=True, dpi=512
-)
-```
+plt.figure(figsize=(3, 4))
 
-```python
-volcano(rpl22l1_cosplicing)
-plt.savefig(
-    "../plots/RPL22L1_cosplicing.pdf", bbox_inches="tight", transparent=True, dpi=512
+labels_mask = tcga_rpl22l1_cosplicing["-log10(Q value)"] > 150
+
+many.visuals.dense_plot(
+    tcga_rpl22l1_cosplicing["spearman"],
+    tcga_rpl22l1_cosplicing["-log10(Q value)"],
+    text_adjust=True,
+    labels_mask=labels_mask,
+    labels=tcga_rpl22l1_cosplicing["label"],
+    colormap=None,
 )
+
+plt.xlabel("Spearman correlation")
+plt.ylabel("-log10(Q value)")
 ```
 
 # RPL22 alterations by primary site
@@ -498,81 +405,17 @@ plt.savefig(
 )
 ```
 
-# RPL22 boxplots
-
-```python
-rpl22_mdm4_merged = pd.concat(
-    [
-        rpl22_info,
-        tcga_splicing[
-            "MDM4_ENSG00000198625_ENSG00000198625.8_ES_1_204501318:204501374:204506557:204506625:204507336:204507436_204506557:204506625"
-        ].rename("MDM4_exon_6"),
-        tcga_sample_info,
-    ],
-    axis=1,
-    sort=True,
-)
-```
-
-```python
-select_type = rpl22_mdm4_merged[rpl22_mdm4_merged["abbreviated_disease"] == "STAD"]
-select_type = select_type.dropna(subset=["RPL22_k15", "MDM4_exon_6"], how="any")
-
-huy.two_dists(select_type["MDM4_exon_6"], select_type["RPL22_k15"], summary_type="box")
-```
-
 # CCLE
 
-```python
-ccle_genex = pd.read_hdf(
-    "../../data/processed/ccle/CCLE_RNAseq_rsem_genes_tpm_20180929.hdf",
-    key="ccle_genex",
-)
-ccle_transcripts = pd.read_hdf(
-    "../../data/processed/ccle/CCLE_RNAseq_rsem_transcripts_tpm_20180929.hdf",
-    key="ccle_transcripts",
-)
-exonusage = pd.read_hdf(
-    "../../data/processed/ccle/CCLE_RNAseq_ExonUsageRatio_20180929.hdf", key="exonusage"
-)
-ms_prot = pd.read_hdf("../../data/processed/ccle/ms_prot.h5", key="ms_prot")
-rppa = pd.read_hdf("../../data/processed/ccle/CCLE_RPPA_20181003.hdf", key="rppa")
-
-mdm4_exon_6 = exonusage[
-    [
-        "MDM4_3p_chr1_204506558_204506625_ENSG00000198625.8",
-        "MDM4_5p_chr1_204506558_204506625_ENSG00000198625.8",
-    ]
-].mean(axis=1)
-
-avana = pd.read_hdf("../../data/processed/depmap/avana.hdf", key="avana")
-drive = pd.read_hdf(
-    "../../data/processed/depmap/demeter2-drive_v12-gene-effect.hdf", key="drive"
-)
-```
-
-```python
-primary_logfold = pd.read_hdf(
-    "../../data/processed/depmap/primary_logfold.h5", key="primary_logfold"
-)
-secondary_logfold = pd.read_hdf(
-    "../../data/processed/depmap/secondary_logfold.h5", key="secondary_logfold"
-)
-```
-
-```python
-ubap2l_tx = ccle_transcripts[[x for x in ccle_transcripts.columns if "UBAP2L" in x]]
-ubap2l_exons = exonusage[[x for x in exonusage.columns if "UBAP2L" in x]]
-```
 
 ## RPPA correlations
 
 ```python
 mdm4_rppa = pd.concat(
     [
-        ccle_genex["MDM4_ENSG00000198625.8"].rename("MDM4_genex"),
-        mdm4_exon_6.rename("MDM4_exon_6"),
-        rppa["MDMX_MDM4(BetIHC-00108)_Caution"].rename("MDM4_protein"),
+        merged_ccle_info["MDM4_ENSG00000198625.8_mRNA"].rename("MDM4_genex"),
+        merged_ccle_info["MDM4_mean_chr1_204506558_204506625_ENSG00000198625.8_exonusage"].rename("MDM4_exon_6"),
+        merged_ccle_info["MDM4_RPPA_protein"].rename("MDM4_protein"),
     ],
     axis=1,
     sort=True,
@@ -585,22 +428,42 @@ fig, axes = plt.subplots(1, 3, figsize=(7, 7 / 3), sharey=True)
 text_pos = (0.075, 0.925)
 
 ax = axes[0]
-huy.dense_regression(
-    mdm4_rppa["MDM4_genex"], mdm4_rppa["MDM4_protein"], ax=ax, s=12, text_pos=text_pos
+many.visuals.dense_regression(
+    mdm4_rppa["MDM4_genex"],
+    mdm4_rppa["MDM4_protein"],
+    "pearson",
+    ax=ax,
+    text_pos=text_pos,
+    colormap="Blues",
+    cmap_offset=0.5,
 )
 ax.set_ylabel("MDM4 protein (RPPA)")
 ax.set_xlabel("MDM4 mRNA")
 
 ax = axes[1]
-huy.dense_regression(
-    mdm4_rppa["MDM4_exon_6"], mdm4_rppa["MDM4_protein"], ax=ax, s=12, text_pos=text_pos
+many.visuals.dense_regression(
+    mdm4_rppa["MDM4_exon_6"],
+    mdm4_rppa["MDM4_protein"],
+    "pearson",
+    ax=ax,
+    text_pos=text_pos,
+    colormap="Blues",
+    cmap_offset=0.5,
 )
 ax.set_xlabel("MDM4 exon 6 inclusion")
 
 mult = np.log2(2 ** mdm4_rppa["MDM4_genex"] * mdm4_rppa["MDM4_exon_6"] + 1)
 
 ax = axes[2]
-huy.dense_regression(mult, mdm4_rppa["MDM4_protein"], ax=ax, s=12, text_pos=text_pos)
+many.visuals.dense_regression(
+    mult,
+    mdm4_rppa["MDM4_protein"],
+    "pearson",
+    ax=ax,
+    text_pos=text_pos,
+    colormap="Blues",
+    cmap_offset=0.5,
+)
 
 ax.set_xlabel("MDM4 mRNA × exon 6")
 
@@ -617,9 +480,9 @@ plt.savefig(
 ```python
 mdm4_ms = pd.concat(
     [
-        ccle_genex["MDM4_ENSG00000198625.8"].rename("MDM4_genex"),
-        mdm4_exon_6.rename("MDM4_exon_6"),
-        ms_prot["MDM4_HUMAN_O15151"].rename("MDM4_protein"),
+        merged_ccle_info["MDM4_ENSG00000198625.8_mRNA"].rename("MDM4_genex"),
+        merged_ccle_info["MDM4_mean_chr1_204506558_204506625_ENSG00000198625.8_exonusage"].rename("MDM4_exon_6"),
+        merged_ccle_info["MDM4_MS_protein"].rename("MDM4_protein"),
     ],
     axis=1,
     sort=True,
@@ -632,44 +495,49 @@ fig, axes = plt.subplots(1, 3, figsize=(7, 7 / 3), sharey=True)
 text_pos = (0.075, 0.925)
 
 ax = axes[0]
-huy.regression(
+many.visuals.dense_regression(
     mdm4_ms["MDM4_genex"],
     mdm4_ms["MDM4_protein"],
+    "pearson",
     ax=ax,
-    s=16,
     text_pos=text_pos,
-    alpha=1,
-    c="black",
+    colormap="Blues",
+    cmap_offset=0.5,
 )
 ax.set_ylabel("MDM4 protein (MS)")
 ax.set_xlabel("MDM4 mRNA")
 
 ax = axes[1]
-huy.regression(
+many.visuals.dense_regression(
     mdm4_ms["MDM4_exon_6"],
     mdm4_ms["MDM4_protein"],
+    "pearson",
     ax=ax,
-    s=16,
     text_pos=text_pos,
-    alpha=1,
-    c="black",
+    colormap="Blues",
+    cmap_offset=0.5,
 )
 ax.set_xlabel("MDM4 exon 6 inclusion")
-ax.set_xlim(0, 1)
-ax.set_xticks([0, 0.5, 1])
 
-mult = np.log2(2 ** mdm4_ms["MDM4_genex"] * mdm4_ms["MDM4_exon_6"] + 1)
+mult = np.log2(2 ** mdm4_rppa["MDM4_genex"] * mdm4_rppa["MDM4_exon_6"] + 1)
 
 ax = axes[2]
-huy.regression(
-    mult, mdm4_ms["MDM4_protein"], ax=ax, s=16, text_pos=text_pos, alpha=1, c="black"
+many.visuals.dense_regression(
+    mult,
+    mdm4_ms["MDM4_protein"],
+    "pearson",
+    ax=ax,
+    text_pos=text_pos,
+    colormap="Blues",
+    cmap_offset=0.5,
 )
 
 ax.set_xlabel("MDM4 mRNA × exon 6")
 
-ax.set_ylim(ax.set_ylim()[0], ax.set_ylim()[1] * 1.75)
-
 plt.savefig(
-    "../plots/MDM4_MS_correlations.pdf", bbox_inches="tight", transparent=True, dpi=512
+    "../plots/MDM4_MS_correlations.pdf",
+    bbox_inches="tight",
+    transparent=True,
+    dpi=512,
 )
 ```

@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.11.2
   kernelspec:
     display_name: Python 3
     language: python
@@ -155,6 +155,17 @@ select_exons = [
 
 select_exonusage = exonusage[select_exons]
 select_exonusage.columns = [x + "_exonusage" for x in select_exonusage.columns]
+
+select_exonusage[
+    "MDM4_mean_chr1_204506558_204506625_ENSG00000198625.8_exonusage"
+] = exonusage[
+    [
+        "MDM4_3p_chr1_204506558_204506625_ENSG00000198625.8",
+        "MDM4_5p_chr1_204506558_204506625_ENSG00000198625.8",
+    ]
+].mean(
+    axis=1
+)
 ```
 
 ## mRNA expression
