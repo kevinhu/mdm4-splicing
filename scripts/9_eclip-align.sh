@@ -1,0 +1,17 @@
+STAR --outSAMtype BAM SortedByCoordinate \
+	--runThreadN 12 \
+	--genomeDir ../data/raw/STAR_index \
+	--readFilesIn ../data/raw/eclip_fastqs/HWFH01-P/HWFH01_S13_L005_R1_001.fastq.gz \
+	--readFilesCommand gzcat \
+	--outFilterType BySJout \
+	--outFilterMultimapNmax 1 \
+	--alignSJoverhangMin 8 \
+	--alignSJDBoverhangMin 1 \
+	--outFilterMismatchNmax 999 \
+	--outFilterMismatchNoverLmax 0.04 \
+	--scoreDelOpen -1 \
+	--alignIntronMin 20 \
+	--alignIntronMax 1000000 \
+	--alignMatesGapMax 1000000 \
+	--outFileNamePrefix ../data/raw/eclip_bams/HWFH01/ \
+	--alignEndsType EndToEnd
