@@ -23,6 +23,9 @@ import seaborn as sns
 import sys
 import os
 
+import pyranges
+
+
 ```
 
 # Load annotations
@@ -305,7 +308,7 @@ with open("../scripts/7_fetch-msi-slices.sh", "w") as f:
 
 ```python
 msi_exon_muts = pd.read_csv(
-    "../data/intermediate/msi_exon_calls_filtered.txt",
+    "../data/intermediate/msi_exon_calls/msi_exon_calls_filtered.txt",
     sep="\t",
     names=["chrom", "pos", "sample", "ref", "alt", "genotype"],
 )
@@ -327,4 +330,23 @@ msi_exon_muts["value"] = 1
 msi_exon_mut_mat = pd.pivot_table(
     msi_exon_muts, values="value", index=["ach_id"], columns="mut_site", fill_value=0
 )
+```
+
+## Match mutations with exon bounds
+
+```python
+msi_exon_muts_unique = msi_exon_muts[["chrom", "pos", "mut_site"]].rename(
+    {"chrom": "Chromosome", "pos": "Start", "mut_site": "SNP"}, axis=1
+)
+msi_exon_muts_unique["End"] = msi_exon_muts_unique["Start"]+1
+
+msi_exon_muts_unique = pyranges.PyRanges(msi_exon_muts_unique)
+```
+
+```python
+msi_exon_bounds = 
+```
+
+```python
+msi_exon_muts_unique
 ```
