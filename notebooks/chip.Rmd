@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+See https://hbctraining.github.io/Intro-to-ChIPseq/lessons/12_functional_analysis.html
+
+```{r}
+BiocManager::install("ChIPseeker")
+BiocManager::install("GO.db")
+BiocManager::install("DO.db")
+BiocManager::install("EnsDb.Hsapiens.v75")
+BiocManager::install("clusterProfiler")
+BiocManager::install("org.Hs.eg.db")
+BiocManager::install("TxDb.Hsapiens.UCSC.hg38.knownGene")
+```
+
+
+```{r}
+library(ChIPseeker)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(EnsDb.Hsapiens.v75)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+```
+
+```{r}
+txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+peakfile <- "../data/raw/eclip/RPL22-ZR751_clearCLIP.pool.tag.uniq.del.CIMS.fdr10.f10.bed"
+peakAnno <- annotatePeak(peakfile, tssRegion=c(-3000, 3000), TxDb=txdb)
+```
+```{r}
+plotAnnoBar(peakAnno)
+```
+
+```{r}
+plotDistToTSS(peakAnno)
+```
+```{r}
+peakAnnoDf <- data.frame(peakAnno@anno)
+peakEntrez <- peakAnnoDf$geneId
+annotations_edb <- AnnotationDbi::select(EnsDb.Hsapiens.v75,
+                                         keys = peakEntrez,
+                                         columns = c("GENENAME"),
+                                         keytype = "ENTREZID")
+annotations_edb$ENTREZID <- as.character(annotations_edb$ENTREZID)
+```
+
+```{r}
+ego <- enrichGO(gene = peakEntrez, 
+                    keyType = "ENTREZID", 
+                    OrgDb = org.Hs.eg.db, 
+                    ont = "BP", 
+                    pAdjustMethod = "BH", 
+                    qvalueCutoff = 0.05, 
+                    readable = TRUE)
+```
+
+```{r}
+dotplot(ego, showCategory=25)
+
+```
+
+```{r}
+ekegg <- enrichKEGG(gene = peakEntrez,
+                 organism = 'hsa',
+                 pvalueCutoff = 0.05)
+
+dotplot(ekegg)
+```
+
+```{r}
+promoter <- getPromoters(TxDb=txdb, upstream=3000, downstream=3000)
+tagMatrix <- getTagMatrix(peakAnno@anno, windows=promoter)
+
+```
+
+```{r}
+plotAvgProf(tagMatrix, xlim=c(-3000, 3000), conf = 0.95, resample = 1000)
+```
+
+```{r}
+plotPeakProf2(peak = peakAnno@anno, upstream = rel(0.2), downstream = rel(0.2),
+              conf = 0.95, by = "gene", type = "body", nbin = 800,
+              TxDb = txdb, weightCol = "V5",ignore_strand = F)
+```
+
+```{r}
+TTS_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = rel(0.2),
+                           downstream = rel(0.2), 
+                           by = "intron",
+                           type = "body",
+                           nbin = 100,
+                           )
+
+plotPeakProf(tagMatrix = TTS_matrix, conf = 0.95)
+```
