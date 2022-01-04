@@ -26,7 +26,7 @@ library(org.Hs.eg.db)
 ```
 
 ```{r}
-txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
+txdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
 peakfile <- "../data/raw/eclip/RPL22-ZR751_clearCLIP.pool.tag.uniq.del.CIMS.fdr10.f10.bed"
 peakAnno <- annotatePeak(peakfile, tssRegion=c(-3000, 3000), TxDb=txdb)
 ```
@@ -72,6 +72,7 @@ dotplot(ekegg)
 
 ```{r}
 promoter <- getPromoters(TxDb=txdb, upstream=3000, downstream=3000)
+exon <- getI(TxDb=txdb, upstream=3000, downstream=3000)
 tagMatrix <- getTagMatrix(peakAnno@anno, windows=promoter)
 
 ```
@@ -87,7 +88,7 @@ plotPeakProf2(peak = peakAnno@anno, upstream = rel(0.2), downstream = rel(0.2),
 ```
 
 ```{r}
-TTS_matrix <- getTagMatrix(peak = peakAnno@anno, 
+intron_matrix <- getTagMatrix(peak = peakAnno@anno, 
                            TxDb = txdb,
                            upstream = rel(0.2),
                            downstream = rel(0.2), 
@@ -96,5 +97,145 @@ TTS_matrix <- getTagMatrix(peak = peakAnno@anno,
                            nbin = 100,
                            )
 
-plotPeakProf(tagMatrix = TTS_matrix, conf = 0.95)
+plotPeakProf(tagMatrix = intron_matrix, conf = 0.95)
+```
+
+```{r}
+intron_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "intron",
+                           type = "start_site",
+                           nbin = 250,
+                           )
+
+plotPeakProf(tagMatrix = intron_matrix, conf = 0.95)
+```
+```{r}
+intron_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "intron",
+                           type = "end_site",
+                           nbin = 250,
+                           )
+
+plotPeakProf(tagMatrix = intron_matrix, conf = 0.95)
+```
+
+```{r}
+exon_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "exon",
+                           type = "start_site",
+                           nbin = 250,
+                           )
+
+plotPeakProf(tagMatrix = exon_matrix, conf = 0.95)
+```
+```{r}
+exon_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "exon",
+                           type = "start_site",
+                           nbin=250
+                           )
+
+plotPeakProf(exon_matrix, xlab="Exon start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+```{r}
+exon_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "exon",
+                           type = "end_site",
+                           nbin=250
+                           )
+
+plotPeakProf(exon_matrix, xlab="Exon end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+
+```{r}
+utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "3UTR",
+                           type = "start_site",
+                           nbin=250
+                           )
+
+plotPeakProf(utr_matrix, xlab="3' UTR start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+
+```{r}
+utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "3UTR",
+                           type = "end_site",
+                           nbin=250
+                           )
+
+plotPeakProf(utr_matrix, xlab="3' UTR end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+
+```{r}
+utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "5UTR",
+                           type = "start_site",
+                           nbin=250
+                           )
+
+plotPeakProf(utr_matrix, xlab="5' UTR start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+
+```{r}
+utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "5UTR",
+                           type = "end_site",
+                           nbin=250
+                           )
+
+plotPeakProf(utr_matrix, xlab="5' UTR end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+
+```{r}
+gene_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "gene",
+                           type = "start_site",
+                           nbin=250
+                           )
+
+plotPeakProf(gene_matrix, xlab="Gene start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+```
+
+```{r}
+gene_matrix <- getTagMatrix(peak = peakAnno@anno, 
+                           TxDb = txdb,
+                           upstream = 1000,
+                           downstream = 1000, 
+                           by = "gene",
+                           type = "end_site",
+                           nbin=250
+                           )
+
+plotPeakProf(gene_matrix, xlab="Gene end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
 ```
