@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.13.5
   kernelspec:
     display_name: Python 3
     language: python
@@ -32,6 +32,8 @@ tqdm.pandas()
 ccle_exonusage = cancer_data.load("ccle_exonusage")
 ccle_proteomics = cancer_data.load("ccle_proteomics")
 ccle_genex = cancer_data.load("ccle_gene_tpm")
+avana = cancer_data.load("avana")
+drive = cancer_data.load("drive")
 
 merged_ccle_info = pd.read_csv("../data/supplementary/S1_merged-ccle-info.txt",sep="\t",index_col=0)
 ```
@@ -294,14 +296,6 @@ filtered_exon_snps = exon_matched_snps[exon_matched_snps["exon_snp_qval"]>2]
 ```
 
 ```python
-filtered_exon_snps.to_csv("~/Desktop/filtered_exon_snps.txt",sep="\t")
-```
-
-```python
-sns.scatterplot(exon_matched_snps["exon_snp_rank_biserial"],exon_matched_snps["exon_snp_qval"])
-```
-
-```python
 correlated_exons = ccle_exonusage[filtered_exon_snps["exon"]]
 correlated_snps = msi_exon_mut_mat[filtered_exon_snps["snps"]]
 
@@ -352,6 +346,190 @@ def make_exon_msi_plots(exon, gene, protein, mutation):
     ax.spines["right"].set_visible(False)
     ax.spines["top"].set_visible(False)
 
+```
+
+```python
+cosmic_genes = pd.read_csv("../data/raw/cancer_gene_census.csv")
+ensembl_t2g = pd.read_csv("../data/intermediate/sleuth_diff/ensembl_t2g.csv")
+
+ensembl_t2g = ensembl_t2g.dropna(subset=["entrez_gene"])
+ensembl_t2g["entrez_gene"] = ensembl_t2g["entrez_gene"].astype(int)
+entrez_to_ensembl = dict(zip(ensembl_t2g["entrez_gene"], ensembl_t2g["ens_gene"]))
+ensembl_to_entrez = dict(zip(ensembl_t2g["ens_gene"], ensembl_t2g["entrez_gene"]))
+
+
+cosmic_genes = cosmic_genes.dropna(subset=["Entrez GeneId"])
+cosmic_genes["ensembl_id"] = cosmic_genes["Entrez GeneId"].apply(entrez_to_ensembl.get)
+
+ensembl_to_role = dict(zip(cosmic_genes["ensembl_id"],cosmic_genes["Role in Cancer"]))
+
+filtered_exon_snps["cosmic_role"] = filtered_exon_snps["ens_gene"].apply(
+    lambda x: ensembl_to_role.get(x.split(".")[0])
+)
+```
+
+```python
+filtered_exon_snps.to_csv("~/Desktop/filtered_exon_snps.txt",sep="\t")
+```
+
+```python
+entrez_to_avana = dict(zip([x.split("_")[-1] for x in avana.columns], avana.columns))
+entrez_to_drive = dict(zip([x.split("_")[-1] for x in drive.columns], drive.columns))
+
+
+filtered_exon_snps["entrez_gene"] = (
+    filtered_exon_snps["ens_gene"]
+    .apply(lambda x: ensembl_to_entrez.get(x.split(".")[0]))
+    .astype("Int64").astype(str)
+)
+filtered_exon_snps["avana_gene"] = filtered_exon_snps["entrez_gene"].apply(
+    entrez_to_avana.get
+)
+filtered_exon_snps["drive_gene"] = filtered_exon_snps["entrez_gene"].apply(
+    entrez_to_drive.get
+)
+```
+
+```python
+def get_exon_dependency_corr(row):
+
+    avana_gene = row["drive_gene"]
+
+    if avana_gene not in avana.columns:
+        return (np.nan, np.nan, np.nan, np.nan)
+
+    corr_result = many.stats.mat_corr_naive(
+        ccle_exonusage[row["exon"]],
+        avana[avana_gene],
+        melt=True,
+        method="pearson",
+    )
+
+    corr_result = corr_result.iloc[0].to_dict()
+
+    return (
+        corr_result["pearson"],
+        corr_result["pval"],
+        corr_result["qval"],
+        corr_result["n"],
+    )
+```
+
+```python
+(
+    filtered_exon_snps["exon_dependency_pearson"],
+    filtered_exon_snps["exon_dependency_pval"],
+    filtered_exon_snps["exon_dependency_qval"],
+    filtered_exon_snps["exon_dependency_n"],
+) = zip(*filtered_exon_snps.progress_apply(get_exon_dependency_corr, axis=1))
+```
+
+```python
+filtered_exon_snps.sort_values(by="exon_dependency_qval").dropna(subset=["exon_dependency_qval"])
+```
+
+```python
+ccle_exonusage["NUMA1_3p_chr11_71760585_71760465_ENSG00000137497.13"]
+ccle_proteomics["NUMA1_H0YFY6"]
+```
+
+```python
+make_exon_msi_plots(
+    "NUMA1_3p_chr11_71760585_71760465_ENSG00000137497.13",
+    "NUMA1_ENSG00000137497.13",
+    "NUMA1_H0YFY6",
+    "11_71760599_T>A",
+)
+
+plt.savefig("../plots/NUMA1_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "NCOR1_5p_chr17_16102033_16101485_ENSG00000141027.16",
+    "NCOR1_ENSG00000141027.16",
+    "NCOR1_O75376",
+    "17_16102038_CAAAA>CA,C",
+)
+
+plt.savefig("../plots/NCOR1_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "POT1_5p_chr7_124488713_124488594_ENSG00000128513.10",
+    "POT1_ENSG00000128513.10",
+    "POT1_Q9NUX5",
+    "7_124488716_CAAAAGA>C,CA",
+)
+
+plt.savefig("../plots/POT1_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "CUL3_5p_chr2_225422573_225422376_ENSG00000036257.8",
+    "CUL3_ENSG00000036257.8",
+    "CUL3_Q13618",
+    "2_225422598_GACAAAAAAAA>G,GA",
+)
+
+plt.savefig("../plots/CUL3_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "HNRNPA2B1_5p_chr7_26237486_26237451_ENSG00000122566.16",
+    "HNRNPA2B1_ENSG00000122566.16",
+    "HNRNPA2B1_P22626",
+    "7_26237494_GAA>GA,G",
+)
+
+plt.savefig("../plots/HNRNPA2B1_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "EPS15_5p_chr1_51924405_51924068_ENSG00000085832.12",
+    "EPS15_ENSG00000085832.12",
+    "EPS15_P42566",
+    "1_51924407_TAAA>TA,T",
+)
+
+plt.savefig("../plots/EPS15_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "RECQL4_3p_chr8_145738864_145738601_ENSG00000160957.8",
+    "RECQL4_ENSG00000160957.8",
+    "RECQL4_O94761",
+    "8_145738579_TGTGGG>TGG,TG",
+)
+
+plt.savefig("../plots/RECQL4_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "CUL3_5p_chr2_225422573_225422376_ENSG00000036257.8",
+    "CUL3_ENSG00000036257.8",
+    "CUL3_Q13618",
+    "2_225422239_AT>A",
+)
+
+plt.savefig("../plots/CUL3_polya_truncations.pdf", bbox_inches="tight")
+```
+
+```python
+make_exon_msi_plots(
+    "POLD1_5p_chr19_50911964_50912158_ENSG00000062822.8",
+    "POLD1_ENSG00000062822.8",
+    "POLD1_P28340",
+    "19_50911947_ATTT>AT,A",
+)
+
+plt.savefig("../plots/POLD1_polya_truncations.pdf", bbox_inches="tight")
 ```
 
 ```python

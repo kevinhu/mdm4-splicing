@@ -1,0 +1,42 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: '1.3'
+      jupytext_version: 1.13.5
+  kernelspec:
+    display_name: R
+    language: R
+    name: ir
+---
+
+```R
+library(biomaRt)
+ens_human = useMart(biomart="ENSEMBL_MART_ENSEMBL",
+                    host="https://useast.ensembl.org",
+                    path="/biomart/martservice",
+                    dataset="hsapiens_gene_ensembl")
+```
+
+```R
+hgid <- getBM(attributes = "ensembl_gene_id",
+              filters    = "with_hsapiens_paralog",
+              values     = TRUE,
+              mart       = ens_human)
+```
+
+```R
+para <- getBM(attributes = c("ensembl_gene_id", 
+                                "external_gene_name",
+                                "hsapiens_paralog_ensembl_gene", 
+                                "hsapiens_paralog_associated_gene_name"),
+              filters    = "ensembl_gene_id",
+              values     = hgid,
+              mart       = ens_human)
+```
+
+```R
+write.csv(para,"../data/raw/ensembl_paralogs.csv", row.names = TRUE)
+```

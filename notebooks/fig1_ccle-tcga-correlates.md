@@ -4,10 +4,10 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.13.5
   kernelspec:
-    display_name: Python 3
+    display_name: Python 3 (ipykernel)
     language: python
     name: python3
 ---
@@ -26,12 +26,13 @@ from scipy.stats import gaussian_kde
 
 from statsmodels.stats.multitest import multipletests
 
-import cancer_data 
+import cancer_data
 import many
 
 from adjustText import adjust_text
 
 import config
+
 config.config_visuals()
 ```
 
@@ -81,8 +82,8 @@ ccle_msi_type_filtered = ccle_msi_type_filtered.dropna(
     subset=["MSI", "RPL22_k15"], axis=0
 )
 
-tcga_msi_type_filtered = tcga_msi_type_filtered[tcga_msi_type_filtered["MSI"]==True]
-ccle_msi_type_filtered = ccle_msi_type_filtered[ccle_msi_type_filtered["MSI"]==True]
+tcga_msi_type_filtered = tcga_msi_type_filtered[tcga_msi_type_filtered["MSI"] == True]
+ccle_msi_type_filtered = ccle_msi_type_filtered[ccle_msi_type_filtered["MSI"] == True]
 
 ccle_msi_type_filtered["Primary_disease"] = ccle_msi_type_filtered[
     "Primary_disease"
@@ -101,9 +102,11 @@ fig, axes = plt.subplots(2, 1, figsize=(4, 4))
 
 ax = axes[0]
 
-ccle_msi_type_filtered.groupby(["Primary_disease", "RPL22_k15"]).size().unstack(
+ccle_msi_stacked = ccle_msi_type_filtered.groupby(["Primary_disease", "RPL22_k15"]).size().unstack(
     -1
-).plot(
+)
+
+ccle_msi_stacked.plot(
     kind="bar",
     stacked=True,
     ax=ax,
@@ -123,11 +126,19 @@ ax.set_xticklabels(
 )
 ax.set_title("CCLE")
 
+custom_lines = [
+    mpl.patches.Patch(facecolor="#b83b5e", edgecolor="#b83b5e", label="p.K15fs"),
+    mpl.patches.Patch(facecolor="#e1e5ea", edgecolor="#e1e5ea", label="WT"),
+]
+ax.legend(handles=custom_lines)
+
 ax = axes[1]
 
-tcga_msi_type_filtered.groupby(
+tcga_msi_stacked = tcga_msi_type_filtered.groupby(
     ["Abbreviated_disease", "RPL22_k15fs_mutation"]
-).size().unstack(-1).plot(
+).size().unstack(-1)
+
+tcga_msi_stacked.plot(
     kind="bar",
     stacked=True,
     ax=ax,
@@ -149,7 +160,16 @@ ax.set_title("TCGA")
 
 plt.subplots_adjust(hspace=1)
 
+
 plt.savefig("../plots/1_msi-totals.pdf", transparent=True, bbox_inches="tight")
+```
+
+```python
+ccle_msi_stacked.div(ccle_msi_stacked.sum(axis=1),axis=0)
+```
+
+```python
+tcga_msi_stacked.div(tcga_msi_stacked.sum(axis=1),axis=0)
 ```
 
 # Boxplots
@@ -253,22 +273,6 @@ def plot_rpl22(rpl22_info, y, ylabel="y"):
 ```
 
 ## TCGA
-
-```python
-plot_rpl22(
-    merged_tcga_info[["RPL22_status"]],
-    merged_tcga_info["MDM2_mRNA"],
-    "MDM2 mRNA expression",
-)
-```
-
-```python
-plot_rpl22(
-    merged_tcga_info[["RPL22_status"]],
-    merged_tcga_info["MDM4_mRNA"],
-    "MDM2 mRNA expression",
-)
-```
 
 ```python
 plot_rpl22(
@@ -394,11 +398,9 @@ plt.ylabel("-log10(Q value)")
 # RPL22 alterations by primary site
 
 ```python
-rpl22_subtype_info = rpl22_info.join(
-    tcga_sample_info["abbreviated_disease"], how="inner"
-)
+rpl22_subtype_info = merged_tcga_info.dropna(subset=["RPL22_status"])
 
-subtype_proportions = rpl22_subtype_info.groupby(["abbreviated_disease"])[
+subtype_proportions = rpl22_subtype_info.groupby(["Abbreviated_disease"])[
     "RPL22_status"
 ].value_counts()
 subtype_proportions = subtype_proportions.unstack().fillna(0)
@@ -430,6 +432,10 @@ subtype_proportions["display_disease"] = (
 )
 
 subtype_proportions = subtype_proportions[subtype_proportions["total"] >= 50]
+```
+
+```python
+subtype_proportions.head(5)
 ```
 
 ```python
