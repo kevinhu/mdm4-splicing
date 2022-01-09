@@ -18,6 +18,8 @@ ens_human = useMart(biomart="ENSEMBL_MART_ENSEMBL",
                     host="https://useast.ensembl.org",
                     path="/biomart/martservice",
                     dataset="hsapiens_gene_ensembl")
+
+write.csv(listAttributes(mart=ens_human),"../data/raw/ensembl_attributes.csv")
 ```
 
 ```R
@@ -29,9 +31,22 @@ hgid <- getBM(attributes = "ensembl_gene_id",
 
 ```R
 para <- getBM(attributes = c("ensembl_gene_id", 
-                                "external_gene_name",
-                                "hsapiens_paralog_ensembl_gene", 
-                                "hsapiens_paralog_associated_gene_name"),
+                             "external_gene_name",
+                             "entrezgene_id",
+                             "hsapiens_paralog_ensembl_gene", 
+                             "hsapiens_paralog_associated_gene_name"
+                            ),
+              filters    = "ensembl_gene_id",
+              values     = hgid,
+              mart       = ens_human)
+```
+
+```R
+entrez <- getBM(attributes = c("ensembl_gene_id", 
+                               "entrezgene_id",
+                               "hgnc_id",
+                               "hgnc_symbol"
+                            ),
               filters    = "ensembl_gene_id",
               values     = hgid,
               mart       = ens_human)
@@ -39,4 +54,5 @@ para <- getBM(attributes = c("ensembl_gene_id",
 
 ```R
 write.csv(para,"../data/raw/ensembl_paralogs.csv", row.names = TRUE)
+write.csv(entrez,"../data/raw/ensembl_entrez.csv", row.names = TRUE)
 ```
