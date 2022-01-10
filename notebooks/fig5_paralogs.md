@@ -30,6 +30,8 @@ from statsmodels.stats.multitest import multipletests
 ```python
 depmap_damaging = cancer_data.load("depmap_damaging")
 depmap_hotspot = cancer_data.load("depmap_hotspot")
+depmap_cn = cancer_data.load("depmap_copy_number")
+ccle_genex = cancer_data.load("ccle_gene_tpm")
 ccle_exonusage = cancer_data.load("ccle_exonusage")
 ```
 
