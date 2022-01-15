@@ -4,3 +4,7 @@ notebooks/.vscode/settings.json
 notebooks/.Rhistory
 **/*.Rhistory
 **/__pycache__
+data/intermediate/paralog_expression_splicing_correlations.csv
+data/intermediate/paralog_mutation_splicing_correlations.feather
+data/intermediate/paralog_mutation_splicing_correlations.h5
+data/raw/ensembl_entrez.csv

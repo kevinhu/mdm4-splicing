@@ -4,10 +4,10 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.13.5
   kernelspec:
-    display_name: Python 3
+    display_name: Python 3 (ipykernel)
     language: python
     name: python3
 ---
@@ -129,51 +129,89 @@ plt.savefig("../plots/UBAP2L_splicing.pdf", bbox_inches="tight", transparent=Tru
 
 # Splicing types
 
+
+## Take intersections
+
 ```python
-inclusion_events = pd.DataFrame(index=splice_types)
-exclusion_events = pd.DataFrame(index=splice_types)
-
-for experiment_idx, experiment in enumerate(
-    [
-        rpl22_oe_rmats,
-        rpl22l1_oe_rmats,
-        rpl22l1_kd1_rmats,
-        rpl22l1_kd1_rmats,
-        rpl22_a_ko1_rmats,
-        rpl22_a_ko2_rmats,
-        rpl22_b_ko1_rmats,
-        rpl22_b_ko2_rmats,
-    ]
-):
-
-    experiment_name = display_names[experiment_idx]
-
-    significants = experiment.copy(deep=True)[experiment["qval"] < 0.01]
-
-    significants["treatment_increase"] = (
-        significants["treatment_median"] > significants["control_median"]
+rpl22_a_rmats = (
+    pd.concat(
+        [rpl22_a_ko1_rmats["qval"], rpl22_a_ko2_rmats["qval"]], axis=1
     )
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22_a_rmats = pd.DataFrame(rpl22_a_rmats)
+rpl22_a_rmats["gene_id"] = rpl22_a_ko1_rmats["gene_id"].combine_first(
+    rpl22_a_ko2_rmats["gene_id"]
+)
+rpl22_a_rmats["splice_type"] = rpl22_a_ko1_rmats["splice_type"].combine_first(
+    rpl22_a_ko2_rmats["splice_type"]
+)
 
-    significants["treatment_increase"] = significants["treatment_increase"].replace(
-        {True: "Inclusion", False: "Exclusion"}
+rpl22_b_rmats = (
+    pd.concat(
+        [rpl22_b_ko1_rmats["qval"], rpl22_b_ko2_rmats["qval"]], axis=1
     )
-    significants = significants.groupby("splice_type")[
-        "treatment_increase"
-    ].value_counts()
-    significants = significants.unstack()
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22_b_rmats = pd.DataFrame(rpl22_b_rmats)
+rpl22_b_rmats["gene_id"] = rpl22_b_ko1_rmats["gene_id"].combine_first(
+    rpl22_b_ko2_rmats["gene_id"]
+)
+rpl22_b_rmats["splice_type"] = rpl22_b_ko1_rmats["splice_type"].combine_first(
+    rpl22_b_ko2_rmats["splice_type"]
+)
 
-    inclusion_events[experiment_name] = significants["Inclusion"]
-    exclusion_events[experiment_name] = significants["Exclusion"]
-
-inclusion_events = inclusion_events.fillna(0)
-exclusion_events = exclusion_events.fillna(0)
-
-inclusion_events = inclusion_events[inclusion_events.columns[::-1]]
-exclusion_events = exclusion_events[exclusion_events.columns[::-1]]
+rpl22l1_kd_rmats = (
+    pd.concat(
+        [rpl22l1_kd1_rmats["qval"], rpl22l1_kd2_rmats["qval"]], axis=1
+    )
+    .max(axis=1)
+    .rename("qval")
+)
+rpl22l1_kd_rmats = pd.DataFrame(rpl22l1_kd_rmats)
+rpl22l1_kd_rmats["gene_id"] = rpl22l1_kd1_rmats["gene_id"].combine_first(
+    rpl22l1_kd2_rmats["gene_id"]
+)
+rpl22l1_kd_rmats["splice_type"] = rpl22l1_kd1_rmats["splice_type"].combine_first(
+    rpl22l1_kd2_rmats["splice_type"]
+)
 ```
 
 ```python
-plt.figure(figsize=(5, 3))
+rpl22l1_oe_rmats[rpl22l1_oe_rmats["qval"]<0.01]["splice_type"].value_counts()
+```
+
+```python
+event_totals = pd.DataFrame(index=splice_types)
+
+for experiment_name, experiment in [
+        ("LNCaP RPL22_OE", rpl22_oe_rmats),
+        ("CAL851 RPL22L1_OE", rpl22l1_oe_rmats),
+        ("LNCaP RPL22L1_KD", rpl22l1_kd_rmats),
+        ("NCI-H2110 RPL22_KO", rpl22_a_rmats),
+        ("ZR75-1 RPL22_KO", rpl22_b_rmats),
+    ]:
+
+    significants = experiment.copy(deep=True)[experiment["qval"] < 0.01]
+
+    significants = significants["splice_type"].value_counts()
+    
+    event_totals[experiment_name] = significants
+
+event_totals = event_totals.fillna(0)
+
+event_totals = event_totals[event_totals.columns[::-1]]
+
+```
+
+```python
+event_totals
+```
+
+```python
+plt.figure(figsize=(7, 3))
 
 splice_type_palette = mpl.colors.ListedColormap(
     ["#44bb99", "#ee8866", "#eedd88", "#ffaabb", "#77aadd"]
@@ -184,36 +222,22 @@ ax = plt.subplot(121)
 for i in np.arange(0, 8, 2) + 0.5:
     ax.axhspan(i, i + 1, facecolor="lightgrey", alpha=0.333)
 
-inclusion_events.T.plot.barh(
+experiment_totals = inclusion_events.sum(axis=0).astype(int)
+normalized_events = event_totals.div(experiment_totals, axis=1)
+
+normalized_events.T.plot.barh(
     stacked=True, ax=ax, cmap=splice_type_palette, legend=False
 )
 
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-ax.set_xticks([0, 500, 1000, 1500])
-ax.set_xlim(0, 1750)
-ax.set_title("Inclusion events")
-ax.set_xlabel("Frequency")
-
-ax.spines["bottom"].set_position(("outward", 5))
-
-
-ax = plt.subplot(122)
-
-for i in np.arange(0, 8, 2) + 0.5:
-    ax.axhspan(i, i + 1, facecolor="lightgrey", alpha=0.333)
-
-exclusion_events.T.plot.barh(
-    stacked=True, ax=ax, cmap=splice_type_palette,
-)
+y_labels = [
+    f"{experiment} ({total})"
+    for experiment, total in zip(normalized_events.columns, list(experiment_totals))
+]
+ax.set_yticklabels(y_labels)
 
 ax.spines["top"].set_visible(False)
 ax.spines["right"].set_visible(False)
-ax.set_yticks([])
-ax.set_xticks([0, 500, 1000, 1500])
-ax.set_xlim(0, 1750)
-ax.set_title("Exclusion events")
-ax.set_xlabel("Frequency")
+ax.set_xlabel("Proportion")
 
 ax.spines["bottom"].set_position(("outward", 5))
 
@@ -304,32 +328,6 @@ def get_overlaps(
 ```
 
 # Intersections
-
-```python
-rpl22_a_rmats = (
-    pd.concat(
-        [rpl22_a_ko1_rmats["qval"], rpl22_a_ko2_rmats["qval"]], axis=1
-    )
-    .max(axis=1)
-    .rename("qval")
-)
-rpl22_a_rmats = pd.DataFrame(rpl22_a_rmats)
-rpl22_a_rmats["gene_id"] = rpl22_a_ko1_rmats["gene_id"].combine_first(
-    rpl22_a_ko2_rmats["gene_id"]
-)
-
-rpl22_b_rmats = (
-    pd.concat(
-        [rpl22_b_ko1_rmats["qval"], rpl22_b_ko2_rmats["qval"]], axis=1
-    )
-    .max(axis=1)
-    .rename("qval")
-)
-rpl22_b_rmats = pd.DataFrame(rpl22_b_rmats)
-rpl22_b_rmats["gene_id"] = rpl22_b_ko1_rmats["gene_id"].combine_first(
-    rpl22_b_ko2_rmats["gene_id"]
-)
-```
 
 ```python
 rpl22_int_rmats = [

@@ -23,6 +23,7 @@ library(EnsDb.Hsapiens.v75)
 library(clusterProfiler)
 library(AnnotationDbi)
 library(org.Hs.eg.db)
+library(ggplot2)
 ```
 
 ```{r}
@@ -37,6 +38,7 @@ plotAnnoBar(peakAnno)
 ```{r}
 plotDistToTSS(peakAnno)
 ```
+
 ```{r}
 peakAnnoDf <- data.frame(peakAnno@anno)
 peakEntrez <- peakAnnoDf$geneId
@@ -55,11 +57,10 @@ ego <- enrichGO(gene = peakEntrez,
                     pAdjustMethod = "BH", 
                     qvalueCutoff = 0.05, 
                     readable = TRUE)
-```
 
-```{r}
-dotplot(ego, showCategory=25)
-
+pdf("../plots/go_clip_enrichment.pdf", width=6, height=4)
+dotplot(ego, showCategory=10)+theme_light()
+dev.off()
 ```
 
 ```{r}
@@ -71,163 +72,6 @@ dotplot(ekegg)
 ```
 
 ```{r}
-promoter <- getPromoters(TxDb=txdb, upstream=3000, downstream=3000)
-exon <- getI(TxDb=txdb, upstream=3000, downstream=3000)
-tagMatrix <- getTagMatrix(peakAnno@anno, windows=promoter)
-
-```
-
-```{r}
-plotAvgProf(tagMatrix, xlim=c(-3000, 3000), conf = 0.95, resample = 1000)
-```
-
-```{r}
-plotPeakProf2(peak = peakAnno@anno, upstream = rel(0.2), downstream = rel(0.2),
-              conf = 0.95, by = "gene", type = "body", nbin = 800,
-              TxDb = txdb, weightCol = "V5",ignore_strand = F)
-```
-
-```{r}
-intron_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = rel(0.2),
-                           downstream = rel(0.2), 
-                           by = "intron",
-                           type = "body",
-                           nbin = 100,
-                           )
-
-plotPeakProf(tagMatrix = intron_matrix, conf = 0.95)
-```
-
-```{r}
-intron_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "intron",
-                           type = "start_site",
-                           nbin = 250,
-                           )
-
-plotPeakProf(tagMatrix = intron_matrix, conf = 0.95)
-```
-```{r}
-intron_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "intron",
-                           type = "end_site",
-                           nbin = 250,
-                           )
-
-plotPeakProf(tagMatrix = intron_matrix, conf = 0.95)
-```
-
-```{r}
-exon_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "exon",
-                           type = "start_site",
-                           nbin = 250,
-                           )
-
-plotPeakProf(tagMatrix = exon_matrix, conf = 0.95)
-```
-```{r}
-exon_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "exon",
-                           type = "start_site",
-                           nbin=250
-                           )
-
-plotPeakProf(exon_matrix, xlab="Exon start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-```{r}
-exon_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "exon",
-                           type = "end_site",
-                           nbin=250
-                           )
-
-plotPeakProf(exon_matrix, xlab="Exon end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-
-```{r}
-utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "3UTR",
-                           type = "start_site",
-                           nbin=250
-                           )
-
-plotPeakProf(utr_matrix, xlab="3' UTR start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-
-```{r}
-utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "3UTR",
-                           type = "end_site",
-                           nbin=250
-                           )
-
-plotPeakProf(utr_matrix, xlab="3' UTR end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-
-```{r}
-utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "5UTR",
-                           type = "start_site",
-                           nbin=250
-                           )
-
-plotPeakProf(utr_matrix, xlab="5' UTR start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-
-```{r}
-utr_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "5UTR",
-                           type = "end_site",
-                           nbin=250
-                           )
-
-plotPeakProf(utr_matrix, xlab="5' UTR end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-
-```{r}
-gene_matrix <- getTagMatrix(peak = peakAnno@anno, 
-                           TxDb = txdb,
-                           upstream = 1000,
-                           downstream = 1000, 
-                           by = "gene",
-                           type = "start_site",
-                           nbin=250
-                           )
-
-plotPeakProf(gene_matrix, xlab="Gene start (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
-```
-
-```{r}
 gene_matrix <- getTagMatrix(peak = peakAnno@anno, 
                            TxDb = txdb,
                            upstream = 1000,
@@ -237,5 +81,7 @@ gene_matrix <- getTagMatrix(peak = peakAnno@anno,
                            nbin=250
                            )
 
-plotPeakProf(gene_matrix, xlab="Gene end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000)
+pdf("../plots/tts_enrichment.pdf", width=5, height=3) 
+plotPeakProf(gene_matrix, xlab="Gene end (5'->3')", ylab = "Peak Frequency", conf = 0.95, resample = 1000) + theme_minimal()
+dev.off()
 ```

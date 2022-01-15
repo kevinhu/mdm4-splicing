@@ -4,10 +4,10 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.13.5
   kernelspec:
-    display_name: Python 3
+    display_name: Python 3 (ipykernel)
     language: python
     name: python3
 ---
@@ -29,6 +29,7 @@ from scipy.cluster.hierarchy import linkage, optimal_leaf_ordering, leaves_list
 
 from itertools import combinations, chain
 import upsetplot
+import statistics
 
 import json
 
@@ -107,23 +108,19 @@ rpl22_b_ko2_transcripts = pd.read_hdf(
 )
 ```
 
+```python
+# foldchange of rpl22 in rpl22l1 OE
+print(1/rpl22l1_oe_genes.loc["ENSG00000116251","median_foldchange"])
+# foldchange of rpl22l1 in rpl22 OE
+print(1/rpl22_oe_genes.loc["ENSG00000163584","median_foldchange"])
+# foldchange of rpl22l1 in rpl22 KO
+statistics.median([rpl22_a_ko1_genes.loc["ENSG00000163584","median_foldchange"],
+rpl22_a_ko2_genes.loc["ENSG00000163584","median_foldchange"],
+rpl22_b_ko1_genes.loc["ENSG00000163584","median_foldchange"],
+rpl22_b_ko2_genes.loc["ENSG00000163584","median_foldchange"],])
+```
+
 # Differential expression
-
-```python
-helper.all_bars("ENSG00000254772", "gene")
-plt.title("EEF1A1 expression")
-plt.savefig("../plots/EEF1G_ENSG00000254772_expression.pdf",
-    bbox_inches="tight",
-    transparent=True,)
-```
-
-```python
-helper.all_bars("ENSG00000156508", "gene")
-plt.title("EEF1A1 expression")
-plt.savefig("../plots/EEF1A1_ENSG00000156508_expression.pdf",
-    bbox_inches="tight",
-    transparent=True,)
-```
 
 ```python
 helper.all_bars("ENSG00000163584", "gene")

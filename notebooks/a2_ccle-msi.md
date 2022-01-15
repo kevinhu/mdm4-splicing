@@ -4,8 +4,8 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.2'
-      jupytext_version: 1.9.1
+      format_version: '1.3'
+      jupytext_version: 1.13.5
   kernelspec:
     display_name: Python 3
     language: python
@@ -24,8 +24,6 @@ import sys
 import os
 
 import pyranges
-
-
 ```
 
 # Load annotations
