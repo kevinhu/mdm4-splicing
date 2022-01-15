@@ -19,7 +19,17 @@ ens_human = useMart(biomart="ENSEMBL_MART_ENSEMBL",
                     path="/biomart/martservice",
                     dataset="hsapiens_gene_ensembl")
 
+ensembl = useMart("ensembl", dataset="hsapiens_gene_ensembl")
+
 write.csv(listAttributes(mart=ens_human),"../data/raw/ensembl_attributes.csv")
+```
+
+```R
+# all genes associated with "RNA splicing"
+
+splicing_genes <- getBM(attributes=c('hgnc_symbol', 'ensembl_gene_id', 'go_id'),
+                   filters = 'go', values = c('GO:0008380'), mart = ens_human)
+write.csv(splicing_genes,"../data/raw/go_rna_splicing_genes.csv", row.names = TRUE)
 ```
 
 ```R
