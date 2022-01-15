@@ -207,10 +207,6 @@ event_totals = event_totals[event_totals.columns[::-1]]
 ```
 
 ```python
-event_totals
-```
-
-```python
 plt.figure(figsize=(7, 3))
 
 splice_type_palette = mpl.colors.ListedColormap(
@@ -222,7 +218,7 @@ ax = plt.subplot(121)
 for i in np.arange(0, 8, 2) + 0.5:
     ax.axhspan(i, i + 1, facecolor="lightgrey", alpha=0.333)
 
-experiment_totals = inclusion_events.sum(axis=0).astype(int)
+experiment_totals = event_totals.sum(axis=0).astype(int)
 normalized_events = event_totals.div(experiment_totals, axis=1)
 
 normalized_events.T.plot.barh(
@@ -437,6 +433,10 @@ rpl22l1_int_display_names = [
 rpl22l1_ko_ints, rpl22l1_ko_int_names, rpl22l1_ko_int_sizes = get_overlaps(
     rpl22l1_int_rmats, rpl22l1_int_display_names
 )
+```
+
+```python
+", ".join([x.split("_")[0] for x in rpl22l1_ko_ints[-1]])
 ```
 
 ```python
