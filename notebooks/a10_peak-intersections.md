@@ -102,6 +102,28 @@ rpl22_b_ko2_rmats = pd.read_hdf(
 )
 ```
 
+```python
+def combine(df1, df2, sort_col):
+    # combine two dataframes, take max pval for intersection analysis
+
+    combined = pd.concat([df1, df2])
+    combined = combined.sort_values(by=sort_col)
+
+    combined = combined[combined.index.value_counts() == 2]
+
+    combined = combined[~combined.index.duplicated(keep="last")]
+
+    return combined
+
+rpl22l1_kd_genes = combine(rpl22l1_kd1_genes, rpl22l1_kd2_genes, "qval")
+rpl22_a_ko_genes = combine(rpl22_a_ko1_genes, rpl22_a_ko2_genes, "qval")
+rpl22_b_ko_genes = combine(rpl22_b_ko1_genes, rpl22_b_ko2_genes, "qval")
+
+rpl22l1_kd_rmats = combine(rpl22l1_kd1_rmats, rpl22l1_kd2_rmats, "FDR")
+rpl22_a_ko_rmats = combine(rpl22_a_ko1_rmats, rpl22_a_ko2_rmats, "FDR")
+rpl22_b_ko_rmats = combine(rpl22_b_ko1_rmats, rpl22_b_ko2_rmats, "FDR")
+```
+
 # Expression vs. peaks
 
 ```python
@@ -220,7 +242,7 @@ def splicing_peaks_overlap(rmats, cutoff, title, show_labels=False, ax=None):
 ```
 
 ```python
-fig, axes = plt.subplots(2, 4, figsize=(12, 6))
+fig, axes = plt.subplots(2, 3, figsize=(12, 6))
 
 splicing_peaks_overlap(
     rpl22_oe_rmats, title="LNCaP RPL22_OE", show_labels=True, cutoff=0.01, ax=axes[0][0]
@@ -229,22 +251,13 @@ splicing_peaks_overlap(
     rpl22l1_oe_rmats, title="CAL851 RPL22L1_OE", cutoff=0.01, ax=axes[0][1]
 )
 splicing_peaks_overlap(
-    rpl22l1_kd1_rmats, title="LNCaP RPL22L1_KD1", cutoff=0.01, ax=axes[0][2]
+    rpl22l1_kd_rmats, title="LNCaP RPL22L1_KD", cutoff=0.01, ax=axes[0][2]
 )
 splicing_peaks_overlap(
-    rpl22l1_kd2_rmats, title="LNCaP RPL22L1_KD2", cutoff=0.01, ax=axes[0][3]
+    rpl22_a_ko_rmats, title="NCI-H2110 RPL22_KO", cutoff=0.01, ax=axes[1][0]
 )
 splicing_peaks_overlap(
-    rpl22_a_ko1_rmats, title="NCI-H2110 RPL22_KO1", cutoff=0.01, ax=axes[1][0]
-)
-splicing_peaks_overlap(
-    rpl22_a_ko2_rmats, title="NCI-H2110 RPL22_KO2", cutoff=0.01, ax=axes[1][1]
-)
-splicing_peaks_overlap(
-    rpl22_b_ko1_rmats, title="ZR75-1 RPL22_KO1", cutoff=0.01, ax=axes[1][2]
-)
-splicing_peaks_overlap(
-    rpl22_b_ko2_rmats, title="ZR75-1 RPL22_KO2", cutoff=0.01, ax=axes[1][3]
+    rpl22_b_ko_rmats, title="ZR75-1 RPL22_KO", cutoff=0.01, ax=axes[1][1]
 )
 
 plt.savefig(
