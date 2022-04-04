@@ -143,6 +143,25 @@ def expression_splicing_overlap(genes, rmats, cutoff, title, show_labels=False, 
 # Overlap between differentially expressed and spliced genes
 
 ```python
+def combine(df1, df2, sort_col):
+    # combine two dataframes, take max pval for intersection analysis
+
+    combined = pd.concat([df1, df2])
+    combined = combined.sort_values(by=sort_col)
+
+    combined = combined[~combined.index.duplicated(keep="last")]
+
+    return combined
+
+
+rpl22_a_ko_genes = combine(rpl22_a_ko1_genes, rpl22_a_ko2_genes, "qval")
+rpl22_b_ko_genes = combine(rpl22_b_ko1_genes, rpl22_b_ko2_genes, "qval")
+
+rpl22_a_ko_rmats = combine(rpl22_a_ko1_rmats, rpl22_a_ko2_rmats, "qval")
+rpl22_b_ko_rmats = combine(rpl22_b_ko1_rmats, rpl22_b_ko2_rmats, "qval")
+```
+
+```python
 fig, axes = plt.subplots(2, 4, figsize=(12, 6))
 
 
