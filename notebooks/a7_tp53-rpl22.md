@@ -213,7 +213,7 @@ plot_subset_contingency(
     axes[1][2],
 )
 
-plt.subplots_adjust(wspace=0.4, hspace=0.4)
+plt.subplots_adjust(wspace=0.6, hspace=0.6)
 
 plt.savefig("../plots/TP53-RPL22k15-MSI_contingency.pdf", bbox_inches="tight")
 ```

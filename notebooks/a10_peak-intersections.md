@@ -242,17 +242,17 @@ def splicing_peaks_overlap(rmats, cutoff, title, show_labels=False, ax=None):
 ```
 
 ```python
-fig, axes = plt.subplots(2, 3, figsize=(12, 6))
+fig, axes = plt.subplots(2, 2, figsize=(12, 6))
 
 splicing_peaks_overlap(
     rpl22_oe_rmats, title="LNCaP RPL22_OE", show_labels=True, cutoff=0.01, ax=axes[0][0]
 )
-splicing_peaks_overlap(
-    rpl22l1_oe_rmats, title="CAL851 RPL22L1_OE", cutoff=0.01, ax=axes[0][1]
-)
-splicing_peaks_overlap(
-    rpl22l1_kd_rmats, title="LNCaP RPL22L1_KD", cutoff=0.01, ax=axes[0][2]
-)
+# splicing_peaks_overlap(
+#     rpl22l1_oe_rmats, title="CAL851 RPL22L1_OE", cutoff=0.01, ax=axes[0][1]
+# )
+# splicing_peaks_overlap(
+#     rpl22l1_kd_rmats, title="LNCaP RPL22L1_KD", cutoff=0.01, ax=axes[0][2]
+# )
 splicing_peaks_overlap(
     rpl22_a_ko_rmats, title="NCI-H2110 RPL22_KO", cutoff=0.01, ax=axes[1][0]
 )
@@ -261,6 +261,6 @@ splicing_peaks_overlap(
 )
 
 plt.savefig(
-    "../plots/splicing_peak_intersections.pdf", transparent=True, bbox_inches="tight"
+    "../plots/fig4_splicing_peak_intersections.pdf", transparent=True, bbox_inches="tight"
 )
 ```
