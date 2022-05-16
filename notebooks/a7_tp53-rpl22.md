@@ -141,38 +141,48 @@ merged_ccle_info = pd.read_csv(
 merged_tcga_info = pd.read_csv(
     "../data/supplementary/S2_merged-tcga-info.txt", sep="\t", index_col=0
 )
+merged_tcga_info["TP53_mut"] = merged_tcga_info["TP53_mutation_cbioportal"].dropna() != "no alteration"
+merged_tcga_info["TP53_del"] = merged_tcga_info["TP53_copy_number_thresholded"].dropna() <= -1
 ```
 
 ```python
-def plot_subset_contingency(subset_type, second_col, second_col_labels, title, ax):
+binary_contingency(
+        merged_tcga_info["TP53_del"],
+        merged_tcga_info["RPL22_k15fs_mutation"].dropna(),
+        heatmap_kwargs={"cmap":"Blues"},
+    )
+```
+
+```python
+def plot_subset_contingency(
+    subset_type, first_col, second_col, first_col_labels, second_col_labels, title, ax
+):
 
     subset = merged_tcga_info[merged_tcga_info["Sample_type"] == "Primary Tumor"].copy()
     subset = subset[subset["Primary_disease"] == subset_type]
-    subset["TP53_del"] = subset["TP53_copy_number_thresholded"].dropna() <= -1
-    
+
     _, odds_ratio, pval = binary_contingency(
-#         subset["TP53_mutation_cbioportal"].dropna() != "no alteration",
-        subset["TP53_del"].dropna(),
+        subset[first_col].dropna(),
         subset[second_col].dropna(),
         ax=ax,
-        heatmap_kwargs={"cmap":"Blues"},
+        heatmap_kwargs={"cmap": "Blues"},
     )
 
     ax.set_title(title)
 
     ax.set_xticklabels(second_col_labels)
-    ax.set_yticklabels(["TP53 mut", "TP53 WT"])
+    ax.set_yticklabels(first_col_labels)
 
     ax.set_xlabel(f"Odds={odds_ratio:.2f}, P={as_si(pval,1)}")
     ax.set_ylabel(None)
-    
+
     ax.tick_params(
         axis="x",
         which="both",
         bottom=False,
         top=False,
     )
-    
+
     ax.tick_params(
         axis="y",
         which="both",
@@ -184,32 +194,56 @@ def plot_subset_contingency(subset_type, second_col, second_col_labels, title, a
 fig, axes = plt.subplots(2, 3, figsize=(9, 6))
 
 plot_subset_contingency(
-    "colon adenocarcinoma", "MSI", ["MSI", "MSS"], "COAD", axes[0][0]
+    "colon adenocarcinoma",
+    "TP53_mut",
+    "RPL22_k15fs_mutation",
+    ["TP53 mut", "TP53 WT"],
+    ["RPL22 k15fs", "RPL22 WT"],
+    "COAD",
+    axes[0][0],
 )
 plot_subset_contingency(
-    "stomach adenocarcinoma", "MSI", ["MSI", "MSS"], "STAD", axes[0][1]
+    "stomach adenocarcinoma",
+    "TP53_mut",
+    "RPL22_k15fs_mutation",
+    ["TP53 mut", "TP53 WT"],
+    ["RPL22 k15fs", "RPL22 WT"],
+    "STAD",
+    axes[0][1],
 )
 plot_subset_contingency(
-    "uterine corpus endometrioid carcinoma", "MSI", ["MSI", "MSS"], "UCEC", axes[0][2]
+    "uterine corpus endometrioid carcinoma",
+    "TP53_mut",
+    "RPL22_k15fs_mutation",
+    ["TP53 mut", "TP53 WT"],
+    ["RPL22 k15fs", "RPL22 WT"],
+    "UCEC",
+    axes[0][2],
 )
 
 plot_subset_contingency(
     "colon adenocarcinoma",
+    "TP53_del",
     "RPL22_k15fs_mutation",
+    ["TP53 del", "TP53 WT"],
     ["RPL22 k15fs", "RPL22 WT"],
     "COAD",
     axes[1][0],
 )
 plot_subset_contingency(
     "stomach adenocarcinoma",
+    "TP53_del",
     "RPL22_k15fs_mutation",
+    ["TP53 del", "TP53 WT"],
     ["RPL22 k15fs", "RPL22 WT"],
     "STAD",
     axes[1][1],
 )
 plot_subset_contingency(
     "uterine corpus endometrioid carcinoma",
+    "TP53_del",
     "RPL22_k15fs_mutation",
+    ["TP53 del", "TP53 WT"],
     ["RPL22 k15fs", "RPL22 WT"],
     "UCEC",
     axes[1][2],
