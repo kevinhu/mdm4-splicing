@@ -1,17 +1,10 @@
 import json
-import os
-import sys
-from statsmodels.stats.multitest import multipletests
 import numpy as np
 import pandas as pd
 
-import seaborn as sns
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-from matplotlib.collections import PatchCollection
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, Patch
 import matplotlib.font_manager as fm
-from textwrap import wrap
 
 
 prop = fm.FontProperties(fname="../plots/arial.ttf")
@@ -286,7 +279,11 @@ def three_bars(
             compare_text = "n.s"
 
         ax.text(
-            0.75, treatment_1_max * 1.15, compare_text, ha="center", fontsize=12,
+            0.75,
+            treatment_1_max * 1.15,
+            compare_text,
+            ha="center",
+            fontsize=12,
         )
 
     if not np.isnan(qval_2):
@@ -299,7 +296,11 @@ def three_bars(
             compare_text = "n.s"
 
         ax.text(
-            1.25, treatment_2_max * 1.15, compare_text, ha="center", fontsize=12,
+            1.25,
+            treatment_2_max * 1.15,
+            compare_text,
+            ha="center",
+            fontsize=12,
         )
 
     return ax, y_max
@@ -561,7 +562,9 @@ def all_bars(annotation_id, annotation_type, legend=False):
         ]
 
         legend = plt.legend(
-            handles=legend_elements, loc="upper left", bbox_to_anchor=(1, 1),
+            handles=legend_elements,
+            loc="upper left",
+            bbox_to_anchor=(1, 1),
         )
         frame = legend.get_frame()
         frame.set_facecolor(legend_background)

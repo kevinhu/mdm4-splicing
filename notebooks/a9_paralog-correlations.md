@@ -15,10 +15,7 @@ jupyter:
 ```python
 import pandas as pd
 import numpy as np
-import many
 
-import seaborn as sns
-import matplotlib.pyplot as plt
 import cancer_data
 
 from scipy.stats import pearsonr, spearmanr, mannwhitneyu
