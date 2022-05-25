@@ -16,12 +16,15 @@ jupyter:
 import pandas as pd
 import numpy as np
 import json
+
 ```
 
 # Make TPM matrix
 
 
+
 ## Experiments list
+
 
 ```python
 experiments = pd.read_csv("../data/intermediate/experiment_setup.txt", sep="\t")
@@ -39,9 +42,11 @@ def load_tpms(exp_path, exp_name):
     tpms = tpms.astype(np.float64)
 
     return tpms
+
 ```
 
 ## Merge transcript TPMs
+
 
 ```python
 exps = zip(experiments["kallisto_path"], experiments["sample"])
@@ -51,9 +56,11 @@ transcript_tpms = [load_tpms(x[0], x[1]) for x in exps]
 transcript_tpms = pd.concat(transcript_tpms, axis=1)
 
 transcript_tpms.to_csv("../data/processed/transcript_tpms.txt", sep="\t")
+
 ```
 
 ## Merge gene TPMs
+
 
 ```python
 t2g = pd.read_csv("../data/intermediate/sleuth_diff/ensembl_t2g.csv")
@@ -66,9 +73,11 @@ _, align_ensembl_genes = transcript_tpms.align(
 gene_tpms = transcript_tpms.groupby(align_ensembl_genes).sum()
 
 gene_tpms.to_csv("../data/processed/gene_tpms.txt", sep="\t")
+
 ```
 
 # Sleuth outputs
+
 
 ```python
 with open("experiments.json", "r") as f:
@@ -76,9 +85,11 @@ with open("experiments.json", "r") as f:
 
     experiments = exp["experiments"]
     experiment_ids = exp["experiment_ids"]
+
 ```
 
 ## Helper functions
+
 
 ```python
 def compute_medians(sleuth_diff, experiment):
@@ -110,9 +121,11 @@ def signed_p_rank(sleuth_diff):
     )
 
     sleuth_diff = sleuth_diff.sort_values(by="signed_pval")
+
 ```
 
 ## Process transcripts
+
 
 ```python
 def process_sleuth_transcripts(experiment):
@@ -149,9 +162,11 @@ def process_sleuth_transcripts(experiment):
         key="sleuth_diff",
         mode="w",
     )
+
 ```
 
 ## Process genes
+
 
 ```python
 def process_sleuth_genes(experiment):
@@ -190,9 +205,11 @@ def process_sleuth_genes(experiment):
         key="sleuth_diff",
         mode="w",
     )
+
 ```
 
 ## Apply over experiments
+
 
 ```python
 for exp_id in experiment_ids:
@@ -201,4 +218,5 @@ for exp_id in experiment_ids:
 
     process_sleuth_genes(exp_id)
     process_sleuth_transcripts(exp_id)
+
 ```

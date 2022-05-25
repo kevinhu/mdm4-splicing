@@ -7,7 +7,7 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.13.5
   kernelspec:
-    display_name: Python 3 (ipykernel)
+    display_name: Python 3.9.9 ('mdm4-splicing-hANaV9Fu-py3.9')
     language: python
     name: python3
 ---
@@ -17,6 +17,8 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
+
+import json
 
 import config
 config.config_visuals()
@@ -238,6 +240,8 @@ def splicing_peaks_overlap(rmats, cutoff, title, show_labels=False, ax=None):
         v.get_patch_by_id(patch_id).set_edgecolor("black")
         
     ax.set_title(title)
+    
+    return peak_ensembl_genes & rmats_ids
     
 ```
 

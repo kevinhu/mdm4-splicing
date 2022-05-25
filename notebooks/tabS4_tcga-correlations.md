@@ -20,10 +20,6 @@ from statsmodels.stats.multitest import multipletests
 
 import gc
 
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import seaborn as sns
-
 import cancer_data
 import many
 

@@ -12,7 +12,7 @@ jupyter:
     name: ir
 ---
 
-```R
+```R vscode={"languageId": "r"}
 library(data.table)
 library(fgsea)
 library(ggplot2)
@@ -20,7 +20,7 @@ library(ggplot2)
 setwd("../data/processed/kallisto_sleuth_merge/")
 ```
 
-```R
+```R vscode={"languageId": "r"}
 pathways.hallmark <- gmtPathways("../../raw/msigdb/h.all.v7.0.entrez.gmt")
 pathways.curated <- gmtPathways("../../raw/msigdb/c2.all.v7.0.entrez.gmt")
 pathways.motif  <- gmtPathways("../../raw/msigdb/c3.all.v7.0.entrez.gmt")
@@ -31,7 +31,7 @@ pathways.oncogenic  <- gmtPathways("../../raw/msigdb/c6.all.v7.0.entrez.gmt")
 all_pathways <- c(pathways.hallmark,pathways.go)
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # load sleuth outputs
 rpl22_oe <- read.table("rpl22_oe_genes.txt",sep="\t", header=TRUE)
 rpl22l1_oe <- read.table("rpl22l1_oe_genes.txt",sep="\t", header=TRUE)
@@ -61,7 +61,7 @@ rpl22_b_ko1 <- drop_entrez_duplicates(rpl22_b_ko1)
 rpl22_b_ko2 <- drop_entrez_duplicates(rpl22_b_ko2)
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # put sets into a list for iteration
 rank_sets = list(rpl22_oe,
                  rpl22l1_oe,
@@ -82,7 +82,7 @@ rank_set_names = list("rpl22_oe",
                       "rpl22_b_ko2")
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # helper function for running fgsea
 run_fgsea <- function(rank_set, results_file){
 
@@ -102,7 +102,7 @@ run_fgsea <- function(rank_set, results_file){
 }
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # execute fgsea for each set
 for(rank_set_idx in 1:length(rank_sets)){
     
@@ -112,39 +112,4 @@ for(rank_set_idx in 1:length(rank_sets)){
   run_fgsea(rank_set,paste(rank_set_name,".txt",sep=""))
     
 }
-```
-
-```R
- 
-# # plot fgsea results
-# plot_fgsea <- function(rank_set, gene_set, title, plot_file){
-#   ranks <- setNames(rank_set$signed_pval, rank_set$target_id)
-#   p <- plotEnrichment(all_pathways[[gene_set]], ranks) + labs(title=title, ticksSize=0.01)
-#   
-#   pdf(paste("../../../plots/",plot_file,sep=""),width=3.2,height=2.5,paper='special')
-#   print(p)
-#   dev.off()
-# }
-# 
-# gene_sets = list("HALLMARK_P53_PATHWAY",
-#                  "HALLMARK_G2M_CHECKPOINT",
-#                  "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
-#                  "GO_MRNA_METABOLIC_PROCESS",
-#                  "GO_RNA_SPLICING",
-#                  "GO_EXTRACELLULAR_MATRIX",
-#                  "GO_SPLICEOSOMAL_COMPLEX"
-# )
-# 
-# for(rank_set_idx in 1:length(rank_sets)){
-#   for(gene_set in gene_sets){
-#     
-#     rank_set = rank_sets[[rank_set_idx]]
-#     rank_set_name = rank_set_names[[rank_set_idx]]
-#     
-#     output_file = paste(rank_set_name,"_",gene_set,".pdf",sep="")
-#     
-#     plot_fgsea(rank_set,gene_set,gene_set,output_file)
-#     
-#   }
-# }
 ```

@@ -16,12 +16,13 @@ jupyter:
 import pandas as pd
 import numpy as np
 
-import matplotlib.pyplot as plt
-
 from functools import reduce
+import json
+
 ```
 
 # Experimental setup
+
 
 ```python
 with open("experiments.json", "r") as f:
@@ -31,9 +32,11 @@ with open("experiments.json", "r") as f:
     experiment_ids = exp["experiment_ids"]
 
 splice_types = ["A3SS", "A5SS", "MXE", "RI", "SE"]
+
 ```
 
 # Transcripts to genes
+
 
 ```python
 t2g = pd.read_csv(
@@ -48,9 +51,11 @@ t2g["format_gene_id"] = t2g["gene_name"] + "_" + t2g["gene_id"]
 t2g["gene_id_stable"] = t2g["gene_id"].str.split(".").str[0]
 
 gene_name_map = dict(zip(t2g["gene_id_stable"], t2g["gene_name"]))
+
 ```
 
 # Merge splice types
+
 
 ```python
 def compute_medians(splices, experiment):
@@ -234,6 +239,7 @@ def load_splices(experiment):
     merged_splices = merged_splices.sort_values(by="FDR")
 
     return merged_splices
+
 ```
 
 ```python
@@ -245,6 +251,7 @@ rpl22_a_ko1_rmats = load_splices("rpl22_a_ko1")
 rpl22_a_ko2_rmats = load_splices("rpl22_a_ko2")
 rpl22_b_ko1_rmats = load_splices("rpl22_b_ko1")
 rpl22_b_ko2_rmats = load_splices("rpl22_b_ko2")
+
 ```
 
 ```python
@@ -281,4 +288,5 @@ rpl22_b_ko1_rmats.to_hdf(
 rpl22_b_ko2_rmats.to_hdf(
     "../data/processed/rmats_merge/rpl22_b_ko2.h5", key="rmats", mode="w"
 )
+
 ```

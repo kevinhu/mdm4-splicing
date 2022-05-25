@@ -12,18 +12,18 @@ jupyter:
     name: ir
 ---
 
-```R
+```R vscode={"languageId": "r"}
 # install packages
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 BiocManager::install("biomaRt")
 BiocManager::install("devtools")
-BiocManager::install("pachterlab/sleuth")
+devtools::install_github("pachterlab/sleuth")
 
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # load packages
 library(sleuth)
 library("biomaRt")
@@ -32,7 +32,7 @@ library("biomaRt")
 setwd("../data/intermediate/kallisto_quant/")
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # define experiments
 experiment_setup <- read.table(file.path("../experiment_setup.txt"), header = TRUE, stringsAsFactors=FALSE)
 experiment_setup <- dplyr::mutate(experiment_setup, path = experiment_setup$sample)
@@ -48,7 +48,7 @@ rpl22_b_ko1_setup <- experiment_setup[c(31,32,33,34,35,36),]
 rpl22_b_ko2_setup <- experiment_setup[c(31,32,33,37,38,39),]
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # add Ensembl gene-to-transcript mappings
 mart <- biomaRt::useMart(biomart = "ENSEMBL_MART_ENSEMBL",
                          host="feb2014.archive.ensembl.org",
@@ -76,7 +76,7 @@ t2g <- t2g[which(!t2g$duplicate_transcript),]
 write.table(t2g, file = "../sleuth_diff/ensembl_t2g.csv", sep=",",col.names=TRUE, row.names=TRUE)
 ```
 
-```R
+```R vscode={"languageId": "r"}
 run_sleuth <- function(setup, condition_name, output_name){
   
   # make Sleuth object
@@ -114,7 +114,7 @@ run_sleuth <- function(setup, condition_name, output_name){
 }
 ```
 
-```R
+```R vscode={"languageId": "r"}
 # run sleuth
 run_sleuth(rpl22_oe_setup,'conditionLNCaP_RPL22','rpl22_oe')
 run_sleuth(rpl22l1_oe_setup,'conditionCAL851_RPL22L1','rpl22l1_oe')
