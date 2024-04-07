@@ -1568,13 +1568,13 @@ files = [
 
 [[package]]
 name = "many"
-version = "0.7.0"
+version = "0.7.2"
 description = "Statistical methods for computing many correlations"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "many-0.7.0-py3-none-any.whl", hash = "sha256:3cf437b4f7bbcec21afc52764ebb51be5ccc1ed2bf4c7ba5932e23ab2990c914"},
-    {file = "many-0.7.0.tar.gz", hash = "sha256:c8753c2e37adde5f7d87f85e4a45bd71b332490940906298c4d430e7e710e445"},
+    {file = "many-0.7.2-py3-none-any.whl", hash = "sha256:da14b65489672d1f81ee4aa5f0362efd9cd1a012a1390d753a32a1fef06553f7"},
+    {file = "many-0.7.2.tar.gz", hash = "sha256:5002d88c49b6bfcab3476d65675ab5e7557a9ff7ea3d09b6a6aaaf12e6b7a196"},
 ]
 
 [package.dependencies]
@@ -3520,4 +3520,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.11"
-content-hash = "7286626e4c5b572477ef7e9c61a67036e53a627f5af78acfb2c67ddd44925a44"
+content-hash = "73d412406c2d969107b54255044e56b1a90508e7bf8afb263126180125359dcc"
